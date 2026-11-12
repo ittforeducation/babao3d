@@ -1,0 +1,21 @@
+{
+  "note": "單元設定檔：pages＝所有頁面的共用資料；grades＝每個年級要用哪些頁面、順序（四～六年級內容未定，先留空）",
+  "pages": {
+    "era":    { "file": "era.html",    "name": "古今八堡圳",           "thumb": "assets/thumbs/era.jpg",    "at": [19.10, 21.59], "place": "八堡圳取入口",
+                "desc": "同一個圳頭，切換清代、日治、現代，看取水的方法怎麼改變。" },
+    "lab":    { "file": "lab.html",    "name": "石笱運作原理",         "thumb": "assets/thumbs/lab.jpg",    "at": [17.85, 21.66], "place": "林先生廟南側河床",
+                "desc": "在濁水溪河床排石笱，改水量、陣形、竹籠形狀，看水怎麼被導進圳口（簡化模擬）。" },
+    "jiji":   { "file": "jiji.html",   "name": "水的來源：集集攔河堰", "thumb": "assets/thumbs/jiji.jpg",   "at": [29.87, 19.59], "place": "集集攔河堰",
+                "desc": "操作閘門、排砂，看濁水溪的水怎麼經北岸聯絡渠道送到八堡圳。" },
+    "region": { "file": "region.html", "name": "八堡圳流域探索",       "thumb": "assets/thumbs/region.jpg", "at": [10.30, 12.21], "place": "東西溝分水門",
+                "desc": "跟著一滴水從二水圳頭流到永靖、員林大排，看沿途的地勢高低。" },
+    "school": { "file": "school.html", "name": "永興周邊水渠系統",     "thumb": "assets/thumbs/school.jpg", "at": [9.89, 7.67],  "place": "永興國小",
+                "desc": "走到永興國小周邊，看東溝、陳厝厝排水，還有水怎麼進田、再排出去。" }
+  },
+  "grades": {
+    "3": { "label": "三年級", "pages": ["era", "lab", "jiji", "region", "school"] },
+    "4": { "label": "四年級", "pages": [] },
+    "5": { "label": "五年級", "pages": [] },
+    "6": { "label": "六年級", "pages": [] }
+  }
+}

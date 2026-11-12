@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>八堡圳流域探索</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<style>
+:root{
+  --glass: rgba(255,255,255,.66); --stroke: rgba(255,255,255,.72);
+  --ink:#0d2238; --ink2:#3a536d;
+  --irr:#1d8fe0; --irr1:#38bdf8; --drain:#e07a1d;
+  --shadow: 0 12px 40px rgba(12,42,80,.22), 0 2px 6px rgba(12,42,80,.10);
+  --radius: 20px;
+  --font: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#b9cfe0;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0;overflow:hidden;user-select:none;-webkit-user-select:none}
+#app canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);border:1px solid var(--stroke);box-shadow:var(--shadow);border-radius:var(--radius)}
+
+#titleCard{position:absolute;top:14px;left:14px;padding:10px 18px 10px 12px;display:flex;gap:12px;align-items:center;z-index:5}
+#titleCard .logo{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#38bdf8,#0369a1);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 12px rgba(3,105,161,.35)}
+#titleCard h1{margin:0;font-size:21px;font-weight:900;letter-spacing:.04em;line-height:1.2}
+#titleCard p{margin:2px 0 0;font-size:13.5px;color:var(--ink2);font-weight:500}
+.tag-sample{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;background:#f59e0b;color:#fff;font-size:12px;vertical-align:3px}
+
+#ctrl{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:flex;gap:6px;padding:6px;z-index:5}
+#ctrl button{padding:9px 16px;border-radius:14px;font-size:16px;font-weight:900;color:var(--ink2);line-height:1.15;white-space:nowrap}
+#ctrl button small{display:block;font-size:11.5px;font-weight:700;opacity:.8}
+#ctrl button.on{background:#0369a1;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+#ctrl #bExag.on{background:#b45309}
+#exagNote{position:absolute;top:78px;left:50%;transform:translateX(-50%);z-index:5;padding:4px 12px;border-radius:10px;background:#b45309;color:#fff;font-size:13.5px;font-weight:800;display:none}
+
+#views{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:4px;padding:6px;z-index:5}
+.vw{display:flex;align-items:center;gap:7px;padding:6px 12px 6px 6px;border-radius:12px;font-size:14.5px;font-weight:700;text-align:left}
+.vw b{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;background:var(--c)}
+.vw:hover{background:rgba(255,255,255,.7)} .vw.active{background:#fff}
+
+#labels{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform;transition:opacity .25s}
+.lbl.hide{opacity:0;pointer-events:none}
+.lbl.hide *{pointer-events:none}
+.pin{pointer-events:auto;display:flex;align-items:center;gap:6px;padding:4px 11px 4px 4px;border-radius:999px;font-size:14px;font-weight:900;background:rgba(255,255,255,.9);box-shadow:0 4px 14px rgba(0,30,60,.25);cursor:pointer;transform:translate(-50%,-100%)}
+.pin b{min-width:22px;height:22px;padding:0 5px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:12px;background:var(--c,#475569)}
+.pin::after{content:"";position:absolute;left:50%;bottom:-7px;width:2px;height:7px;background:rgba(255,255,255,.9);transform:translateX(-50%)}
+.geo{padding:3px 10px;border-radius:9px;font-size:13.5px;font-weight:800;color:#fff;background:rgba(13,34,56,.55);text-shadow:0 1px 2px rgba(0,0,0,.4);transform:translate(-50%,-50%)}
+.geo.irr{background:rgba(29,143,224,.78)} .geo.drain{background:rgba(224,122,29,.85)} .geo.water{background:rgba(3,105,161,.62)} .geo.town{background:rgba(13,34,56,.62);font-size:15px}
+.geo.stn{background:rgba(71,85,105,.7);font-size:12.5px}
+
+#panel{position:absolute;top:90px;left:14px;width:min(380px,calc(100% - 28px));max-height:calc(100% - 290px);overflow:auto;padding:18px 20px;z-index:6;transform:translateX(-120%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+#panel.open{transform:none}
+#panel h2{margin:0 0 4px;font-size:21px;font-weight:900;padding-right:30px}
+#panel .sub{font-size:13px;color:var(--ink2);margin-bottom:8px}
+#panel p{font-size:15.5px;line-height:1.75;margin:8px 0}
+#panel .x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;font-size:20px;font-weight:900;color:var(--ink2)}
+#panel .x:hover{background:rgba(255,255,255,.7)}
+#panel .go{display:none;margin-top:10px;padding:9px 16px;border-radius:12px;background:#0369a1;color:#fff;font-weight:900;font-size:15.5px}
+#panel.stop .go{display:inline-block}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:15px;margin-top:10px;line-height:1.6}
+.keys span:nth-child(odd){font-weight:900;color:#0c4a6e;white-space:nowrap}
+.note{font-size:13.5px;color:#64748b;line-height:1.6}
+blockquote{margin:8px 0;padding:6px 12px;border-left:4px solid #94a3b8;background:rgba(255,255,255,.5);border-radius:6px;font-size:15px;line-height:1.7}
+.src{font-size:12.5px;color:#64748b;line-height:1.6;margin-top:12px;border-top:1px solid rgba(100,116,139,.25);padding-top:8px}
+.src a{color:#0369a1}
+
+#prof{position:absolute;left:14px;right:14px;bottom:26px;height:150px;padding:8px 12px 6px;z-index:5;display:flex;flex-direction:column}
+#prof .hd{display:flex;gap:14px;align-items:baseline;font-size:13.5px;font-weight:800;flex-wrap:wrap}
+#prof .hd .ex{color:#b45309}
+#prof .hd .lg{margin-left:auto;display:flex;gap:12px;color:var(--ink2)}
+#prof .hd i{display:inline-block;width:20px;height:6px;border-radius:3px;margin-right:5px;vertical-align:2px}
+#prof svg{flex:1;width:100%;cursor:pointer}
+#prof text{font-family:var(--font);font-size:11.5px;font-weight:700;fill:#334155}
+
+#credit{position:absolute;right:10px;bottom:5px;z-index:5;font-size:11px;color:rgba(255,255,255,.95);text-shadow:0 1px 2px rgba(0,0,0,.75);text-align:right;max-width:92%}
+#loading{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:linear-gradient(160deg,#dbe8f2,#b9cfe0);transition:opacity .6s}
+#loading div{font-size:17px;font-weight:700;color:var(--ink2)}
+#loading.done{opacity:0;pointer-events:none}
+@media (max-width:900px){#titleCard{display:none}#views{top:auto;bottom:186px;flex-direction:row;flex-wrap:wrap;max-width:calc(100% - 28px)} #panel{top:76px;max-height:calc(100% - 330px)}}
+@media (max-height:620px){#prof{height:118px}#panel{max-height:calc(100% - 250px)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="labels"></div>
+
+<div id="titleCard" class="glass">
+  <div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/></svg></div>
+  <div><h1>八堡圳流域探索</h1><p>從二水圳頭到永靖、員林</p></div>
+</div>
+
+<div id="ctrl" class="glass">
+  <button id="bFlow">▶ 跟著水走<small>從圳頭放水</small></button>
+  <button id="bExag">地勢放大<small>高度 ×10</small></button>
+</div>
+<div id="exagNote">地勢高度放大 10 倍（不是真實比例）</div>
+
+<div id="views" class="glass">
+  <button class="vw" data-v="overview" style="--c:#0284c7"><b>1</b>全景</button>
+  <button class="vw" data-v="head" style="--c:#b45309"><b>2</b>二水圳頭</button>
+  <button class="vw" data-v="split" style="--c:#dc2626"><b>3</b>田中分水</button>
+  <button class="vw" data-v="yong" style="--c:#16a34a"><b>4</b>永靖</button>
+  <button class="vw" data-v="side" style="--c:#7c3aed"><b>5</b>側看坡度</button>
+</div>
+
+<aside id="panel" class="glass">
+  <button class="x" aria-label="關閉">×</button>
+  <h2 id="pTitle"></h2><div class="sub" id="pSub"></div><div id="pBody"></div>
+  <button class="go" id="bGo">繼續往下流 ▶</button>
+</aside>
+
+<div id="prof" class="glass">
+  <div class="hd"><span>沿著水路的高度</span><span class="ex" id="profEx"></span>
+    <span class="lg"><span><i style="background:var(--irr)"></i>灌溉圳</span><span><i style="background:var(--drain)"></i>排水路</span></span></div>
+  <svg id="profSvg" preserveAspectRatio="none"></svg>
+</div>
+
+<div id="credit">地形：內政部20公尺網格DEM（取 40 m）｜影像：國土測繪中心正射影像｜圳路、排水路：© OpenStreetMap 貢獻者｜天空：Poly Haven (CC0)｜畫面為教學示意</div>
+<div id="loading"><div>正在準備二水到永靖的地形…</div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+
+/* =====================================================================
+   座標：1 單位 = 1 公尺；local x 向東、z 向南（自 meta_r 西北角），
+   world = local − (CX, CZ)；y = 高程 × EX（地勢放大倍數）
+   資料：data/dem_r.f32＋meta_r.json（40 m）、ortho_r.jpg（z15）、osm_r.json（tools/prep_osm_r.py）
+   ===================================================================== */
+const DATA = 'data/';
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+let CX = 8200, CZ = 11120, EX = 1;
+let renderer, scene, camera, controls, clock = new THREE.Clock();
+let G, OSM, H0, terrain, ROUTE, lineObjs = [], dropMesh, dropGlow, berm;
+const labels = [], lineMats = [];
+const IRR = 0x1d8fe0, IRR1 = 0x38bdf8, DRAIN = 0xe07a1d;
+
+/* ---------- 經緯度 → local（TWD97 TM2，同 tools/prep_dem.py） ---------- */
+function ll2tm(lat, lon) {
+  const a = 6378137, f = 1 / 298.257222101, e2 = f * (2 - f), k0 = 0.9999, ep2 = e2 / (1 - e2), lon0 = 121 * Math.PI / 180;
+  const phi = lat * Math.PI / 180, lam = lon * Math.PI / 180;
+  const M = a * ((1 - e2 / 4 - 3 * e2 ** 2 / 64 - 5 * e2 ** 3 / 256) * phi - (3 * e2 / 8 + 3 * e2 ** 2 / 32 + 45 * e2 ** 3 / 1024) * Math.sin(2 * phi)
+    + (15 * e2 ** 2 / 256 + 45 * e2 ** 3 / 1024) * Math.sin(4 * phi) - (35 * e2 ** 3 / 3072) * Math.sin(6 * phi));
+  const N = a / Math.sqrt(1 - e2 * Math.sin(phi) ** 2), T = Math.tan(phi) ** 2, C = ep2 * Math.cos(phi) ** 2, A = (lam - lon0) * Math.cos(phi);
+  const x = 250000 + k0 * N * (A + (1 - T + C) * A ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * A ** 5 / 120);
+  const y = k0 * (M + N * Math.tan(phi) * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * A ** 4 / 24 + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * A ** 6 / 720));
+  return [x, y];
+}
+const LL = (lat, lon) => { const [x, y] = ll2tm(lat, lon); return [x - G.meta.x0, G.meta.y1 - y]; };
+
+/* ---------- 地形取樣（雙線性，和網格一致） ---------- */
+function hAt(lx, lz) {
+  const { nx, ny, cell } = G.meta;
+  const fx = clamp(lx / cell, 0, nx - 1.001), fz = clamp(lz / cell, 0, ny - 1.001), i = Math.floor(fx), j = Math.floor(fz), tx = fx - i, tz = fz - j;
+  const h = (a, b) => G.H[b * nx + a];
+  return lerp(lerp(h(i, j), h(i + 1, j), tx), lerp(h(i, j + 1), h(i + 1, j + 1), tx), tz);
+}
+/* 線段附近取較高點，避免被 40 m 網格的三角面蓋住 */
+const hLine = (lx, lz) => Math.max(hAt(lx, lz), hAt(lx + 20, lz), hAt(lx - 20, lz), hAt(lx, lz + 20), hAt(lx, lz - 20));
+const W = (lx, lz, lift = 0, h = hAt(lx, lz)) => new THREE.Vector3(lx - CX, h * EX + lift, lz - CZ);
+
+function resample(pts, step) {
+  const out = [pts[0]];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.ceil(L / step));
+    for (let k = 1; k <= n; k++) out.push([lerp(a[0], b[0], k / n), lerp(a[1], b[1], k / n)]);
+  }
+  return out;
+}
+
+/* =====================================================================
+   主程式
+   ===================================================================== */
+init();
+async function init() {
+  const [meta, buf, osm] = await Promise.all([
+    fetch(DATA + 'meta_r.json').then(r => r.json()), fetch(DATA + 'dem_r.f32').then(r => r.arrayBuffer()), fetch(DATA + 'osm_r.json', { cache: 'no-cache' }).then(r => r.json())]);
+  G = { meta, H: new Float32Array(buf) }; OSM = osm;
+  CX = (meta.x1 - meta.x0) / 2; CZ = (meta.y1 - meta.y0) / 2;
+  setupRenderer();
+  const envP = new RGBELoader().loadAsync('assets/hdri/sky_2k.hdr').then(hdr => {
+    hdr.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = hdr; scene.backgroundIntensity = 0.95;
+    const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromEquirectangular(hdr).texture;
+  });
+  await Promise.all([envP, buildTerrain()]);
+  buildRoute();
+  buildLines();
+  buildBerm();
+  buildDrop();
+  buildLabels();
+  buildProfile();
+  setupUI();
+  const q = new URLSearchParams(location.search);
+  if (q.get('ex') === '10') setExag(10, false);
+  flyTo(q.get('view') || 'overview', 0);
+  const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
+  renderer.setAnimationLoop(frame);
+  window.__rg = { scene, camera, controls, flyTo, setExag, FLOW, ROUTE, STOPS, gotoKm, LL, hAt, tick: n => { for (let i = 0; i < n; i++) { stepFlow(1 / 30); controls.update(); } updateLabels(); renderer.render(scene, camera); } };   // 除錯用（視窗隱藏時手動跑）
+}
+
+function setupRenderer() {
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', logarithmicDepthBuffer: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.85;
+  document.getElementById('app').appendChild(renderer.domElement);
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0xd3d9db, 16000, 52000);
+  camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 5, 120000);
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.08;
+  controls.maxPolarAngle = Math.PI * 0.495; controls.minDistance = 150; controls.maxDistance = 45000;
+  controls.screenSpacePanning = false;
+  const sun = new THREE.DirectionalLight(0xfff1dd, 2.4); sun.position.set(-0.55, 0.75, 0.35).multiplyScalar(1000); scene.add(sun);
+  scene.add(new THREE.HemisphereLight(0xcfe3ff, 0x6b5a3e, 0.4));
+  addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight);
+    for (const m of lineMats) m.resolution.set(innerWidth, innerHeight);
+    drawProfile();
+  });
+}
+
+/* ---------- 地形（40 m 網格，一張正射影像） ---------- */
+async function buildTerrain() {
+  const { nx, ny, cell } = G.meta, pos = new Float32Array(nx * ny * 3), uv = new Float32Array(nx * ny * 2);
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const k = j * nx + i;
+    pos[k * 3] = i * cell - CX; pos[k * 3 + 1] = G.H[k]; pos[k * 3 + 2] = j * cell - CZ;
+    uv[k * 2] = i / (nx - 1); uv[k * 2 + 1] = 1 - j / (ny - 1);
+  }
+  const idx = new Uint32Array((nx - 1) * (ny - 1) * 6); let p = 0;
+  for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) { const a = j * nx + i, b = a + 1, c = a + nx, d = c + 1; idx[p++] = a; idx[p++] = c; idx[p++] = b; idx[p++] = b; idx[p++] = c; idx[p++] = d; }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setIndex(new THREE.BufferAttribute(idx, 1)); geo.computeVertexNormals();
+  H0 = geo;
+  const tex = await new Promise(res => new THREE.TextureLoader().load(DATA + 'ortho_r.jpg', t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; res(t); }));
+  terrain = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.97 }));
+  scene.add(terrain);
+}
+
+/* ---------- 跟著水走的路線（OSM 串接）與停靠點 ---------- */
+const STOPS = [];
+function buildRoute() {
+  const pts = OSM.route, cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const drainFrom = OSM.routeParts.findIndex(p => p.name === '東溝排水支線');
+  const drainIdx = OSM.routeParts[drainFrom - 1].end - 1;          // 路線上「東溝 → 東溝排水支線」改名的點
+  ROUTE = { pts, cum, len: cum[cum.length - 1], drainKm: cum[drainIdx] };
+  ROUTE.at = s => {                                                  // 距起點 s 公尺處的 [x, z]
+    s = clamp(s, 0, ROUTE.len); let lo = 0, hi = cum.length - 1;
+    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cum[m] <= s) lo = m; else hi = m; }
+    const t = (s - cum[lo]) / ((cum[hi] - cum[lo]) || 1);
+    return [lerp(pts[lo][0], pts[hi][0], t), lerp(pts[lo][1], pts[hi][1], t)];
+  };
+  ROUTE.near = ([x, z]) => { let b = 1e18, bi = 0; for (let i = 0; i < pts.length; i++) { const d = (pts[i][0] - x) ** 2 + (pts[i][1] - z) ** 2; if (d < b) { b = d; bi = i; } } return cum[bi]; };
+  // 停靠點：經緯度依 階段4_史實清單.md
+  const S = (key, lat, lon, name, short, color, opt = {}) => { const p = LL(lat, lon); STOPS.push({ key, p, s: ROUTE.near(p), name, short, color, ...opt }); };
+  S('intake', 23.79994, 120.65749, '八堡圳取入口', '取入口', '#475569');
+  S('lin', 23.79927534, 120.64521811, '林先生廟・一圳二圳分水', '林先生廟', '#b45309');
+  S('shifang', 23.8802, 120.5745, '世芳宮・一圳二圳最接近', '世芳宮', '#7c3aed');
+  S('split', 23.88442, 120.57087, '八堡二圳東西溝分水門', '分水門', '#dc2626');
+  S('fuzun', 23.912, 120.561, '浮圳村・圳堤比田高', '浮圳', '#a16207');
+  S('school', 23.92579, 120.5667, '永興國小', '永興國小', '#16a34a', { look: LL(23.92579, 120.5667) });
+  S('rename', 23.94023, 120.5412, '灌溉圳變成排水路', '改名處', '#e07a1d');
+  S('end', 23.980933, 120.509035, '流進員林大排', '員林大排', '#e07a1d');
+  STOPS.sort((a, b) => a.s - b.s);
+  ROUTE.lin = STOPS.find(s => s.key === 'lin').s;
+}
+
+/* ---------- 線（Line2，寬度用螢幕像素，遠看也看得到） ---------- */
+function makeLine(pts, color, width, opt = {}) {
+  const r = resample(pts, 30);
+  const geo = new LineGeometry();
+  const mat = new LineMaterial({ color, linewidth: width, worldUnits: false, transparent: true, opacity: opt.opacity ?? 1, dashed: !!opt.dashed, dashSize: opt.dash || 120, gapSize: opt.gap || 90, depthTest: true });
+  mat.resolution.set(innerWidth, innerHeight); lineMats.push(mat);
+  const line = new Line2(geo, mat); line.renderOrder = opt.order || 3;
+  const L = { line, geo, r, lift: opt.lift ?? 6, hs: r.map(p => hLine(p[0], p[1])) };
+  L.update = () => {
+    const arr = []; for (let i = 0; i < r.length; i++) arr.push(r[i][0] - CX, L.hs[i] * EX + L.lift * (EX > 1 ? 2 : 1), r[i][1] - CZ);
+    geo.setPositions(arr); line.computeLineDistances();
+  };
+  L.update(); scene.add(line); lineObjs.push(L);
+  return L;
+}
+let FLOW_LINES = [];
+function clipRuns(pts) {                  // 只留地形範圍內的部分（OSM 線可能延伸出去）
+  const Wd = G.meta.x1 - G.meta.x0, D = G.meta.y1 - G.meta.y0, inside = p => p[0] > 40 && p[0] < Wd - 40 && p[1] > 40 && p[1] < D - 40;
+  const runs = []; let cur = [];
+  for (const p of resample(pts, 30)) { if (inside(p)) cur.push(p); else { if (cur.length > 1) runs.push(cur); cur = []; } }
+  if (cur.length > 1) runs.push(cur);
+  return runs;
+}
+function buildLines() {
+  for (const l0 of OSM.lines) for (const pts of clipRuns(l0.pts)) {
+    const l = { ...l0, pts };
+    if (l.kind === 'rail') { makeLine(l.pts, 0x52525b, 1.6, { opacity: 0.75, dashed: true, dash: 60, gap: 60, lift: 4, order: 2 }); continue; }
+    if (l.kind === 'drain') { makeLine(l.pts, DRAIN, 3.2); continue; }
+    const one = l.name === '八堡一圳';
+    makeLine(l.pts, one ? IRR1 : IRR, one ? 3 : 3.4);
+  }
+  // 路線上的流動虛線（水往下游流）：灌溉段藍白、排水段橘白
+  const cut = ROUTE.pts.findIndex((_, i) => ROUTE.cum[i] >= ROUTE.drainKm);
+  const a = makeLine(ROUTE.pts.slice(0, cut + 1), 0xffffff, 3.2, { dashed: true, dash: 70, gap: 160, lift: 9, order: 5 });
+  const b = makeLine(ROUTE.pts.slice(cut), 0xfff4e0, 3.2, { dashed: true, dash: 70, gap: 160, lift: 9, order: 5 });
+  FLOW_LINES = [a, b];
+}
+
+/* ---------- 浮圳：圳路比兩旁田高
+   範圍、高度依內政部 20 m DEM 實測（tools/fuzun_xs.py）：s≈18.1–19.7 km 圳路兩旁比 150–300 m 外的田高約 1.3 m；
+   堤頂、堤腳寬度沒有資料（示意）。堤頂高度＝兩側 200 m 外田面平均＋1.3 m，不疊加在已含高地的地形上 ---------- */
+function buildBerm() {
+  const s0 = 18100, s1 = 19700, P = [], I = [];
+  const pts = []; for (let s = s0; s <= s1; s += 15) pts.push(ROUTE.at(s));
+  const BH = 1.3, TOP = 8, FOOT = 22, FAR = 200;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1, nx = -dz / L, nz = dx / L;
+    const [x, z] = pts[i];
+    const field = (hAt(x + nx * FAR, z + nz * FAR) + hAt(x - nx * FAR, z - nz * FAR)) / 2;
+    const top = Math.max(field + BH, hLine(x, z) + 0.3);
+    for (const [o, up] of [[-FOOT / 2, 0], [-TOP / 2, 1], [TOP / 2, 1], [FOOT / 2, 0]]) P.push(x + nx * o, up ? top : hAt(x + nx * o, z + nz * o), z + nz * o, up);
+    if (i) { const q = (i - 1) * 4; for (let k = 0; k < 3; k++) I.push(q + k, q + k + 4, q + k + 1, q + k + 1, q + k + 4, q + k + 5); }
+  }
+  berm = { P, I, mesh: new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshStandardMaterial({ color: 0xc4a875, roughness: 1 })) };
+  berm.mesh.geometry.setIndex(I); scene.add(berm.mesh); updateBerm();
+}
+function updateBerm() {
+  const { P } = berm, arr = [];
+  for (let k = 0; k < P.length; k += 4) arr.push(P[k] - CX, P[k + 1] * EX + (P[k + 3] ? 0.2 : -1), P[k + 2] - CZ);
+  berm.mesh.geometry.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3)); berm.mesh.geometry.computeVertexNormals();
+}
+
+/* ---------- 一滴水 ---------- */
+function buildDrop() {
+  dropMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ color: 0x7dd3fc, emissive: 0x0ea5e9, emissiveIntensity: 1.2, roughness: 0.2 }));
+  const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(186,230,253,1)'); gr.addColorStop(0.35, 'rgba(56,189,248,.6)'); gr.addColorStop(1, 'rgba(56,189,248,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  dropGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true }));
+  dropGlow.renderOrder = 10; dropMesh.renderOrder = 10;
+  scene.add(dropMesh, dropGlow); dropMesh.visible = dropGlow.visible = false;
+}
+
+/* ---------- 標籤 ---------- */
+function addLabel(html, cls, lx, lz, lift, maxDist = 1e9, onClick, color, minDist = 0) {
+  const el = document.createElement('div'); el.className = 'lbl'; el.innerHTML = `<div class="${cls}">${html}</div>`;
+  if (color) el.firstChild.style.setProperty('--c', color);
+  if (onClick) el.firstChild.addEventListener('click', onClick);
+  document.getElementById('labels').appendChild(el);
+  const L = { el, lx, lz, lift, h: hAt(lx, lz), pos: new THREE.Vector3(), maxDist, minDist, pin: cls === 'pin' };
+  L.update = () => L.pos.set(lx - CX, L.h * EX + lift * (EX > 1 ? 1.6 : 1), lz - CZ);
+  L.update(); labels.push(L);
+}
+function buildLabels() {
+  for (const s of STOPS) addLabel(`<b>${STOPS.indexOf(s) + 1}</b>${s.short}`, 'pin', s.p[0], s.p[1], 40, 60000, () => openPanel(s.key, false), s.color);
+  const P = (n, lat, lon, cls, lift, md, mn) => { const p = LL(lat, lon); addLabel(n, cls, p[0], p[1], lift, md, null, null, mn); };
+  // 不在路線上的地點
+  const yx = LL(23.924493, 120.5624108); addLabel('<b>宮</b>永興宮', 'pin', yx[0], yx[1], 25, 9000, () => openPanel('temple', false), '#be123c');
+  const wn = LL(23.9463, 120.5815); addLabel('<b>沙</b>萬年沉砂池', 'pin', wn[0], wn[1], 40, 60000, () => openPanel('wannian', false), '#0f766e');
+  // 地名、地形（OSM 村鎮、車站）
+  for (const p of OSM.places) {
+    if (p.kind === 'town') addLabel(p.name, 'geo town', p.p[0], p.p[1], 120, 60000, null, null, 2500);
+    else if (p.kind === 'station') addLabel(`${p.name}站`, 'geo stn', p.p[0], p.p[1], 30, 14000);
+  }
+  P('八卦山', 23.905, 120.625, 'geo', 160, 60000);
+  P('濁水溪', 23.797, 120.565, 'geo water', 30, 60000);
+  // 水路名稱
+  P('八堡一圳（沿八卦山腳）', 23.90, 120.5805, 'geo irr', 20, 26000, 800);
+  P('八堡二圳', 23.835, 120.6015, 'geo irr', 20, 26000, 800);
+  P('東溝', 23.900, 120.5665, 'geo irr', 20, 18000, 400);
+  P('西溝（灌溉、排水兩用）', 23.8868, 120.5485, 'geo irr', 20, 18000, 400);
+  P('陳厝厝排水支線', 23.9375, 120.5555, 'geo drain', 20, 14000, 400);
+  P('東溝排水支線', 23.960, 120.5297, 'geo drain', 20, 22000, 400);
+  P('員林大排', 23.952, 120.5235, 'geo drain', 20, 26000, 600);
+}
+const _v = new THREE.Vector3();
+function updateLabels() {
+  const w = innerWidth, h = innerHeight, rel = camera.position.distanceTo(controls.target);
+  for (const L of labels) {
+    const behind = _v.copy(L.pos).applyMatrix4(camera.matrixWorldInverse).z > -1;   // 在鏡頭後面
+    _v.copy(L.pos).project(camera);
+    const d = camera.position.distanceTo(L.pos);
+    const vis = !behind && Math.abs(_v.x) < 1.05 && Math.abs(_v.y) < 1.05 && d < L.maxDist && d > L.minDist && (L.pin || d < rel * 4.5);   // 地名：靠近看時只顯示附近的
+    L.el.classList.toggle('hide', !vis);
+    if (vis) L.el.style.transform = `translate(${(_v.x * .5 + .5) * w}px,${(-_v.y * .5 + .5) * h}px)`;
+  }
+}
+
+/* =====================================================================
+   說明卡（內容與出處見 階段4_史實清單.md；A 編號對應清單）
+   ===================================================================== */
+const SRC = {
+  osm: 'OpenStreetMap（© OpenStreetMap 貢獻者）',
+  dem: '內政部 20 公尺網格 DEM',
+  a3: '農田水利文物館〈八堡二圳東西溝圳分水門〉',
+  a6: '<a href="http://218.32.145.21:2400/ycescountry/yj/se1/ch4_2.htm" target="_blank">永靖鄉土教材〈永靖二十四村地名沿革表〉</a>',
+  a7: '<a href="https://tcmb.culture.tw/zh-tw/detail?indexCode=Culture_Place&id=486323" target="_blank">國家文化記憶庫〈彰化縣員林市八堡圳〉</a>',
+  a8: '<a href="https://www.yy.idv.tw/product_info.php?cPath=5_77&products_id=5076" target="_blank">日月同輝〈八堡圳〉</a>',
+  a10: '<a href="https://ezgo.ardswc.gov.tw/zh-tw/column/3866/" target="_blank">農業部農村發展及水土保持署〈造訪台灣農村的浮圳設施〉</a>',
+  a11: '<a href="https://www.e-info.org.tw/node/100957" target="_blank">環境資訊中心〈神岡浮圳力爭古蹟保存〉</a>',
+  a12: '<a href="https://www.iachu.nat.gov.tw/about/Articles?a=11003" target="_blank">農田水利署彰化管理處〈灌區環境〉</a>',
+  a13: '<a href="https://www.agriharvest.tw/archives/7907/" target="_blank">農傳媒〈八堡圳3.2億換新衣〉（2019，附圖：彰化農田水利會）</a>',
+  ershui: '<a href="https://ershuiwaterun.tw/scenein.php?aID=12" target="_blank">二水跑水〈八堡圳1.2分水口〉</a>',
+  ycgov: '<a href="https://www.chcg.gov.tw/TSO/yungchin/07other/main.aspx?main_id=24045" target="_blank">永靖鄉公所〈古老的灌溉設備：八堡圳、八堡二圳〉</a>',
+  sv: 'Google 街景（2024 年 4 月）',
+  moc: '<a href="https://themefile.culture.tw/file/2019-03-06/780ddbdc-6603-4ecd-b444-76b5fc03da9b/12.%E5%85%AB%E5%A0%A1%E5%9C%B3%E5%8F%96%E5%85%A5%E5%8F%A3%E8%A8%AD%E6%96%BD.pdf" target="_blank">文化部〈八堡圳取入口設施〉</a>',
+};
+const src = (...k) => `<div class="src">資料來源：${k.map(x => SRC[x]).join('；')}</div>`;
+const elev = key => { const s = STOPS.find(t => t.key === key); return Math.round(hAt(s.p[0], s.p[1])); };
+const kmFromLin = key => ((STOPS.find(t => t.key === key).s - ROUTE.lin) / 1000).toFixed(1);
+function INFO(key) {
+  switch (key) {
+    case 'intake': return { t: '八堡圳取入口', s: `二水鄉｜高度約 ${elev('intake')} 公尺`,
+      b: `<p>水從上游的集集攔河堰，經北岸聯絡渠道送到這裡，進入八堡圳。</p>
+          <p>旁邊是日治時期（約 1930 年代）建的「取入口制排水門」，現在是歷史建築。</p>
+          <p><a href="era.html?era=now" style="color:#0369a1;font-weight:900">看圳頭的古今變化 →</a></p>${src('moc', 'dem')}` };
+    case 'lin': return { t: '林先生廟：一圳、二圳分家', s: `二水鄉源泉｜高度約 ${elev('lin')} 公尺`,
+      b: `<div class="keys"><span>八堡一圳</span><span>往北沿著八卦山腳走，到大村鄉，全長約 28.2 公里</span>
+          <span>八堡二圳</span><span>往西北走，到田中的東西溝分水門約 14.3 公里</span>
+          <span>灌溉面積</span><span>八堡圳約 18,596 公頃（110 年）</span></div>
+          <p>一圳靠著山，下雨時八卦山的野溪也會流進一圳，所以一圳也幫忙<strong>排洪</strong>。</p>
+          <p>昭和 7 年（1932），在林先生廟旁的八堡圳蓋了進水閘口，並設<strong>第一、第二圳分水門</strong>，用來調節兩條圳分到的水量、安排輪流灌溉。</p>
+          <p>我們跟著<strong>二圳</strong>的水走，因為它流到永靖。</p>${src('ershui', 'a13', 'a12')}` };
+    case 'shifang': return { t: '世芳宮：一圳、二圳最接近的地方', s: `田中鎮大社路三段｜高度約 ${elev('shifang')} 公尺`,
+      b: `<p>一圳、二圳分家後，有三個地方靠得很近，世芳宮旁邊是最後一個。依地圖資料，兩條圳在這裡只相距約 <strong>20 公尺</strong>，之後又各走各的：一圳往北到員林，二圳往西北到分水門。</p>
+          <p>看看下方的高度圖：從林先生廟到這裡，水已經往下降了約 <strong>${elev('lin') - elev('shifang')} 公尺</strong>。</p>${src('a12', 'osm', 'dem')}` };
+    case 'split': return { t: '八堡二圳東西溝分水門', s: `田中、永靖、社頭三鄉交界｜二圳里程 14K+266｜高度約 ${elev('split')} 公尺`,
+      b: `<p>八堡二圳在這裡分成<strong>東溝</strong>和<strong>西溝</strong>。東溝往北流到永靖；西溝往西北，灌溉、排水兩用。</p>
+          <div class="keys"><span>東溝取水閘門</span><span>2 間</span><span>西溝取水門</span><span>3 間</span><span>排砂門</span><span>2 間</span><span>北鎮平分線取水門</span><span>1 間</span><span>操作</span><span>油壓＋手動</span></div>
+          <p>這裡的東溝、西溝是沒有加蓋的明渠，兩邊是混凝土牆，水面比旁邊的路低。</p>
+          <p class="note">※ 依地圖量，從林先生廟沿圳到這裡約 ${kmFromLin('split')} 公里，和水利會里程 14K+266（14.3 公里）相符。</p>${src('a3', 'a13', 'sv', 'osm')}` };
+    case 'fuzun': return { t: '浮圳：圳堤比田高', s: `永靖鄉浮圳村｜高度約 ${elev('fuzun')} 公尺`,
+      b: `<p>一般的圳在地面上，「浮圳」的水道卻<strong>比兩旁的田還高</strong>，像浮在田間一樣。做法是在平地上築土堤，讓水沿著土堤走，越過低的地方送到要灌溉的田。</p>
+          <p>永靖的浮圳村就是因為這條圳得名：</p>
+          <blockquote>「浮圳」乃因圳得名，即浮圳圳溝堤岸較兩旁田野高出甚多，聚落建於沿圳堤旁，為帶狀村落，故又名「竹竿庄」</blockquote>
+          <p><strong>量量看</strong>：依內政部 20 公尺地形資料，浮圳村這一段（約 1.6 公里）圳路兩旁的地面，比 150～300 公尺外的田<strong>高約 1.3 公尺</strong>；分水門附近、學校以下只高 0～0.7 公尺。</p>
+          <p>以前這裡有「浮圳埤」和「浮分水門」（永靖鄉公所網頁的舊照片說明）。</p>
+          <p class="note">※ 褐色的圳堤畫在量到地面高起來的範圍，高度 1.3 公尺依地形資料；堤的寬度沒有資料，是示意。20 公尺網格會把窄的堤抹平，實際堤頂可能更高。全台各地也有浮圳，例如台中神岡、臺東池上。</p>${src('a6', 'ycgov', 'dem', 'a10', 'a11')}` };
+    case 'school': return { t: '永興國小', s: `永靖鄉東寧村永興路二段｜高度約 ${elev('school')} 公尺`,
+      b: `<p>我們的學校在東溝的<strong>東邊約 1 公里</strong>。鄉土教材說東寧村「有八堡二圳東溝與浮圳為鄰」。</p>
+          <div class="keys"><span style="color:var(--irr)">東溝</span><span>灌溉圳：把水送到田裡（農田水利署彰化管理處管理）</span>
+          <span style="color:var(--drain)">陳厝厝排水</span><span>排水路：在學校西南邊斜斜經過，大致由東南往西北流，把田裡多的水、雨水排進員林大排水系（彰化縣管理）</span></div>
+          <p>從圳頭流到這裡大約 ${((STOPS.find(t => t.key === 'school').s) / 1000).toFixed(0)} 公里，高度從約 ${elev('intake')} 公尺降到約 ${elev('school')} 公尺。</p>
+          <p><a href="school.html" style="display:inline-block;padding:8px 14px;border-radius:12px;background:#16a34a;color:#fff;font-weight:900;text-decoration:none">走進校園周邊 →</a></p>${src('a6', 'osm', 'dem')}` };
+    case 'rename': return { t: '灌溉圳變成排水路', s: `永靖鄉｜高度約 ${elev('rename')} 公尺`,
+      b: `<p>地圖上，<strong>八堡二圳東溝</strong>到了這裡就改叫<strong>東溝排水支線</strong>。名字很像，但是不同的水路：</p>
+          <div class="keys"><span style="color:var(--irr)">灌溉圳</span><span>把水<strong>送到</strong>田裡</span><span style="color:var(--drain)">排水路</span><span>把田裡用過、多出來的水和雨水<strong>帶走</strong></span></div>
+          <p>畫面上線的顏色也從藍色變成橘色。</p>${src('osm')}` };
+    case 'end': return { t: '流進員林大排', s: `埔鹽系統交流道下｜高度約 ${elev('end')} 公尺`,
+      b: `<p>東溝排水支線在這裡接進<strong>員林大排</strong>，水繼續往西流出畫面。</p>
+          <p>這滴水從二水圳頭出發，一共走了約 <strong>${(ROUTE.len / 1000).toFixed(0)} 公里</strong>，高度下降約 <strong>${elev('intake') - elev('end')} 公尺</strong>。一路上都是往低處流，<strong>不用抽水機</strong>。</p>
+          <p class="note">※ 畫面加快播放，真實的水流得比較慢。</p>${src('osm', 'dem')}` };
+    case 'temple': return { t: '永興宮', s: '永靖鄉東寧村永興路二段 162 號',
+      b: `<p>在永興國小西邊、永興路二段上，主祀三山國王。陳厝厝排水在它的南側流過。</p>${src('a6')}` };
+    case 'wannian': return { t: '萬年沉砂池', s: '員林市萬年一帶｜八堡一圳上',
+      b: `<div class="keys"><span>1963 年 3 月</span><span>竣工，附設在八堡圳上</span>
+          <span>做什麼</span><span>從社頭往北流進員林的圳水先匯到這裡，讓砂沉下來，再分流三個制水門，流向<strong>石笱埤圳、萬年埤圳、隆恩埤圳</strong></span>
+          <span>2012 年</span><span>因萬年巷拓寬，面積縮小</span></div>
+          <p class="note">※ 它在<strong>一圳</strong>上，不在我們跟著走的二圳路線上。位置依地圖影像判讀。</p>${src('a7', 'a8')}` };
+  }
+}
+function openPanel(key, asStop) {
+  const d = INFO(key); document.getElementById('pTitle').textContent = d.t; document.getElementById('pSub').textContent = d.s;
+  document.getElementById('pBody').innerHTML = d.b;
+  const p = document.getElementById('panel'); p.classList.add('open'); p.classList.toggle('stop', !!asStop); p.scrollTop = 0;
+}
+
+/* =====================================================================
+   高度剖面圖（下方）：橫軸＝沿路線距離，縱軸＝DEM 高度
+   ===================================================================== */
+let PROF;
+function buildProfile() {
+  const n = 300, s = [], h = [];
+  for (let i = 0; i <= n; i++) { const d = ROUTE.len * i / n, p = ROUTE.at(d); s.push(d); h.push(hAt(p[0], p[1])); }
+  PROF = { s, h, hmax: 120 };
+  document.getElementById('profSvg').addEventListener('click', e => {
+    const r = e.currentTarget.getBoundingClientRect(), x = (e.clientX - r.left - PROF.L) / (r.width - PROF.L - PROF.R);
+    gotoKm(clamp(x, 0, 1) * ROUTE.len);
+  });
+  drawProfile();
+}
+function drawProfile() {
+  const svg = document.getElementById('profSvg'), r = svg.getBoundingClientRect(), Wd = r.width, Ht = r.height;
+  if (!Wd) return;
+  const L = 34, R = 10, T = 6, B = 16; PROF.L = L; PROF.R = R;
+  const X = d => L + d / ROUTE.len * (Wd - L - R), Y = hh => T + (1 - hh / PROF.hmax) * (Ht - T - B);
+  svg.setAttribute('viewBox', `0 0 ${Wd} ${Ht}`);
+  const path = (from, to) => { let a = ''; for (let i = 0; i < PROF.s.length; i++) if (PROF.s[i] >= from - 1 && PROF.s[i] <= to + ROUTE.len / 300) a += `${a ? 'L' : 'M'}${X(PROF.s[i]).toFixed(1)},${Y(PROF.h[i]).toFixed(1)}`; return a; };
+  const area = `M${X(0)},${Y(0)}` + path(0, ROUTE.len).replace('M', 'L') + `L${X(ROUTE.len)},${Y(0)}Z`;
+  let g = `<path d="${area}" fill="rgba(146,120,80,.28)"/>`;
+  for (const v of [0, 50, 100]) g += `<line x1="${L}" x2="${Wd - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(51,65,85,.18)"/><text x="${L - 4}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`;
+  g += `<text x="2" y="${T + 9}" style="font-size:10.5px">公尺</text>`;
+  for (let k = 0; k <= ROUTE.len / 1000; k += 5) g += `<text x="${X(k * 1000)}" y="${Ht - 3}" text-anchor="middle">${k} km</text>`;
+  g += `<path d="${path(0, ROUTE.drainKm)}" fill="none" stroke="var(--irr)" stroke-width="3.5"/><path d="${path(ROUTE.drainKm, ROUTE.len)}" fill="none" stroke="var(--drain)" stroke-width="3.5"/>`;
+  STOPS.forEach((st, i) => {
+    const hh = hAt(st.p[0], st.p[1]);
+    g += `<g style="cursor:pointer" data-k="${st.key}"><circle cx="${X(st.s)}" cy="${Y(hh)}" r="8" fill="${st.color}" stroke="#fff" stroke-width="1.5"/><text x="${X(st.s)}" y="${Y(hh) + 4}" text-anchor="middle" style="fill:#fff;font-size:10px">${i + 1}</text></g>`;
+  });
+  g += `<g id="profDrop"><line y1="${T}" y2="${Ht - B}" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="3 3"/><circle r="6" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/></g>`;
+  svg.innerHTML = g;
+  PROF.X = X; PROF.Y = Y;
+  // 剖面圖的高度放大倍數＝（每公尺高度的像素）÷（每公尺距離的像素）
+  const ex = ((Ht - T - B) / PROF.hmax) / ((Wd - L - R) / ROUTE.len);
+  document.getElementById('profEx').textContent = `（這張圖的高度放大約 ${Math.round(ex / 10) * 10} 倍，不然看不出坡度）`;
+  updateProfDrop();
+}
+function updateProfDrop() {
+  const el = document.getElementById('profDrop'); if (!el || !PROF.X) return;
+  const p = ROUTE.at(FLOW.s), x = PROF.X(FLOW.s), y = PROF.Y(hAt(p[0], p[1]));
+  el.querySelector('line').setAttribute('x1', x); el.querySelector('line').setAttribute('x2', x);
+  el.querySelector('circle').setAttribute('cx', x); el.querySelector('circle').setAttribute('cy', y);
+  el.style.display = FLOW.on || FLOW.s > 0 ? '' : 'none';
+}
+
+/* =====================================================================
+   跟著水走：水滴沿路線前進，到停靠點暫停並開說明卡，鏡頭跟著
+   ===================================================================== */
+const FLOW = { on: false, s: 0, speed: 420, next: 0, follow: false };   // speed：畫面上每秒走幾公尺（加快播放）
+function startFlow() {
+  if (FLOW.s >= ROUTE.len - 1) { FLOW.s = 0; FLOW.next = 0; }
+  FLOW.on = true; FLOW.follow = true; dropMesh.visible = dropGlow.visible = true;
+  document.getElementById('bFlow').classList.add('on');
+  document.getElementById('bFlow').firstChild.textContent = '❚❚ 暫停';
+  document.getElementById('panel').classList.remove('open');
+  if (FLOW.s === 0) { chase(true); }
+}
+function pauseFlow(label = '▶ 繼續流') {
+  FLOW.on = false; document.getElementById('bFlow').classList.remove('on');
+  document.getElementById('bFlow').firstChild.textContent = label;
+}
+function gotoKm(s) {                       // 點剖面圖：水滴跳到那裡
+  FLOW.s = s; FLOW.next = STOPS.findIndex(t => t.s > s + 1); if (FLOW.next < 0) FLOW.next = STOPS.length;
+  dropMesh.visible = dropGlow.visible = true; FLOW.follow = true; pauseFlow(); placeDrop(); chase(true);
+}
+const _prevT = new THREE.Vector3();
+function dropPos() { const p = ROUTE.at(FLOW.s); return W(p[0], p[1], 14 * (EX > 1 ? 2 : 1), hLine(p[0], p[1])); }
+function placeDrop() {
+  const v = dropPos(), d = camera.position.distanceTo(v), sz = clamp(d * 0.011, 8, 260);
+  dropMesh.position.copy(v); dropMesh.scale.setScalar(sz); dropGlow.position.copy(v); dropGlow.scale.setScalar(sz * 6);
+  updateProfDrop();
+}
+function chase(jump) {                    // 鏡頭跟著水滴（保留使用者轉過的角度）
+  const v = dropPos();
+  if (jump) {
+    const p = ROUTE.at(FLOW.s), q = ROUTE.at(FLOW.s + 600), dx = q[0] - p[0], dz = q[1] - p[1], L = Math.hypot(dx, dz) || 1;
+    const off = new THREE.Vector3(-dx / L * 2200 + dz / L * 900, 1700 + (EX > 1 ? 600 : 0), -dz / L * 2200 - dx / L * 900);
+    gsap.to(camera.position, { x: v.x + off.x, y: v.y + off.y, z: v.z + off.z, duration: 1.4, ease: 'power2.inOut' });
+    gsap.to(controls.target, { x: v.x, y: v.y, z: v.z, duration: 1.4, ease: 'power2.inOut', onUpdate: () => controls.update(), onComplete: () => _prevT.copy(controls.target) });
+    return;
+  }
+  const d = v.clone().sub(controls.target); controls.target.add(d); camera.position.add(d);
+}
+function stepFlow(dt) {
+  if (!FLOW.on) return;
+  const st = STOPS[FLOW.next];
+  const ns = FLOW.s + FLOW.speed * dt;
+  if (st && ns >= st.s) {
+    FLOW.s = st.s; FLOW.next++; placeDrop(); chase(false);
+    pauseFlow(); openPanel(st.key, true);
+    if (st.key === 'end') document.getElementById('bGo').style.display = 'none';
+    return;
+  }
+  FLOW.s = Math.min(ns, ROUTE.len); placeDrop(); if (FLOW.follow) chase(false);
+}
+
+/* ---------- 地勢放大 ---------- */
+function setExag(e, anim = true) {
+  const apply = v => { EX = v; terrain.scale.y = v; for (const L of lineObjs) L.update(); for (const L of labels) L.update(); updateBerm(); if (dropMesh.visible) placeDrop(); };
+  document.getElementById('bExag').classList.toggle('on', e > 1);
+  document.getElementById('exagNote').style.display = e > 1 ? 'block' : 'none';
+  if (!anim) { apply(e); return; }
+  const o = { v: EX }; gsap.to(o, { v: e, duration: 1.0, ease: 'power2.inOut', onUpdate: () => apply(o.v), onComplete: () => apply(e) });
+}
+
+/* ---------- 視角 ---------- */
+function viewDef(v) {
+  const P = (lat, lon) => { const p = LL(lat, lon); return W(p[0], p[1]); };
+  if (v === 'head') { const t = P(23.803, 120.640); return { t, p: t.clone().add(new THREE.Vector3(-2600, 2600, 3400)) }; }
+  if (v === 'split') { const t = P(23.882, 120.572); return { t, p: t.clone().add(new THREE.Vector3(-1700, 1900, 2600)) }; }
+  if (v === 'yong') { const t = P(23.925, 120.560); return { t, p: t.clone().add(new THREE.Vector3(-1600, 2100, 2800)) }; }
+  if (v === 'side') { const t = P(23.89, 120.585); return { t, p: t.clone().add(new THREE.Vector3(-17000, 1200, 9500)) }; }   // 從西南方低角度看坡度
+  const t = P(23.885, 120.585); return { t, p: t.clone().add(new THREE.Vector3(-6500, 17000, 15500)) };
+}
+function flyTo(v, dur = 1.8) {
+  FLOW.follow = false;
+  document.querySelectorAll('.vw').forEach(b => b.classList.toggle('active', b.dataset.v === v));
+  const d = viewDef(v);
+  if (!dur) { camera.position.copy(d.p); controls.target.copy(d.t); controls.update(); return; }
+  gsap.to(camera.position, { x: d.p.x, y: d.p.y, z: d.p.z, duration: dur, ease: 'power2.inOut' });
+  gsap.to(controls.target, { x: d.t.x, y: d.t.y, z: d.t.z, duration: dur, ease: 'power2.inOut', onUpdate: () => controls.update() });
+}
+function setupUI() {
+  document.querySelectorAll('.vw').forEach(b => b.addEventListener('click', () => { if (FLOW.on) pauseFlow(); flyTo(b.dataset.v); }));
+  document.getElementById('bFlow').addEventListener('click', () => FLOW.on ? pauseFlow() : startFlow());
+  document.getElementById('bGo').addEventListener('click', () => { if (FLOW.s < ROUTE.len - 1) { FLOW.follow = true; startFlow(); } });
+  document.getElementById('bExag').addEventListener('click', () => setExag(EX > 1 ? 1 : 10));
+  document.querySelector('#panel .x').addEventListener('click', () => document.getElementById('panel').classList.remove('open'));
+  document.getElementById('profSvg').addEventListener('click', e => { const g = e.target.closest('g[data-k]'); if (g) { e.stopPropagation(); const st = STOPS.find(s => s.key === g.dataset.k); gotoKm(st.s); openPanel(st.key, true); } }, true);
+  controls.addEventListener('start', () => { if (FLOW.on) FLOW.follow = true; });
+}
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  for (const L of FLOW_LINES) L.line.material.dashOffset -= dt * 260;
+  stepFlow(dt);
+  if (dropMesh.visible && !FLOW.on) placeDrop();
+  controls.update(); updateLabels();
+  renderer.render(scene, camera);
+}
+</script>
+<script src="js/nav.js" data-narrow="900" data-narrow-pos="left" defer></script>
+</body>
+</html>

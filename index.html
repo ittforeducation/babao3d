@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>八堡圳 3D 實景教具</title>
+<style>
+  :root {
+    --bg: #eef4f7; --card: #ffffff; --ink: #0f2a3a; --sub: #4a6272; --line: #d5e2ea;
+    --irr: #1d8fd8; --irr1: #6cc3ef; --drain: #e8821e; --river: #c9d6dd; --land: #f7f4ec;
+    --accent: #0369a1; --go: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 20px 10px; }
+  h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: 1px; }
+  .grades { display: flex; gap: 6px; margin-left: auto; }
+  .grades button { font: inherit; font-weight: 800; font-size: 15px; padding: 7px 14px; border-radius: 999px;
+    border: 2px solid var(--accent); background: #fff; color: var(--accent); cursor: pointer; }
+  .grades button.on { background: var(--accent); color: #fff; }
+  .grades button:disabled { border-color: var(--line); color: #9fb1bc; cursor: default; }
+  #fs { display: none; font: inherit; font-weight: 900; font-size: 15px; padding: 8px 14px; border-radius: 12px;
+    background: var(--go); color: #fff; text-decoration: none; }
+  body.embed #fs { display: inline-block; }
+  main { padding: 0 20px 24px; max-width: 1400px; margin: 0 auto; }
+
+  /* 地圖 */
+  .mapbox { display: grid; grid-template-columns: minmax(0, 1fr) 250px; background: var(--land); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  #map { display: block; width: 100%; height: min(58vh, 560px); }
+  #map .river { stroke: var(--river); fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  #map .irr { stroke: var(--irr); fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  #map .irr1 { stroke: var(--irr1); }
+  #map .drain { stroke: var(--drain); fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  #map .town { fill: #7b8d97; font-weight: 700; }
+  #map .mk { cursor: pointer; }
+  #map .mk circle { fill: var(--accent); stroke: #fff; }
+  #map .mk text.n { fill: #fff; font-weight: 900; text-anchor: middle; dominant-baseline: central; }
+  #map .mk text.t { fill: var(--ink); font-weight: 900; paint-order: stroke; stroke: var(--land); stroke-linejoin: round; }
+  #map .mk.hi circle { fill: var(--go); }
+  .side { background: #fff; border-left: 1px solid var(--line); padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .side h3 { margin: 0; font-size: 16px; font-weight: 900; }
+  .side ol { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .side li a { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 10px; color: var(--ink);
+    text-decoration: none; font-weight: 800; font-size: 15px; }
+  .side li a:hover, .side li a.hi { background: #e6f2f9; }
+  .side li b { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 13px; }
+  .side li a.hi b { background: var(--go); }
+  .legend { font-size: 13px; color: var(--sub); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .legend i { display: inline-block; width: 22px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
+  .src { font-size: 11px; color: #7b8d97; line-height: 1.5; margin-top: auto; }
+
+  /* 卡片 */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-top: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; text-decoration: none;
+    color: inherit; display: flex; flex-direction: column; transition: transform .15s, box-shadow .15s; }
+  .card:hover, .card.hi { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(3,105,161,.18); border-color: var(--accent); }
+  .card .img { position: relative; aspect-ratio: 16 / 10; background: #cfdde5; }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card .num { position: absolute; left: 10px; top: 10px; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 900; font-size: 18px; display: grid; place-items: center; border: 2px solid #fff; }
+  .card .body { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .card h2 { margin: 0; font-size: 19px; font-weight: 900; }
+  .card .place { font-size: 13px; color: var(--accent); font-weight: 700; }
+  .card p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--sub); flex: 1; }
+  .card .go { align-self: flex-start; margin-top: 4px; font-weight: 900; color: #fff; background: var(--go);
+    padding: 6px 12px; border-radius: 10px; font-size: 15px; }
+  .empty { padding: 30px; text-align: center; color: var(--sub); background: #fff; border-radius: 16px; border: 1px dashed var(--line); margin-top: 16px; }
+  footer { margin-top: 18px; font-size: 12px; color: #7b8d97; line-height: 1.6; }
+  @media (max-width: 600px) { header { padding: 12px 16px 8px; } main { padding: 0 16px 20px; } h1 { font-size: 21px; }
+  }
+  @media (max-width: 760px) { .mapbox { grid-template-columns: 1fr; } .side { border-left: 0; border-top: 1px solid var(--line); } #map { height: 52vh; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>八堡圳 3D 實景教具</h1>
+  <a id="fs" href="./" target="_blank" rel="noopener">開新分頁全螢幕 ↗</a>
+  <div class="grades" id="grades"></div>
+</header>
+<main>
+  <div class="mapbox">
+    <svg id="map" preserveAspectRatio="xMidYMid meet" aria-label="八堡圳路線地圖"></svg>
+    <div class="side">
+      <h3>路線順序</h3>
+      <ol id="order"></ol>
+      <div class="legend">
+      <span><i style="background:var(--irr)"></i>灌溉圳路</span>
+      <span><i style="background:var(--drain)"></i>排水路</span>
+      <span><i style="background:var(--river);height:8px"></i>河川</span>
+    </div>
+      <div class="src">水路線：© OpenStreetMap 貢獻者（ODbL）。地點位置依各頁資料；底色為示意，不是地形。</div>
+    </div>
+  </div>
+  <div class="cards" id="cards"></div>
+  <footer>
+    正射影像：國土測繪中心（政府資料開放授權）；地形：內政部 20 公尺網格數值地形模型（政府資料開放授權）；各頁另附出處。
+  </footer>
+</main>
+<script>
+(async () => {
+  const qs = new URLSearchParams(location.search);
+  // 在 Google Sites 的嵌入框裡時，顯示「開新分頁全螢幕」（?embed=1 可在本機模擬）
+  let inFrame = false; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
+  if (inFrame || qs.get('embed') === '1') document.body.classList.add('embed');
+
+  const [U, M] = await Promise.all([
+    fetch('data/units.json', { cache: 'no-cache' }).then(r => r.json()),
+    fetch('data/index_map.json').then(r => r.json())]);
+  let grade = U.grades[qs.get('g')] ? qs.get('g') : '3';
+  const fsLink = document.getElementById('fs');
+
+  // 年級按鈕（沒有頁面的年級先停用）
+  const gEl = document.getElementById('grades');
+  for (const [g, d] of Object.entries(U.grades)) {
+    const b = document.createElement('button'); b.textContent = d.label; b.dataset.g = g;
+    if (!d.pages.length) { b.disabled = true; b.title = '規劃中'; }
+    b.onclick = () => { grade = g; render(); history.replaceState(null, '', '?g=' + g); };
+    gEl.appendChild(b);
+  }
+
+  // 地圖
+  const svg = document.getElementById('map'), NS = 'http://www.w3.org/2000/svg';
+  const el = (t, a, p = svg) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+  // 範圍只取圳路、排水與各站點（濁水溪很長，超出部分直接裁掉）
+  const pts = M.lines.filter(l => l.k !== 'river').flatMap(l => l.p).concat(Object.values(U.pages).map(p => p.at));
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const pad = 1.0, x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
+  svg.setAttribute('viewBox', `${x0} ${y0} ${x1 - x0} ${y1 - y0 + 1.6}`);
+  const d = p => 'M' + p.map(q => q[0] + ' ' + q[1]).join('L');
+  const order = { river: 0, drain: 1, irr: 2 };
+  for (const l of [...M.lines].sort((a, b) => order[a.k] - order[b.k])) {
+    const one = l.n === '八堡一圳';
+    el('path', { d: d(l.p), class: l.k + (one ? ' irr1' : ''), 'stroke-width': l.k === 'river' ? 0.55 : l.k === 'irr' ? 0.16 : 0.12 });
+  }
+  // 鄉鎮名（OSM 地名點，轉成同一個公里座標）
+  for (const [n, x, y] of [['二水', 15.17, 20.85], ['田中', 11.32, 14.78], ['社頭', 11.82, 10.83], ['員林', 10.7, 3.98], ['永靖', 7.98, 7.76]])
+    el('text', { x, y, class: 'town', 'font-size': 0.7, 'text-anchor': 'middle' }).textContent = n;
+  // 指北
+  const nx = x1 - 1.4, ny = y0 + 0.6;
+  el('path', { d: `M${nx} ${ny}L${nx - 0.4} ${ny + 1.1}L${nx} ${ny + 0.85}L${nx + 0.4} ${ny + 1.1}Z`, fill: '#4a6272' });
+  el('text', { x: nx, y: ny + 1.9, 'font-size': 0.65, 'text-anchor': 'middle', fill: '#4a6272', 'font-weight': 900 }).textContent = '北';
+  // 比例尺 5 km
+  const sx = x0 + 0.8, sy = y1 + 1.2;
+  el('path', { d: `M${sx} ${sy - 0.2}V${sy}H${sx + 5}V${sy - 0.2}`, stroke: '#4a6272', 'stroke-width': 0.08, fill: 'none' });
+  el('text', { x: sx + 2.5, y: sy - 0.35, 'font-size': 0.55, 'text-anchor': 'middle', fill: '#4a6272' }).textContent = '5 公里';
+
+  const mkLayer = el('g', {});
+  function render() {
+    document.querySelectorAll('#grades button').forEach(b => b.classList.toggle('on', b.dataset.g === grade));
+    const list = U.grades[grade].pages;
+    const link = id => U.pages[id].file + '?g=' + grade;
+    fsLink.href = location.pathname + '?g=' + grade;
+    // 卡片
+    const cards = document.getElementById('cards'); cards.innerHTML = '';
+    list.forEach((id, i) => {
+      const p = U.pages[id], a = document.createElement('a');
+      a.className = 'card'; a.href = link(id); a.dataset.id = id;
+      a.innerHTML = `<div class="img"><img src="${p.thumb}" alt="" loading="lazy"><span class="num">${i + 1}</span></div>
+        <div class="body"><h2>${p.name}</h2><span class="place">📍 ${p.place}</span><p>${p.desc}</p><span class="go">進入 →</span></div>`;
+      a.onmouseenter = () => hi(id, true); a.onmouseleave = () => hi(id, false);
+      cards.appendChild(a);
+    });
+    // 右側路線順序
+    const ol = document.getElementById('order'); ol.innerHTML = '';
+    list.forEach((id, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="${link(id)}" data-id="${id}"><b>${i + 1}</b>${U.pages[id].name}</a>`;
+      const a = li.firstChild; a.onmouseenter = () => hi(id, true); a.onmouseleave = () => hi(id, false);
+      ol.appendChild(li);
+    });
+    // 地圖標記（同一個地點附近的標記，名稱往不同方向放）
+    mkLayer.innerHTML = '';
+    list.forEach((id, i) => {
+      const p = U.pages[id], [x, y] = p.at;
+      const g = el('g', { class: 'mk', 'data-id': id }, mkLayer);
+      const L = { era: ['start', 0.9, -0.9], lab: ['end', -0.5, 1.4], jiji: ['middle', 0, -1.1] }[id] || ['end', -0.95, 0.25];
+      el('circle', { cx: x, cy: y, r: 0.62, 'stroke-width': 0.14 }, g);
+      el('text', { x, y: y + 0.03, class: 'n', 'font-size': 0.72 }, g).textContent = i + 1;
+      el('text', { x: x + L[1], y: y + L[2], class: 't', 'font-size': 0.78, 'stroke-width': 0.28, 'text-anchor': L[0],
+        'dominant-baseline': 'central' }, g).textContent = p.name;
+      g.onclick = () => location.href = link(id);
+      g.onmouseenter = () => hi(id, true); g.onmouseleave = () => hi(id, false);
+    });
+  }
+  function hi(id, on) {
+    document.querySelectorAll(`[data-id="${id}"]`).forEach(e => e.classList.toggle('hi', on));
+  }
+  render();
+})();
+</script>
+</body>
+</html>

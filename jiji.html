@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>水的來源：集集攔河堰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<style>
+:root{
+  --glass: rgba(255,255,255,.66); --stroke: rgba(255,255,255,.72);
+  --ink:#0d2238; --ink2:#3a536d; --accent:#0369a1;
+  --shadow: 0 12px 40px rgba(12,42,80,.22), 0 2px 6px rgba(12,42,80,.10);
+  --radius: 20px;
+  --font: "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#b9cfe0;font-family:var(--font);color:var(--ink);-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0;overflow:hidden;user-select:none;-webkit-user-select:none}
+#app canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+a{color:var(--accent)}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);border:1px solid var(--stroke);box-shadow:var(--shadow);border-radius:var(--radius)}
+
+#titleCard{position:absolute;top:14px;left:14px;padding:10px 18px 10px 12px;display:flex;gap:12px;align-items:center;z-index:5;max-width:calc(100% - 28px)}
+#titleCard .logo{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#38bdf8,#0369a1);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 12px rgba(3,105,161,.35)}
+#titleCard h1{margin:0;font-size:21px;font-weight:900;letter-spacing:.04em;line-height:1.2}
+#titleCard p{margin:2px 0 0;font-size:13.5px;color:var(--ink2);font-weight:500}
+.tag-sample{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;background:#f59e0b;color:#fff;font-size:12px;vertical-align:3px}
+
+#cfg{position:absolute;top:134px;left:14px;width:252px;padding:14px 14px 12px;z-index:6;max-height:calc(100% - 218px);overflow:auto}
+#cfg h3,#res h3{margin:0 0 8px;font-size:17px;font-weight:900}
+.grp{margin-bottom:12px}
+.grp .lab{font-size:13.5px;font-weight:800;color:var(--ink2);margin-bottom:5px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.opt{padding:8px 6px;border-radius:12px;background:rgba(255,255,255,.6);font-size:14.5px;font-weight:800;line-height:1.2;text-align:center}
+.opt small{display:block;font-size:11px;font-weight:700;color:var(--ink2)}
+.opt.on{background:var(--accent);color:#fff}.opt.on small{color:#e0f2fe}
+.opt.wide{grid-column:1/-1}
+.opt:disabled{opacity:.45}
+.note{font-size:11.5px;color:#64748b;line-height:1.55;margin-top:6px}
+.lnk{display:block;margin-top:6px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.6);font-size:14px;font-weight:800;text-decoration:none;color:var(--ink);text-align:center}
+
+#res{position:absolute;top:96px;right:14px;width:272px;padding:14px 16px 12px;z-index:6;max-height:calc(100% - 180px);overflow:auto}
+.kv{display:flex;justify-content:space-between;align-items:baseline;font-size:14.5px;margin:6px 0 3px;font-weight:700}
+.kv b{font-size:16px;font-weight:900}
+.kv small{font-size:11px;color:#64748b;font-weight:700}
+.gauge{position:relative;height:30px;margin:20px 0 18px;border-radius:8px;background:linear-gradient(#e2e8f0,#cbd5e1);overflow:visible}
+.gauge .fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:linear-gradient(90deg,#38bdf8,#0369a1);transition:width .3s}
+.gauge .mk{position:absolute;top:-3px;bottom:-3px;width:2px;background:#0d2238}
+.gauge .mk span{position:absolute;top:36px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;white-space:nowrap;color:var(--ink2)}
+.cells{display:grid;grid-template-columns:repeat(18,1fr);gap:2px;margin:3px 0 6px}
+.cells.sl{grid-template-columns:repeat(4,1fr);width:42%}
+.cells i{position:relative;height:18px;border-radius:3px;background:#cbd5e1;overflow:hidden}
+.cells i::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--o,0%);background:#0ea5e9}
+.bar{height:10px;border-radius:5px;background:#e2e8f0;overflow:hidden;margin:3px 0 4px}
+.bar>div{height:100%;background:linear-gradient(90deg,#a16207,#713f12);transition:width .3s}
+
+#rule{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);width:min(660px,calc(100% - 28px));padding:10px 16px 10px 14px;z-index:6;font-size:15px;line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+#rule .ico{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#0369a1;color:#fff}
+#rule.warn .ico{background:#dc2626;animation:pulse 1s infinite}
+#rule .cite{display:block;font-size:12px;color:#64748b;margin-top:2px}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.6)}50%{box-shadow:0 0 0 10px rgba(220,38,38,0)}}
+
+#views{position:absolute;left:14px;bottom:14px;display:flex;gap:6px;padding:7px;z-index:5;max-width:calc(100% - 28px);overflow-x:auto;scrollbar-width:none}
+.vw{flex:none;display:flex;align-items:center;gap:7px;padding:8px 13px 8px 8px;border-radius:14px;font-size:15px;font-weight:700;transition:background .2s,transform .2s}
+.vw b{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:14px;background:var(--c)}
+.vw:hover{background:rgba(255,255,255,.7)} .vw.active{background:#fff;transform:translateY(-2px)}
+
+#labels{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform;transition:opacity .25s}
+.lbl.hide{opacity:0}
+.pin{pointer-events:auto;display:flex;align-items:center;gap:6px;padding:4px 11px 4px 4px;border-radius:999px;font-size:14.5px;font-weight:900;background:rgba(255,255,255,.9);box-shadow:0 4px 14px rgba(0,30,60,.25);cursor:pointer;transform:translate(-50%,-100%)}
+.pin b{min-width:22px;height:22px;padding:0 5px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:12px;background:var(--c,#475569)}
+.geo{padding:3px 10px;border-radius:9px;font-size:14px;font-weight:800;color:#fff;background:rgba(13,34,56,.55);text-shadow:0 1px 2px rgba(0,0,0,.4);transform:translate(-50%,-50%)}
+.geo.water{background:rgba(3,105,161,.62)} .geo.canal{background:rgba(185,28,28,.62)}
+.siren{pointer-events:none;padding:5px 12px;border-radius:999px;background:#dc2626;color:#fff;font-weight:900;font-size:14px;transform:translate(-50%,-100%);animation:pulse 1s infinite}
+
+#panel{position:absolute;top:96px;right:14px;width:min(390px,calc(100% - 28px));max-height:calc(100% - 190px);overflow:auto;padding:18px 20px;z-index:8;transform:translateX(120%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+#panel.open{transform:none}
+#panel h2{margin:0 0 4px;font-size:21px;font-weight:900}
+#panel .sub{font-size:13px;color:var(--ink2);margin-bottom:10px}
+#panel p{font-size:15.5px;line-height:1.75;margin:8px 0}
+.x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;font-size:20px;font-weight:900;color:var(--ink2)}
+.x:hover{background:rgba(255,255,255,.7)}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:15px;margin-top:10px;line-height:1.6}
+.keys span:nth-child(odd){font-weight:900;color:#0c4a6e;white-space:nowrap}
+.src{font-size:12.5px;color:#64748b;line-height:1.6;margin-top:12px;border-top:1px solid rgba(100,116,139,.25);padding-top:8px}
+
+.modal{position:absolute;inset:0;z-index:12;display:none;place-items:center;background:rgba(13,34,56,.35)}
+.modal.open{display:grid}
+.modal .box{position:relative;width:min(900px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;padding:18px 20px 14px}
+.modal h2{margin:0 0 4px;font-size:21px;font-weight:900}
+.modal .sub{font-size:13.5px;color:var(--ink2);margin-bottom:8px}
+#routeSvg{width:100%;height:auto;background:#eef3f6;border-radius:14px}
+#basinCv{width:100%;height:auto;background:#f1f5f9;border-radius:14px}
+.seg{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px;font-weight:700}.seg th{text-align:left;padding:4px 6px;white-space:nowrap}.seg td{padding:4px 6px;border:1px solid #cbd5e1;text-align:center;white-space:nowrap}.seg td.old{background:#e2e8f0;color:#475569}
+.mrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.mrow .opt{padding:8px 14px}
+
+#credit{position:absolute;right:10px;bottom:6px;z-index:5;font-size:11px;color:rgba(255,255,255,.92);text-shadow:0 1px 2px rgba(0,0,0,.7);text-align:right;max-width:70%}
+#loading{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:linear-gradient(160deg,#dbe8f2,#b9cfe0);transition:opacity .6s}
+#loading div{font-size:17px;font-weight:700;color:var(--ink2)}
+#loading.done{opacity:0;pointer-events:none}
+/* 面板可收合（窄螢幕預設收起，點標題展開） */
+.fold h3{display:flex;align-items:center;gap:8px;cursor:pointer;margin:0 0 8px}
+.fold h3::after{content:"";margin-left:auto;width:9px;height:9px;border-right:2.5px solid var(--ink2);border-bottom:2.5px solid var(--ink2);transform:rotate(45deg) translateY(-3px);transition:transform .2s}
+.fold h3 .mini{display:none;font-size:13px;font-weight:800;color:var(--accent)}
+.fold.closed{width:auto!important;max-width:calc(50% - 20px);padding:9px 14px}
+.fold.closed h3{margin:0}.fold.closed h3::after{transform:rotate(-45deg)}
+.fold.closed h3 .mini{display:inline}
+.fold.closed>*:not(h3){display:none!important}
+@media (max-width:1100px){#titleCard{display:none}#cfg,#res{top:14px}#panel{top:14px}}
+@media (max-width:820px){#titleCard{left:248px!important;transform:none!important}#cfg{width:220px}#res{width:248px}.opt{font-size:13.5px}#credit{max-width:92%;font-size:10px}#views{bottom:30px}#rule{bottom:96px;font-size:14px}}
+@media (max-height:560px){#rule{padding:6px 12px;font-size:13px;line-height:1.45}#rule .cite{display:none}#rule .ico{width:24px;height:24px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="labels"></div>
+
+<div id="titleCard" class="glass">
+  <div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 17h18M5 17V9m4 8V9m4 8V9m4 8V9m2 8V9M3 9h18"/></svg></div>
+  <div><h1>水的來源：集集攔河堰</h1><p>在上游把濁水溪攔起來，送水到八堡圳</p></div>
+</div>
+
+<div id="cfg" class="glass fold">
+  <h3>操作設定<span class="mini" id="cfgMini"></span></h3>
+  <div class="grp"><div class="lab">上游來水量（m³/s）</div>
+    <div class="opts" id="qOpts">
+      <button class="opt" data-q="normal">平時<small>例：150</small></button>
+      <button class="opt" data-q="400">400<small>颱風、豪雨</small></button>
+      <button class="opt" data-q="650">650 以上<small>洪水</small></button>
+      <button class="opt" data-q="1300">1300 以上<small>例：3000</small></button>
+    </div></div>
+  <div class="grp"><div class="lab">排砂</div>
+    <div class="opts">
+      <button class="opt wide" id="btnSluice">排砂道排砂<small>沖走取水口前的淤砂</small></button>
+      <button class="opt wide" id="btnBasin">沉砂池排砂<small>北岸沉砂池</small></button>
+      <button class="opt wide" id="btnBasinDiag">沉砂池剖面圖<small>砂怎麼沉下來</small></button>
+    </div></div>
+  <button class="lnk" id="btnRoute">聯絡渠道路線圖：送水到彰化、雲林</button>
+  <a class="lnk" href="era.html?era=now">← 回八堡圳頭（現代）</a>
+  <div class="note">閘門怎麼開，依〈集集攔河堰水庫水門操作規定〉；水位、流量的變化是簡化計算（示意），時間加速。</div>
+</div>
+
+<div id="res" class="glass fold">
+  <h3>現在狀況<span class="mini" id="resMini"></span></h3>
+  <div class="kv"><span>上游來水</span><b id="rQ">–</b></div>
+  <div class="kv"><span>水庫水位 <small>示意</small></span><b id="rL">–</b></div>
+  <div class="gauge" id="gauge"><div class="fill" id="gFill"></div></div>
+  <div class="kv"><span>溢洪道弧形閘門</span><b id="rG">–</b></div>
+  <div class="cells" id="cellsS"></div>
+  <div class="kv"><span>排砂道閘門</span><b id="rSl">–</b></div>
+  <div class="cells sl" id="cellsL"></div>
+  <div class="kv"><span>取水 <small>北岸／南岸</small></span><b id="rI">–</b></div>
+  <div class="kv"><span>往下游放水</span><b id="rD">–</b></div>
+  <div class="kv"><span>取水口前淤砂 <small>示意</small></span><b id="rM">–</b></div>
+  <div class="bar"><div id="mBar"></div></div>
+</div>
+
+<div id="rule" class="glass"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg></div><div id="ruleTxt"></div></div>
+
+<div id="views" class="glass">
+  <button class="vw" data-v="overview" style="--c:#0284c7"><b>1</b>全景</button>
+  <button class="vw" data-v="weir" style="--c:#0369a1"><b>2</b>攔河堰</button>
+  <button class="vw" data-v="gate" style="--c:#2563eb"><b>3</b>弧形閘門</button>
+  <button class="vw" data-v="stilling" style="--c:#64748b"><b>消</b>消能池</button>
+  <button class="vw" data-v="intake" style="--c:#b45309"><b>4</b>北岸取水口</button>
+  <button class="vw" data-v="sluice" style="--c:#a16207"><b>5</b>排砂道</button>
+  <button class="vw" data-v="nbasin" style="--c:#92400e"><b>6</b>北岸沉砂池</button>
+  <button class="vw" data-v="sbasin" style="--c:#92400e"><b>7</b>南岸沉砂池</button>
+  <button class="vw" data-v="reservoir" style="--c:#dc2626"><b>8</b>蓄水範圍</button>
+</div>
+
+<aside id="panel" class="glass">
+  <button class="x" aria-label="關閉">×</button>
+  <h2 id="pTitle"></h2><div class="sub" id="pSub"></div><div id="pBody"></div>
+</aside>
+
+<div class="modal" id="routeBox"><div class="box glass">
+  <button class="x" aria-label="關閉">×</button>
+  <h2>南北岸聯絡渠道：從攔河堰送水到彰化、雲林</h2>
+  <div class="sub">北岸聯絡渠道共約 51 公里（新建 23 公里＋擴建原有渠道 28 公里），沿線有名間水力電廠取水口、小水力電廠、八堡圳分水工、莿仔埤圳分水工等；南岸聯絡渠道共約 38 公里（新建 15 公里＋擴建 23 公里），接斗六堰、林內分水工等，送水到雲林。</div>
+  <svg id="routeSvg" viewBox="0 0 1000 595"></svg>
+  <table class="seg"><tr><th>北岸聯絡渠道</th><td>一 5.0</td><td>二 0.3</td><td>三 7.5</td><td>四 10.0</td><td class="old">五 11.0</td><td class="old">六 5.0</td><td class="old">七 4.5</td><td class="old">八 7.0</td></tr>
+  <tr><th>南岸聯絡渠道</th><td>一 2.0</td><td>二 5.0</td><td>三 3.0</td><td>四 2.0</td><td>五 2.5</td><td class="old">六 7.5</td><td class="old">七 7.0</td><td class="old">八 8.0</td></tr></table>
+  <div class="note">分段長度（公里）依水利署〈南北岸聯絡渠道〉選線佈置圖；灰底是利用原有渠道擴建的段落。分段加起來和水利署〈聯絡渠道與管路〉相符：北岸新建 23 公里（第一～四段 22.8）＋擴建 28 公里（第五～八段 27.5），共 51 公里；南岸新建 15 公里（第一～五段 14.5）＋擴建 23 公里（第六～八段 22.5），共 38 公里。法規寫的「北岸約 23 公里、南岸約 18 公里」主要是新建段的長度（南岸差的約 3 公里，待查）。藍色虛線的南岸路線是依選線佈置圖畫的示意，OpenStreetMap 沒有這條渠道。</div>
+  <div class="note">路線依 OpenStreetMap（© OpenStreetMap 貢獻者）；八堡圳分水工的確切位置沒有查到，圖上不標。資料來源：〈集集攔河堰水庫水門操作規定〉第三點（七）；水利署集集攔河堰網站〈南北岸聯絡渠道〉。</div>
+</div></div>
+
+<div class="modal" id="basinBox"><div class="box glass">
+  <button class="x" aria-label="關閉">×</button>
+  <h2>北岸沉砂池（示意圖）</h2>
+  <div class="sub">濁水溪的水含砂很多。水從取水口進來後，先流進沉砂池，水流慢下來，砂就沉到池底；乾淨一點的水再送往聯絡渠道。</div>
+  <canvas id="basinCv" width="900" height="380"></canvas>
+  <div class="mrow">
+    <button class="opt" id="btnFlush">打開排砂閘門</button>
+    <span class="note" id="basinTxt" style="margin:0"></span>
+  </div>
+  <div class="note">北岸沉砂池：分水閘門 2 座、排砂閘門 12 座、退水閘門 2 座（〈水門操作規定〉第三點（五））。排砂閘門平時關閉，看沉砂溝淤砂的情形打開排砂，清完就關；打開前要響放水警報（第八點（二）、第十點（三））。沉砂池在取水口下游，3D 畫面裡沒有畫出來（正射影像找不到能確定的位置）。</div>
+</div></div>
+
+<div id="credit">地形：內政部20公尺網格DEM｜影像：國土測繪中心正射影像｜圖資：© OpenStreetMap 貢獻者｜材質與天空：Poly Haven (CC0)｜閘門數量、尺寸依〈集集攔河堰水庫水門操作規定〉；外型、水流為教學示意</div>
+<div id="loading"><div>正在準備集集攔河堰…</div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+/* =====================================================================
+   座標：1 單位 = 1 公尺；local x 向東、z 向南（自 meta_j 西北角）
+   world = local − (CX, CZ)，y = 高程 − BASE_H
+   攔河堰座標系：u 沿堰軸（北→南，0＝北端）、v 往下游（向西）
+   ===================================================================== */
+const DATA = 'data/', TEX = 'assets/tex/';
+const BASE_H = 200, E = el => el - BASE_H;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* 堰軸：OSM「集集攔河堰」weir 線的兩端（local） */
+const WA = [1803.6, 1369.2], WB = [1775.4, 1733.5];
+const WLEN = Math.hypot(WB[0] - WA[0], WB[1] - WA[1]);
+const UX = (WB[0] - WA[0]) / WLEN, UZ = (WB[1] - WA[1]) / WLEN, VX = -UZ, VZ = UX;
+const U0 = (WLEN - 352.5) / 2;
+const wp = (u, v) => [WA[0] + UX * (u + U0) + VX * v, WA[1] + UZ * (u + U0) + VZ * v];
+const toUV = (x, z) => { const dx = x - WA[0], dz = z - WA[1]; return [dx * UX + dz * UZ - U0, dx * VX + dz * VZ]; };
+const [CX, CZ] = wp(176, 0);
+
+/* 官方數字（〈集集攔河堰水庫水門操作規定〉第三點）＋教學設定值（示意） */
+const SPEC = { spCrest: 205.25, spH: 10.33, spW: 15, slCrest: 198.75, slH: 7.6, slW: 6.25, inLow: 203.25, inUp: 205.85, inGH: 2.3, inGW: 4.38, slAssist: 212.75 };
+const TEACH = { normal: 209.0, deck: 217.4, apron: 190.5 };          // 平時水位、橋面、消能池底：沒有官方數字，示意
+const PIER = 2.5;
+const BAYS = []; { let u = PIER; const add = (type, no, w) => { BAYS.push({ type, no, u0: u, w, uc: u + w / 2 }); u += w + PIER; };
+  add('sl', 1, SPEC.slW); add('sl', 2, SPEC.slW); for (let i = 1; i <= 18; i++) add('sp', i, SPEC.spW); add('sl', 3, SPEC.slW); add('sl', 4, SPEC.slW); }
+const SP = BAYS.filter(b => b.type === 'sp'), SL = BAYS.filter(b => b.type === 'sl');
+
+/* 取水口（正射影像判讀的閘門前緣） */
+const INTAKES = {
+  N: { a: [1845, 1376], b: [1881, 1349], bays: 8, plan: 70 },
+  S: { a: [1810, 1732], b: [1867, 1768], bays: 9, plan: 90 },
+};
+for (const it of Object.values(INTAKES)) {
+  const pool = wp(176, -160);
+  const frame = (a, b) => { const L = Math.hypot(b[0] - a[0], b[1] - a[1]), dx = (b[0] - a[0]) / L, dz = (b[1] - a[1]) / L; return { a, b, L, dx, dz, zx: -dz, zz: dx, m: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; };
+  let f = frame(it.a, it.b);
+  if ((pool[0] - f.m[0]) * f.zx + (pool[1] - f.m[1]) * f.zz < 0) f = frame(it.b, it.a);   // 讓 +Z 指向水庫
+  Object.assign(it, f);
+  it.local = (x, z) => [(x - it.m[0]) * it.dx + (z - it.m[1]) * it.dz, (x - it.m[0]) * it.zx + (z - it.m[1]) * it.zz];
+}
+
+async function loadGrid(name) {
+  const meta = await (await fetch(DATA + `meta_${name}.json`)).json();
+  const buf = await (await fetch(DATA + `dem_${name}.f32`)).arrayBuffer();
+  return { meta, H: new Float32Array(buf) };
+}
+const texLoader = new THREE.TextureLoader();
+const loadTex = (url, srgb = false, rep = true) => new Promise(res => texLoader.load(url, t => {
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  if (rep) t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.anisotropy = 8; res(t);
+}));
+function sampler(grid) {
+  const { nx, ny, cell } = grid.meta, H = grid.H;
+  const at = (i, j) => H[clamp(j, 0, ny - 1) * nx + clamp(i, 0, nx - 1)];
+  const cr = (p0, p1, p2, p3, t) => p1 + 0.5 * t * (p2 - p0 + t * (2 * p0 - 5 * p1 + 4 * p2 - p3 + t * (3 * (p1 - p2) + p3 - p0)));
+  return (lx, lz) => {
+    const fx = lx / cell, fz = lz / cell, i = Math.floor(fx), j = Math.floor(fz), tx = fx - i, tz = fz - j;
+    const r = []; for (let k = -1; k <= 2; k++) r.push(cr(at(i - 1, j + k), at(i, j + k), at(i + 1, j + k), at(i + 2, j + k), tx));
+    return cr(r[0], r[1], r[2], r[3], tz);
+  };
+}
+function chaikin(pts, n) {
+  for (let k = 0; k < n; k++) {
+    const o = [pts[0]];
+    for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1]; o.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]); }
+    o.push(pts[pts.length - 1]); pts = o;
+  }
+  return pts;
+}
+function resample(pts, step) {
+  const out = [pts[0]]; let carry = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    let d = step - carry;
+    while (d <= L) { const t = d / L; out.push([lerp(a[0], b[0], t), lerp(a[1], b[1], t)]); d += step; }
+    carry = L - (d - step);
+  }
+  if (Math.hypot(out[out.length - 1][0] - pts[pts.length - 1][0], out[out.length - 1][1] - pts[pts.length - 1][1]) > 0.5) out.push(pts[pts.length - 1]);
+  return out;
+}
+
+/* =====================================================================
+   狀態（閘門開度 0–1、水位、淤砂）
+   ===================================================================== */
+const ST = {
+  key: 'normal', Q: 150, level: TEACH.normal,
+  gate: new Array(18).fill(0), gateT: new Array(18).fill(0),
+  sl: [0, 0, 0, 0], slT: [0, 0, 0, 0],
+  up: 0.6, warn: false, flushing: false, mound: 3.2, basin: 0.35, basinFlush: false,
+};
+const U = { time: { value: 0 }, mud: { value: 0 }, mudSl: { value: 0.3 } };
+let renderer, scene, camera, controls, sun, clock = new THREE.Clock();
+let heightAt, OUTER_H, OSM, ROUTE, waterN;
+const labels = [], OBJ = { spPiv: [], slPiv: [], spSheet: [], slSheet: [] };
+
+init();
+
+async function init() {
+  const [gJ, gO, osm, route] = await Promise.all([loadGrid('j'), loadGrid('jo'), fetch(DATA + 'osm_j.json').then(r => r.json()), fetch(DATA + 'route_j.json').then(r => r.json())]);
+  OSM = osm; ROUTE = route;
+  setupRenderer();
+  const envP = new RGBELoader().loadAsync('assets/hdri/sky_2k.hdr').then(hdr => {
+    hdr.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = hdr; scene.backgroundIntensity = 0.95;
+    const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromEquirectangular(hdr).texture;
+  });
+  const t = buildTerrain(gJ);
+  await Promise.all([envP, buildTerrainMesh(t)]);
+  await buildOuter(gO, gJ);
+  waterN = await loadTex(TEX + 'waternormals.jpg');
+  buildWeir(); buildIntakes(); buildMounds(); buildPool(); buildBasinWater(); buildRiverDown(); buildSplash(); buildCenter(); buildRoutes(); buildBasins();
+  buildLabels(); setupUI(); drawRoute();
+  const q = new URLSearchParams(location.search);
+  setInflow(q.get('q') || 'normal', true);
+  flyTo(q.get('view') || 'overview', 0);
+  const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
+  renderer.setAnimationLoop(frame);
+  window.__jj = { scene, camera, controls, ST, U, OBJ, flyTo, setInflow, solveLevel, outflow, CX, CZ, groundY, top: (lx, lz, h = 500) => { gsap.killTweensOf(camera.position); gsap.killTweensOf(controls.target); const y = groundY(lx, lz); controls.target.set(lx - CX, y, lz - CZ); camera.position.set(lx - CX, y + h, lz - CZ + 0.01); controls.update(); } };   // 除錯用
+}
+
+function setupRenderer() {
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.85;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.getElementById('app').appendChild(renderer.domElement);
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0xd3d9db, 6000, 16000);
+  camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.5, 30000);
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.08;
+  controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 6; controls.maxDistance = 9000;
+  controls.screenSpacePanning = false;
+  sun = new THREE.DirectionalLight(0xfff1dd, 2.6);
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
+  scene.add(sun, sun.target);
+  scene.add(new THREE.HemisphereLight(0xcfe3ff, 0x6b5a3e, 0.4));
+  addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+}
+function placeSunShadow(target, radius) {
+  const dir = new THREE.Vector3(-0.35, 0.8, 0.45).normalize();
+  sun.position.copy(target).addScaledVector(dir, radius * 3);
+  sun.target.position.copy(target);
+  const c = sun.shadow.camera; c.left = c.bottom = -radius; c.right = c.top = radius; c.near = 1; c.far = radius * 7; c.updateProjectionMatrix();
+}
+
+/* =====================================================================
+   地形：20 m DEM → 10 m 網格；堰體與取水口前方挖低，讓模型坐得下
+   ===================================================================== */
+function buildTerrain(g) {
+  const W = g.meta.x1 - g.meta.x0, D = g.meta.y1 - g.meta.y0, STEP = 10;
+  const NX = Math.round(W / STEP) + 1, NZ = Math.round(D / STEP) + 1;
+  const samp = sampler(g), Y = new Float32Array(NX * NZ);
+  // 沉砂池底座：取範圍內 DEM 平均高度，整平
+  for (const def of Object.values(BASINS)) { const ux = Math.cos(def.ang), uz = Math.sin(def.ang);
+    for (const b of def.list) { let sum = 0, n = 0;
+      for (let a = 0; a <= 1.001; a += 0.1) for (let c = -0.5; c <= 0.501; c += 0.1) { const s = a * (b.L + b.fL), t = c * b.w; sum += samp(b.o[0] + ux * s - uz * t, b.o[1] + uz * s + ux * t); n++; }
+      b.g = sum / n; b.inside = (x, z) => { const dx = x - b.o[0], dz = z - b.o[1], s = dx * ux + dz * uz, t = -dx * uz + dz * ux; return s > -10 && s < b.L + b.fL + 3 && Math.abs(t) < b.w / 2 + 4; }; } }
+  for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
+    const lx = i * STEP, lz = j * STEP; let y = samp(lx, lz);
+    const [u, v] = toUV(lx, lz);
+    if (u > -12 && u < 366 && v > -34 && v < 96) y = Math.min(y, v < -3 ? 199.5 : 189.5);
+    else if (u > -70 && u < 425 && v > -100 && v <= -34) y = Math.min(y, lerp(199.5, y, smooth(-80, -100, v)));   // 堰前水庫底（水面下，示意）
+    for (const it of Object.values(INTAKES)) { const [s, t] = it.local(lx, lz); if (Math.abs(s) < it.L / 2 + 8 && t > -4 && t < 34) y = Math.min(y, 201.5); }
+    for (const def of Object.values(BASINS)) for (const b of def.list) if (b.inside(lx, lz)) y = b.g - 0.4;
+    Y[j * NX + i] = y;
+  }
+  heightAt = (wx, wz) => {
+    const fx = clamp((wx + CX) / STEP, 0, NX - 1.001), fz = clamp((wz + CZ) / STEP, 0, NZ - 1.001), i = Math.floor(fx), j = Math.floor(fz), tx = fx - i, tz = fz - j;
+    return lerp(lerp(Y[j * NX + i], Y[j * NX + i + 1], tx), lerp(Y[(j + 1) * NX + i], Y[(j + 1) * NX + i + 1], tx), tz) - BASE_H;
+  };
+  return { NX, NZ, STEP, W, D, Y };
+}
+function gridGeometry(pos, uv, NX, NZ) {
+  const idx = new Uint32Array((NX - 1) * (NZ - 1) * 6); let p = 0;
+  for (let j = 0; j < NZ - 1; j++) for (let i = 0; i < NX - 1; i++) { const a = j * NX + i, b = a + 1, c = a + NX, d = c + 1; idx[p++] = a; idx[p++] = c; idx[p++] = b; idx[p++] = b; idx[p++] = c; idx[p++] = d; }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setIndex(new THREE.BufferAttribute(idx, 1)); geo.computeVertexNormals();
+  return geo;
+}
+async function buildTerrainMesh(t) {
+  const [ortho, pebD, pebN, rockD, mudD] = await Promise.all([
+    loadTex(DATA + 'ortho_j.jpg', true, false), loadTex(TEX + 'ganges_river_pebbles_diff.jpg', true), loadTex(TEX + 'ganges_river_pebbles_nor.jpg'),
+    loadTex(TEX + 'dry_riverbed_rock_diff.jpg', true), loadTex(TEX + 'brown_mud_02_diff.jpg', true)]);
+  ortho.anisotropy = 16;
+  const mat = new THREE.MeshStandardMaterial({ map: ortho, roughness: 0.95, metalness: 0 });
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, { tPeb: { value: pebD }, tPebN: { value: pebN }, tRock: { value: rockD }, tMud: { value: mudD } });
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vW;')
+      .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvW = (modelMatrix * vec4(transformed,1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+      varying vec3 vW; uniform sampler2D tPeb, tPebN, tRock, tMud;`)
+      .replace('#include <map_fragment>', `#include <map_fragment>
+      float camD = distance(cameraPosition, vW);
+      float near = 1.0 - smoothstep(60.0, 700.0, camD);
+      vec3 base = diffuseColor.rgb;
+      float lum = dot(base, vec3(.299,.587,.114));
+      float sat = max(max(base.r,base.g),base.b) - min(min(base.r,base.g),base.b);
+      float gravel = smoothstep(0.10, 0.04, sat) * smoothstep(0.12, 0.28, lum);
+      float green = smoothstep(0.02, 0.08, base.g - base.r);
+      vec3 peb = texture2D(tPeb, vW.xz / 1.6).rgb, rock = texture2D(tRock, vW.xz / 7.0).rgb, mud = texture2D(tMud, vW.xz / 4.0).rgb;
+      vec3 det = mix(mud, mix(rock, peb, 0.55), gravel);
+      vec3 detTone = det / (dot(det, vec3(.299,.587,.114)) + 1e-3) * lum;
+      float k = near * mix(0.55, 0.85, gravel) * (1.0 - green * 0.55);
+      diffuseColor.rgb = mix(base, mix(detTone, det * vec3(0.92,0.95,1.0), gravel * 0.7), k);`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+      {
+        vec3 nm = texture2D(tPebN, vW.xz / 1.6).xyz * 2.0 - 1.0;
+        float kk = (1.0 - smoothstep(20.0, 160.0, distance(cameraPosition, vW))) * 0.6;
+        vec3 wN = normalize(vec3(nm.x * kk, 1.0, -nm.y * kk));
+        vec3 vN = normalize((viewMatrix * vec4(wN, 0.0)).xyz);
+        normal = normalize(normal + (vN - (viewMatrix * vec4(0.,1.,0.,0.)).xyz) * 0.9);
+      }`);
+  };
+  const { NX, NZ, STEP, W, D, Y } = t;
+  const pos = new Float32Array(NX * NZ * 3), uv = new Float32Array(NX * NZ * 2);
+  for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
+    const k = j * NX + i;
+    pos[k * 3] = i * STEP - CX; pos[k * 3 + 1] = Y[k] - BASE_H; pos[k * 3 + 2] = j * STEP - CZ;
+    uv[k * 2] = (i * STEP) / W; uv[k * 2 + 1] = 1 - (j * STEP) / D;
+  }
+  const mesh = new THREE.Mesh(gridGeometry(pos, uv, NX, NZ), mat); mesh.receiveShadow = true;
+  scene.add(mesh);
+}
+async function buildOuter(gO, gB) {
+  const m = gO.meta, mb = gB.meta, NX = m.nx, NZ = m.ny;
+  const offX = m.x0 - mb.x0, offZ = mb.y1 - m.y1, bw = mb.x1 - mb.x0, bd = mb.y1 - mb.y0;
+  const pos = new Float32Array(NX * NZ * 3), uv = new Float32Array(NX * NZ * 2);
+  for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
+    const k = j * NX + i, lx = i * m.cell + offX, lz = j * m.cell + offZ;
+    let y = gO.H[k] - BASE_H;
+    if (lx > 30 && lx < bw - 30 && lz > 30 && lz < bd - 30) y = heightAt(lx - CX, lz - CZ) - 4;
+    pos[k * 3] = lx - CX; pos[k * 3 + 1] = y; pos[k * 3 + 2] = lz - CZ;
+    uv[k * 2] = i / (NX - 1); uv[k * 2 + 1] = 1 - j / (NZ - 1);
+  }
+  const so = sampler(gO); OUTER_H = (lx, lz) => so(lx - offX, lz - offZ) - BASE_H;
+  const tex = await loadTex(DATA + 'ortho_jo.jpg', true, false);
+  const mesh = new THREE.Mesh(gridGeometry(pos, uv, NX, NZ), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.97 }));
+  mesh.receiveShadow = true; scene.add(mesh);
+}
+
+/* =====================================================================
+   攔河堰本體（數量、尺寸依法規第三點；外型示意）
+   ===================================================================== */
+const gravelTex = (() => { const t = texLoader.load(TEX + 'dry_riverbed_rock_diff.jpg'); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(46, 10); return t; })();
+const MAT = {
+  gravel: new THREE.MeshStandardMaterial({ map: gravelTex, color: 0xb9b4aa, roughness: 0.95 }),
+  con: new THREE.MeshStandardMaterial({ color: 0xbdb5a6, roughness: 0.88 }),
+  conD: new THREE.MeshStandardMaterial({ color: 0x8f877a, roughness: 0.92 }),
+  blue: new THREE.MeshStandardMaterial({ color: 0x3b9ad9, roughness: 0.45, metalness: 0.35, side: THREE.DoubleSide }),
+  white: new THREE.MeshStandardMaterial({ color: 0xe8eef2, roughness: 0.6 }),
+  asph: new THREE.MeshStandardMaterial({ color: 0x46484b, roughness: 0.95 }),
+  yel: new THREE.MeshStandardMaterial({ color: 0xf2c230, roughness: 0.7 }),
+  pole: new THREE.MeshStandardMaterial({ color: 0xd8dde2, roughness: 0.5, metalness: 0.4 }),
+  water: new THREE.MeshStandardMaterial({ color: 0x3f7f86, roughness: 0.2, transparent: true, opacity: 0.85 }),
+};
+/* 靜態幾何先收集，最後依材質合併（減少 draw call） */
+function collector() {
+  const parts = new Map();
+  const push = (mat, geo) => { if (!parts.has(mat)) parts.set(mat, []); parts.get(mat).push(geo.index ? geo.toNonIndexed() : geo); };
+  return {
+    push,
+    box(mat, u0, u1, y0, y1, v0, v1) { const g = new THREE.BoxGeometry(u1 - u0, y1 - y0, v1 - v0); g.translate((u0 + u1) / 2, E((y0 + y1) / 2), (v0 + v1) / 2); push(mat, g); },
+    cyl(mat, u, v, y0, y1, r, seg = 12) { const g = new THREE.CylinderGeometry(r, r, y1 - y0, seg); g.translate(u, E((y0 + y1) / 2), v); push(mat, g); },
+    profile(mat, pts, u0, w) {   // pts＝[v, 高程] 剖面，沿 u 方向擠出寬 w
+      const sh = new THREE.Shape(); pts.forEach(([v, y], i) => i ? sh.lineTo(v, E(y)) : sh.moveTo(v, E(y)));
+      const g = new THREE.ExtrudeGeometry(sh, { depth: w, bevelEnabled: false, curveSegments: 1 });
+      g.rotateY(-Math.PI / 2); g.translate(u0 + w, 0, 0); push(mat, g);
+    },
+    flush(group) { for (const [mat, list] of parts) { const m = new THREE.Mesh(mergeGeometries(list), mat); m.castShadow = m.receiveShadow = true; group.add(m); } parts.clear(); },
+  };
+}
+const ogeeY = v => SPEC.spCrest - 0.154 * Math.pow(v, 1.85);      // WES 標準堰形（設計水頭約 4 m，示意）
+function ogeePath(vEnd) {
+  const p = [];
+  for (let v = 0.5; v <= 11.8; v += 0.6) p.push([v, ogeeY(v)]);
+  p.push([11.8, TEACH.apron], [vEnd, TEACH.apron]);
+  return p;
+}
+
+function radialGate(w, crest, h, tz, tdy) {
+  const piv = new THREE.Group(), R = Math.hypot(tz, tdy);
+  const f0 = Math.PI - Math.asin((h - tdy) / R), f1 = Math.atan2(-tdy, -tz) + Math.PI * 2, NF = 14;
+  const P = [], I = [];
+  for (let a = 0; a <= NF; a++) { const f = f0 + (f1 - f0) * a / NF; for (const x of [-w / 2 + 0.05, w / 2 - 0.05]) P.push(x, R * Math.sin(f), R * Math.cos(f)); if (a) { const q = (a - 1) * 2; I.push(q, q + 2, q + 1, q + 1, q + 2, q + 3); } }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setIndex(I); g.computeVertexNormals();
+  const skin = new THREE.Mesh(g, MAT.blue); skin.castShadow = true; piv.add(skin);
+  const parts = [];
+  for (const x of [-w / 2 + 0.7, w / 2 - 0.7]) for (const f of [f0 + 0.2 * (f1 - f0), f1 - 0.2 * (f1 - f0)]) {
+    const b = new THREE.BoxGeometry(0.45, 0.7, R); b.rotateX(-f); b.translate(x, Math.sin(f) * R / 2, Math.cos(f) * R / 2); parts.push(b);
+  }
+  for (const k of [0.3, 0.7]) { const f = f0 + (f1 - f0) * k, b = new THREE.BoxGeometry(w - 0.2, 0.5, 0.5); b.translate(0, Math.sin(f) * (R - 0.3), Math.cos(f) * (R - 0.3)); parts.push(b); }
+  const pin = new THREE.CylinderGeometry(0.5, 0.5, w, 10); pin.rotateZ(Math.PI / 2); parts.push(pin);
+  const arms = new THREE.Mesh(mergeGeometries(parts), MAT.blue); arms.castShadow = true; piv.add(arms);
+  piv.position.set(0, E(crest + tdy), tz);
+  return piv;
+}
+const lipSp = o => { const a = o * 62 * Math.PI / 180; return 6 * (1 - Math.cos(a)) + 10 * Math.sin(a); };
+const lipSl = o => { const a = o * 62 * Math.PI / 180; return 4.5 * (1 - Math.cos(a)) + 7 * Math.sin(a); };
+
+/* 水流薄層（沿溢洪道表面），厚度與透明度依流量 */
+const NOISE = `
+  float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+  float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+    return mix(mix(h21(i), h21(i+vec2(1,0)), f.x), mix(h21(i+vec2(0,1)), h21(i+vec2(1,1)), f.x), f.y); }`;
+function sheetGeo(path, w) {
+  const n = path.length, L = [0];
+  for (let i = 1; i < n; i++) L.push(L[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]));
+  const P = [], N = [], UV = [], I = [];
+  for (let i = 0; i < n; i++) {
+    const a = path[Math.max(0, i - 1)], b = path[Math.min(n - 1, i + 1)], tv = b[0] - a[0], ty = b[1] - a[1], tl = Math.hypot(tv, ty) || 1;
+    for (const x of [-w / 2, w / 2]) { P.push(x, E(path[i][1]), path[i][0]); N.push(0, tv / tl, -ty / tl); UV.push(x / w + 0.5, L[i] / L[n - 1]); }
+    if (i) { const q = (i - 1) * 2; I.push(q, q + 2, q + 1, q + 1, q + 2, q + 3); }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('aN', new THREE.Float32BufferAttribute(N, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(UV, 2));
+  g.setIndex(I); return g;
+}
+function sheetMat(mudU) {
+  return new THREE.ShaderMaterial({
+    uniforms: { uTime: U.time, uFlow: { value: 0 }, uH: { value: 0.3 }, uMud: mudU },
+    vertexShader: `attribute vec3 aN; uniform float uH; varying vec2 vUv;
+      void main(){ vUv = uv; vec3 p = position + aN * (0.12 + uH * (1.0 - 0.6 * uv.y));
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }`,
+    fragmentShader: `uniform float uTime, uFlow, uMud; varying vec2 vUv; ${NOISE}
+      void main(){
+        float n = vn(vec2(vUv.x * 16.0, vUv.y * 22.0 - uTime * 3.2)), n2 = vn(vec2(vUv.x * 45.0, vUv.y * 60.0 - uTime * 7.0));
+        vec3 base = mix(vec3(0.10,0.30,0.28), vec3(0.22,0.16,0.09), uMud);
+        float foam = clamp(smoothstep(0.45, 0.95, n * 0.6 + n2 * 0.4) * (0.35 + 0.8 * vUv.y) + smoothstep(0.45, 0.75, vUv.y) * 0.55, 0.0, 1.0);
+        vec3 col = mix(base, vec3(0.82,0.84,0.82), foam);
+        float a = uFlow * (0.72 + 0.28 * foam) * (1.0 - smoothstep(0.82, 1.0, vUv.y));
+        gl_FragColor = vec4(col, a);
+        #include <colorspace_fragment>
+      }`,
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  });
+}
+function plateTex(txt, bg) {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 128); g.fillStyle = bg; g.fillRect(8, 8, 112, 112);
+  g.fillStyle = '#fff'; g.font = '900 78px "Noto Sans TC", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, 64, 70);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
+function buildWeir() {
+  const WG = new THREE.Group(); OBJ.WG = WG;
+  const [ox, oz] = wp(0, 0); WG.position.set(ox - CX, 0, oz - CZ); WG.rotation.y = Math.atan2(-UZ, UX);
+  scene.add(WG);
+  const C = collector(), END = 352.5, DECK = TEACH.deck;
+  // 閘墩（23 座）
+  const piers = [0, ...BAYS.map(b => b.u0 + b.w)];
+  for (const pu of piers) {
+    C.box(MAT.con, pu, pu + PIER, 189.5, DECK - 0.8, -27, 16);
+    C.cyl(MAT.con, pu + PIER / 2, -27, 189.5, DECK - 0.8, PIER / 2, 10);
+    C.box(MAT.white, pu - 0.1, pu + PIER + 0.1, DECK - 0.8, DECK + 2.0, 0.5, 8);          // 啟閉機房（示意）
+    C.box(MAT.blue, pu - 0.15, pu + PIER + 0.15, DECK + 2.0, DECK + 2.4, 0.3, 8.2);
+  }
+  // 溢洪道（沃基式堰）、排砂道
+  for (const b of SP) C.profile(MAT.con, [[-8, 189.5], [-8, 203], [-3.5, 204.7], [-1.5, 205.15], [0, SPEC.spCrest], ...ogeePath(16).slice(0, -1), [16, TEACH.apron], [16, 189.5]], b.u0, b.w);
+  for (const b of SL) {
+    C.profile(MAT.conD, [[-8, 189.5], [-8, SPEC.slCrest], [6, SPEC.slCrest], [10, 197.2], [20, TEACH.apron], [20, 189.5]], b.u0, b.w);
+    C.box(MAT.con, b.u0, b.u0 + b.w, SPEC.slCrest + SPEC.slH, DECK - 0.8, -3, -1);           // 排砂道胸牆
+  }
+  // 交通橋（上游側，寬 15 m）
+  C.box(MAT.con, -8, END + 9, DECK - 0.8, DECK, -26.5, -9.5);
+  C.box(MAT.asph, -8, END + 9, DECK, DECK + 0.1, -26, -10);
+  C.box(MAT.yel, -8, END + 9, DECK + 0.1, DECK + 0.13, -18.2, -18.05); C.box(MAT.yel, -8, END + 9, DECK + 0.1, DECK + 0.13, -17.95, -17.8);
+  C.box(MAT.con, -8, END + 9, DECK, DECK + 1.1, -26.5, -26); C.box(MAT.con, -8, END + 9, DECK, DECK + 1.1, -10, -9.5);
+  for (let u = 4; u < END; u += 32) { C.cyl(MAT.pole, u, -9.75, DECK + 1.1, DECK + 10, 0.13, 6); C.box(MAT.pole, u - 0.1, u + 0.1, DECK + 9.8, DECK + 10, -11.8, -9.75); }
+  // 水位調節閘門（第 1–4、15–18 號弧形閘門上游側，常時全開＝吊起）
+  for (const b of SP) if (b.no <= 4 || b.no >= 15) C.box(MAT.blue, b.u0 + 0.2, b.u0 + b.w - 0.2, DECK - 3.0, DECK - 1.0, -5.2, -4.8);
+  // 消能池、末端消能塊、導牆、維修橋（下游側，寬 4.5 m）
+  C.box(MAT.gravel, -8, END + 9, 189.5, TEACH.apron, 11, 94);
+  C.box(MAT.conD, -8, END + 9, TEACH.apron, TEACH.apron + 1.4, 84, 88);                    // 末端檻
+  for (let u = 1; u < END - 2; u += 6.5) { C.box(MAT.conD, u, u + 2.6, TEACH.apron + 1.4, TEACH.apron + 3.4, 85, 87.6); C.box(MAT.conD, u - 0.8, u + 3.4, TEACH.apron + 3.4, TEACH.apron + 4.2, 84.6, 87.9); }   // T 形消能塊
+  for (const pu of [0, ...BAYS.map(b => b.u0 + b.w)]) { C.box(MAT.con, pu, pu + PIER, TEACH.apron, 196, 16, 24); C.box(MAT.con, pu, pu + PIER, TEACH.apron, 193, 24, 29); }   // 閘墩往下游延伸
+  for (const b of SP) for (const d of [-3.8, 3.8]) C.box(MAT.conD, b.uc + d - 1.5, b.uc + d + 1.5, TEACH.apron, TEACH.apron + 1.3, 25, 28);   // 陡槽末端消能塊
+  C.box(MAT.con, -8, -4, 189.5, 201, 16, 94); C.box(MAT.con, END + 5, END + 9, 189.5, 201, 16, 94);
+  for (const pu of [SL[1].u0 + SL[1].w, SL[2].u0 - PIER]) C.box(MAT.con, pu, pu + PIER, TEACH.apron, 199, 16, 84);
+  C.box(MAT.con, -8, END + 9, 196.2, 197, 31, 35.5); C.box(MAT.con, -8, END + 9, 197, 197.9, 31, 31.25); C.box(MAT.con, -8, END + 9, 197, 197.9, 35.25, 35.5);
+  for (const pu of piers) C.cyl(MAT.con, pu + PIER / 2, 33.25, TEACH.apron, 196.2, 0.9, 12);
+  // 兩岸翼牆
+  C.box(MAT.con, -8, 0, 189.5, DECK, -34, 16); C.box(MAT.con, END + 5, END + 9, 189.5, DECK, -34, 16);
+  // 魚道（法規：第四號排砂道左側＝面向下游的左手邊，位置推定）：15 個魚槽階梯
+  const fishW = [];
+  for (let k = 0; k < 16; k++) {
+    const v0 = -6 + k * 6.1, y = 207.4 - k * 1.06;
+    C.box(MAT.conD, END + 0.5, END + 4.5, 189.5, y, v0, v0 + 6.1);
+    C.box(MAT.con, END, END + 0.5, 189.5, y + 2.2, v0, v0 + 6.1); C.box(MAT.con, END + 4.5, END + 5, 189.5, y + 2.2, v0, v0 + 6.1);
+    if (k < 15) C.box(MAT.con, END + 0.5, END + 3.6, y, y + 1.3, v0 + 5.8, v0 + 6.1);
+    const g = new THREE.BoxGeometry(4, 0.1, 5.8); g.translate(END + 2.5, E(y + 0.95), v0 + 3); fishW.push(g);
+  }
+  OBJ.fishWater = new THREE.Mesh(mergeGeometries(fishW), MAT.water); WG.add(OBJ.fishWater);
+  C.flush(WG);
+  // 弧形閘門（會動）
+  for (const b of SP) { const p = radialGate(b.w - 0.1, SPEC.spCrest, SPEC.spH, 10, 6); p.position.x = b.uc; WG.add(p); OBJ.spPiv.push(p); }
+  for (const b of SL) { const p = radialGate(b.w - 0.1, SPEC.slCrest, SPEC.slH, 7, 4.5); p.position.x = b.uc; WG.add(p); OBJ.slPiv.push(p); }
+  // 門號牌（溢洪道紅底、排砂道藍底，依照片）
+  const plate = new THREE.PlaneGeometry(2.4, 2.4);
+  for (const b of BAYS) {
+    const m = new THREE.Mesh(plate, new THREE.MeshBasicMaterial({ map: plateTex(String(b.no), b.type === 'sp' ? '#b91c1c' : '#1d4ed8') }));
+    m.position.set(b.uc, E(DECK + 2.3), -9.4); WG.add(m);
+  }
+  // 水流：溢洪道、排砂道
+  const spPath = [[-2, SPEC.spCrest], [0, SPEC.spCrest], ...ogeePath(46)];
+  const slPath = [[-2, SPEC.slCrest], [6, SPEC.slCrest], [10, 197.2], [20, TEACH.apron], [60, TEACH.apron]];
+  for (const b of SP) { const m = new THREE.Mesh(sheetGeo(spPath, b.w - 0.2), sheetMat(U.mud)); m.position.x = b.uc; m.renderOrder = 3; WG.add(m); OBJ.spSheet.push(m); }
+  for (const b of SL) { const m = new THREE.Mesh(sheetGeo(slPath, b.w - 0.2), sheetMat(U.mudSl)); m.position.x = b.uc; m.renderOrder = 3; WG.add(m); OBJ.slSheet.push(m); }
+}
+
+/* =====================================================================
+   取水口：上、下兩層閘門（北岸 8×2＝16 座、南岸 9×2＝18 座，每座 4.38×2.3 m）
+   ===================================================================== */
+function buildIntakes() {
+  OBJ.inGates = [];
+  for (const [key, it] of Object.entries(INTAKES)) {
+    const G = new THREE.Group(); G.position.set(it.m[0] - CX, 0, it.m[1] - CZ); G.rotation.y = Math.atan2(-it.dz, it.dx); scene.add(G);
+    const C = collector(), n = it.bays, W = n * SPEC.inGW + (n + 1) * 1.2, x0 = -W / 2, TOP = 214;
+    C.box(MAT.conD, x0 - 2, -x0 + 2, 199, SPEC.inLow, 0, 10);                       // 閘前底版
+    for (let i = 0; i <= n; i++) { const x = x0 + i * (SPEC.inGW + 1.2); C.box(MAT.con, x, x + 1.2, 199, TOP, -14, 3); }
+    C.box(MAT.con, x0 - 3, -x0 + 3, TOP - 0.8, TOP, -14, 3);                          // 操作平台
+    C.box(MAT.con, x0, -x0, SPEC.inLow + SPEC.inGH, SPEC.inUp, 0.6, 1.8);             // 上下層之間的橫梁
+    C.box(MAT.con, x0, -x0, SPEC.inUp + SPEC.inGH, TOP - 0.8, 0.6, 1.8);              // 胸牆
+    C.box(MAT.con, x0 - 3, -x0 + 3, 199, TOP, -40, -14);                              // 後方進水室（示意）
+    C.box(MAT.con, x0 - 4, x0, 199, TOP, -40, 8); C.box(MAT.con, -x0, -x0 + 4, 199, TOP, -40, 8);   // 翼牆
+    for (let i = 0; i < n; i += 2) { const x = x0 + 1.2 + i * (SPEC.inGW + 1.2); C.box(MAT.blue, x, x + SPEC.inGW * 2 + 1.2, TOP, TOP + 1.6, -2, 2); }
+    C.flush(G);
+    const gates = { low: [], up: [] };
+    for (let i = 0; i < n; i++) {
+      const x = x0 + 1.2 + i * (SPEC.inGW + 1.2) + SPEC.inGW / 2;
+      for (const layer of ['low', 'up']) {
+        const m = new THREE.Mesh(new THREE.BoxGeometry(SPEC.inGW - 0.1, SPEC.inGH, 0.3), MAT.blue);
+        m.userData.y0 = E((layer === 'low' ? SPEC.inLow : SPEC.inUp) + SPEC.inGH / 2);
+        m.position.set(x, m.userData.y0, 0.25); m.castShadow = true; G.add(m); gates[layer].push(m);
+      }
+    }
+    OBJ.inGates.push(gates); it.group = G;
+  }
+}
+
+/* 取水口、排砂道前的淤砂（高度隨時間增加，排砂時被沖走；示意） */
+function buildMounds() {
+  OBJ.mounds = [];
+  const mat = new THREE.MeshStandardMaterial({ color: 0x6f6553, roughness: 0.95 });
+  for (const [cu, cv] of [[2, -42], [352, -44]]) {
+    const g = new THREE.PlaneGeometry(96, 80, 48, 40); g.rotateX(-Math.PI / 2);
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), r2 = (x / 44) ** 2 + (z / 36) ** 2; p.setY(i, Math.exp(-r2 * 2.6) * (1 + 0.08 * Math.sin(x * 0.3) * Math.cos(z * 0.25))); }
+    g.computeVertexNormals();
+    const m = new THREE.Mesh(g, mat); m.position.set(cu, E(201), cv); m.receiveShadow = true; OBJ.WG.add(m); OBJ.mounds.push(m);
+  }
+}
+
+/* 水庫水面：只畫在堰的上游側 */
+function buildPool() {
+  const mat = new THREE.MeshPhysicalMaterial({ color: 0x4f8f88, roughness: 0.12, normalMap: waterN, normalScale: new THREE.Vector2(0.5, 0.5), transparent: true, opacity: 0.74, envMapIntensity: 0.5, specularIntensity: 0.6 });
+  mat.onBeforeCompile = sh => {
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vW;')
+      .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvW = (modelMatrix * vec4(transformed,1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vW;')
+      .replace('void main() {', `void main() {
+        { float lx = vW.x + ${CX.toFixed(2)} - ${WA[0].toFixed(2)}, lz = vW.z + ${CZ.toFixed(2)} - ${WA[1].toFixed(2)};
+          float v = lx * ${VX.toFixed(5)} + lz * ${VZ.toFixed(5)};
+          if (v > -1.2) discard; }`);
+  };
+  const g = new THREE.PlaneGeometry(4200, 3400, 1, 1); g.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(g, mat); m.position.set(2700 - CX, 0, 1460 - CZ); m.renderOrder = 2; scene.add(m);
+  OBJ.pool = m; OBJ.poolMat = mat;
+}
+
+/* 消能池水面：依各閘門流量在出口處起白沫 */
+function buildBasinWater() {
+  const n = BAYS.length;
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uTime: U.time, uMud: U.mud, uI: { value: new Float32Array(n) }, uUc: { value: new Float32Array(BAYS.map(b => b.uc)) }, uW: { value: new Float32Array(BAYS.map(b => b.w)) }, uDepth: { value: 0.3 } },
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform float uTime, uMud, uDepth; uniform float uI[${n}], uUc[${n}], uW[${n}]; varying vec2 vUv; ${NOISE}
+      void main(){
+        float u = -8.0 + vUv.x * 369.0, v = 12.0 + (1.0 - vUv.y) * 82.0;
+        float f = 0.0;
+        for (int i = 0; i < ${n}; i++) { float d = (u - uUc[i]) / (uW[i] * 0.7); f += uI[i] * exp(-d * d) * exp(-(v - 12.0) / 30.0); }
+        float nz = vn(vec2(u * 0.25, v * 0.25 - uTime * 2.5)) * 0.6 + vn(vec2(u * 0.9, v * 0.9 - uTime * 4.0)) * 0.4;
+        float foam = clamp(f * (0.6 + 0.8 * nz), 0.0, 1.0);
+        vec3 base = mix(vec3(0.05,0.15,0.15), vec3(0.17,0.12,0.07), uMud);
+        vec3 col = mix(base, vec3(0.85), foam);
+        float pud = smoothstep(0.5, 0.62, vn(vec2(u * 0.035, v * 0.05)) * 0.7 + vn(vec2(u * 0.13, v * 0.13)) * 0.3);   // 水少時只剩水窪
+        float cover = max(mix(pud, 1.0, smoothstep(0.6, 1.6, uDepth)), clamp(f * 2.0, 0.0, 1.0));
+        gl_FragColor = vec4(col, clamp(0.6 + foam * 0.4, 0.0, 0.95) * cover);
+        #include <colorspace_fragment>
+      }`,
+    transparent: true, depthWrite: false,
+  });
+  const g = new THREE.PlaneGeometry(369, 82); g.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(g, mat); m.position.set(-8 + 184.5, E(TEACH.apron + 0.3), 53); m.renderOrder = 3; OBJ.WG.add(m);
+  OBJ.basin = m;
+}
+
+/* 下游河道水面：沿 OSM 濁水溪中心線，水深依放水量（示意） */
+function buildRiverDown() {
+  const riv = OSM.lines.filter(l => l.kind === 'river' && l.name === '濁水溪').flatMap(l => l.pts);
+  let pts = riv.filter(p => toUV(p[0], p[1])[1] > 100);
+  if (pts.length && toUV(...pts[0])[1] > toUV(...pts[pts.length - 1])[1]) pts.reverse();
+  pts = resample(chaikin([wp(176, 96), ...pts], 2), 12);
+  const n = pts.length, A = 9, half = 200, nor = [], bed = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const a = pts[Math.max(0, i - 2)], b = pts[Math.min(n - 1, i + 2)], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1;
+    nor.push([-dz / L, dx / L]);
+    let mn = 1e9; for (let k = -1; k <= 1; k += 0.1) mn = Math.min(mn, heightAt(pts[i][0] + nor[i][0] * half * k - CX, pts[i][1] + nor[i][1] * half * k - CZ));
+    bed[i] = mn;
+  }
+  for (let i = 1; i < n; i++) bed[i] = Math.min(bed[i], bed[i - 1]);
+  const pos = [], uv = [], idx = [], base = []; let s = 0;
+  for (let i = 0; i < n; i++) {
+    if (i) s += 12;
+    for (let a = 0; a < A; a++) { const t = a / (A - 1) * 2 - 1; pos.push(pts[i][0] + nor[i][0] * half * t - CX, bed[i], pts[i][1] + nor[i][1] * half * t - CZ); uv.push(s / 40, t * half / 40); base.push(bed[i]); }
+  }
+  for (let i = 0; i < n - 1; i++) for (let a = 0; a < A - 1; a++) { const p = i * A + a; idx.push(p, p + 1, p + A, p + 1, p + A + 1, p + A); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+  const mat = new THREE.MeshPhysicalMaterial({ color: 0x4f8f88, roughness: 0.15, normalMap: waterN, normalScale: new THREE.Vector2(0.6, 0.6), transparent: true, opacity: 0.85, envMapIntensity: 0.45, side: THREE.DoubleSide });
+  const m = new THREE.Mesh(g, mat); m.renderOrder = 2; scene.add(m);
+  OBJ.river = m; OBJ.riverMat = mat; OBJ.riverBase = new Float32Array(base);
+}
+
+/* 水花粒子（消能池） */
+function buildSplash() {
+  const per = 60, n = BAYS.length, P = [], S = [], Bi = [], r = rng(7);
+  BAYS.forEach((b, i) => { for (let k = 0; k < per; k++) { P.push(b.uc + (r() - 0.5) * b.w * 0.9, E(TEACH.apron + 0.6), 12 + r() * 22); S.push(r(), r()); Bi.push(i); } });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('aSeed', new THREE.Float32BufferAttribute(S, 2)); g.setAttribute('aBay', new THREE.Float32BufferAttribute(Bi, 1));
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uTime: U.time, uI: OBJ.basin.material.uniforms.uI, uScale: { value: innerHeight * 0.9 } },
+    vertexShader: `attribute vec2 aSeed; attribute float aBay; uniform float uTime, uScale; uniform float uI[${n}]; varying float vA;
+      void main(){ float I = uI[int(aBay)]; float t = fract(uTime * (0.5 + 0.4 * aSeed.y) + aSeed.x);
+        vec3 p = position; p.y += t * (2.0 + 9.0 * I) - t * t * (2.0 + 9.0 * I); p.z += t * 10.0 * I;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_Position = projectionMatrix * mv;
+        gl_PointSize = (3.0 + 16.0 * I) * (1.0 - 0.4 * t) * uScale / max(-mv.z, 1.0) * 0.12;
+        vA = step(0.03, I) * (1.0 - t) * (0.4 + 0.6 * I); }`,
+    fragmentShader: `varying float vA; void main(){ float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; gl_FragColor = vec4(vec3(0.96), vA * (1.0 - d * 2.0)); }`,
+    transparent: true, depthWrite: false,
+  });
+  const pts = new THREE.Points(g, mat); pts.frustumCulled = false; pts.renderOrder = 4; OBJ.WG.add(pts);
+}
+
+/* 管理中心（台灣水資源館）：外型示意；警報燈 */
+function buildCenter() {
+  const p = [1955, 1240], x = p[0] - CX, z = p[1] - CZ, y = heightAt(x, z);
+  const G = new THREE.Group(); G.position.set(x, y, z); G.rotation.y = 0.5; scene.add(G);
+  const m1 = new THREE.MeshStandardMaterial({ color: 0x9a8e80, roughness: 0.85 }), m2 = new THREE.MeshStandardMaterial({ color: 0xd9d4cc, roughness: 0.6 });
+  const add = (geo, mat, px, py, pz) => { const o = new THREE.Mesh(geo, mat); o.position.set(px, py, pz); o.castShadow = o.receiveShadow = true; G.add(o); return o; };
+  add(new THREE.BoxGeometry(44, 13, 16), m1, -6, 6.5, 0);
+  add(new THREE.BoxGeometry(14, 24, 16), m1, 18, 12, 0);
+  add(new THREE.CylinderGeometry(4.5, 4.5, 30, 20), m1, 22, 15, -6);
+  add(new THREE.CylinderGeometry(7, 7, 3.5, 24), m2, 22, 31, -6);
+  OBJ.siren = add(new THREE.SphereGeometry(1.6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xff2222 }), 22, 34, -6); OBJ.siren.visible = false;
+  OBJ.centerPos = new THREE.Vector3(x, y + 40, z);
+}
+
+/* 沿地面的流動虛線（渠道路線、蓄水範圍、排砂水流） */
+const groundY = (lx, lz) => (lx > 5 && lx < 3695 && lz > 5 && lz < 2915) ? heightAt(lx - CX, lz - CZ) : OUTER_H(lx, lz);
+function makeRibbon(src, o = {}) {
+  const w = o.w ?? 1.6, lift = o.lift ?? 1.5, pts = resample(chaikin(src, o.smooth ?? 2), 4);
+  const P = [], S = [], I = []; let s = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1, nx = -dz / L * w, nz = dx / L * w;
+    if (i) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    const x = pts[i][0] - CX, z = pts[i][1] - CZ, y = (o.y ?? groundY(pts[i][0], pts[i][1])) + lift;
+    P.push(x - nx, y, z - nz, x + nx, y, z + nz); S.push(s, s);
+    if (i) { const q = (i - 1) * 2; I.push(q, q + 2, q + 1, q + 1, q + 2, q + 3); }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('aS', new THREE.Float32BufferAttribute(S, 1)); g.setIndex(I);
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uTime: U.time, uOn: { value: o.on ?? 1 }, uC1: { value: new THREE.Color(o.c1 ?? 0x0559b3) }, uC2: { value: new THREE.Color(o.c2 ?? 0x99e6ff) }, uSpd: { value: o.speed ?? 0.9 }, uDash: { value: o.dash ?? 18 }, uA: { value: new THREE.Vector2(o.a0 ?? 0.35, o.a1 ?? 0.4) } },
+    vertexShader: `attribute float aS; varying float vS; void main(){ vS = aS; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform float uTime, uOn, uSpd, uDash; uniform vec3 uC1, uC2; uniform vec2 uA; varying float vS;
+      void main(){ float d = step(0.45, fract(vS / uDash - uTime * uSpd)); gl_FragColor = vec4(mix(uC1, uC2, d), uOn * (uA.x + uA.y * d)); }`,
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  });
+  const m = new THREE.Mesh(g, mat); m.renderOrder = 5; scene.add(m);
+  return { mat, pts, mesh: m };
+}
+
+/* 北岸：取水口 → 北岸引水隧道（地下）→ 引水暗渠 → 北岸沉砂池 → 北岸聯絡渠道（OSM 線）
+   南岸：取水口 → 南岸引水暗渠（沿南岸堤防）→ 南岸沉砂池 → 南岸聯絡渠道（位置依正射影像判讀） */
+function buildRoutes() {
+  // 北岸：取水口 →（引水隧道，依水利署調整池位置圖，往西北穿過山）→ 北岸引水暗渠（正射影像看得到的南北向暗渠，OSM 線）→ 分水到兩座沉砂池
+  const bN = INTAKES.N, bS = INTAKES.S;
+  const tunnel = makeRibbon([[bN.m[0] - bN.zx * 25, bN.m[1] - bN.zz * 25], [1640, 1235], [1402, 1099]], { smooth: 1, a0: 0.18, a1: 0.25, dash: 10 });
+  const conduit = makeRibbon([[1402, 1099], [1393, 1088], [1385, 1067], [1379, 1035], [1345, 838], [1323, 727], [1327, 570], [1334, 533], [1337, 505], [1330, 471], [1320, 463], [1264, 413], [1241, 391], [1179, 352], [1157, 342], [1139, 325], [1095, 300], [1048, 296]]);
+  const nTips = BASIN_TIPS.N, sTips = BASIN_TIPS.S;
+  const nBr = nTips.map(t => makeRibbon([[1048, 296], [t[0] + 8, t[1]], t], { smooth: 0 }));
+  const nDown = makeRibbon([[872, 262], [802, 240], [724, 221], [695, 206], [671, 176], [667, 141], [666, 129], [659, 12]]);
+  // 南岸：取水口 → 南岸引水暗渠（沿南岸道路）→ 分到三座沉砂池（分水路線示意）→ 巴歇爾量水槽 → 南岸聯絡渠道
+  const sUp = makeRibbon([[bS.m[0] - bS.zx * 30, bS.m[1] - bS.zz * 30], [1750, 1748], [1600, 1735], [1400, 1724], [1190, 1716], [1100, 1692], [990, 1666], [940, 1660]]);
+  const sBr = [makeRibbon([[940, 1660], sTips[2]], { smooth: 0 }), makeRibbon([[940, 1660], [890, 1680], [848, 1672], sTips[1]], { smooth: 0 }), makeRibbon([[848, 1672], [852, 1630], sTips[0]], { smooth: 0 })];
+  const sDown = makeRibbon([[728, 1596], [690, 1597], [630, 1603]], { smooth: 1 });
+  OBJ.routeN = [tunnel.mat, conduit.mat, nDown.mat, ...nBr.map(r => r.mat)]; OBJ.routeS = [sUp.mat, sDown.mat, ...sBr.map(r => r.mat)];
+  OBJ.lblTunnel = [1640, 1235]; OBJ.lblConduit = [1330, 760];
+  OBJ.lblNDown = [666, 129]; OBJ.lblSUp = sUp.pts[Math.floor(sUp.pts.length * 0.45)];
+  // 水庫蓄水範圍（依〈集集攔河堰蓄水範圍圖〉：北岸台16線林尾圍堤、東邊集鹿大橋、清瑞橋、南岸小嶺產業道路，大概位置）
+  const RES = [[1803, 1369], [1900, 1300], [1960, 1250], [2060, 1180], [2160, 1080], [2230, 990], [2284, 942], [2300, 1010], [2270, 1097],
+    [2700, 1112], [3200, 1130], [3600, 1148], [3896, 1162], [3810, 1640], [3727, 2113], [3769, 2982], [3500, 2664], [3180, 2741], [2857, 2644], [2500, 2330], [2111, 2027], [1776, 1733]];
+  const r = makeRibbon(RES, { w: 2.2, lift: 3, c1: 0xdc2626, c2: 0xfca5a5, speed: 0, dash: 26, a0: 0.9, a1: 0.05, smooth: 1 });
+  OBJ.resPts = r.pts;
+}
+
+/* 沉砂池：位置、方向依正射影像判讀，外型示意（沉砂溝每兩道一座排砂閘門，水利署〈最大規模沉砂池〉） */
+const BASINS = {   // o＝出水端（側槽）中心；L＝沉砂溝段長；fL＝入口漸變段長；tip＝入口寬；tipOff＝入口偏離中線（正＝往南）
+  N: { ang: 12 * Math.PI / 180, flush: [0, 1], list: [{ o: [896, 235], w: 54, L: 70, fL: 61, tip: 8, tipOff: 8.5 }, { o: [885, 288], w: 54, L: 70, fL: 67, tip: 8, tipOff: 5.4 }] },
+  S: { ang: 12 * Math.PI / 180, flush: [0, -1], list: [{ o: [749, 1587], w: 51, L: 58, fL: 34, tip: 18, tipOff: 0 }, { o: [738, 1638], w: 51, L: 58, fL: 34, tip: 18, tipOff: 0 }, { o: [856, 1633], w: 58, L: 52, fL: 15, tip: 30, tipOff: 0 }] },
+};
+const BASIN_TIPS = Object.fromEntries(Object.entries(BASINS).map(([k, d]) => { const ux = Math.cos(d.ang), uz = Math.sin(d.ang); return [k, d.list.map(b => [b.o[0] + ux * (b.L + b.fL) - uz * b.tipOff, b.o[1] + uz * (b.L + b.fL) + ux * b.tipOff])]; }));
+function buildBasins() {
+  const Y = v => v + BASE_H;                                       // collector 收高程，這裡換成相對高度
+  OBJ.sed = []; OBJ.flushPlumes = [];
+  const panel = new THREE.MeshStandardMaterial({ color: 0x1f2d4a, roughness: 0.35, metalness: 0.5 });
+  const wMat = new THREE.MeshStandardMaterial({ color: 0x3f7f86, roughness: 0.2, transparent: true, opacity: 0.72, side: THREE.DoubleSide });
+  const sMat = new THREE.MeshStandardMaterial({ color: 0x7a6548, roughness: 0.95 });
+  OBJ.basinWater = wMat;
+  for (const def of Object.values(BASINS)) {
+    const ux = Math.cos(def.ang), uz = Math.sin(def.ang), nTr = 12;
+    for (const b of def.list) {
+      const g = b.g - BASE_H;
+      const G = new THREE.Group(); G.position.set(b.o[0] - CX, g, b.o[1] - CZ); G.rotation.y = Math.atan2(-uz, ux); scene.add(G); (OBJ.basinGroups ||= []).push(G);
+      const C = collector(), w = b.w, L = b.L, tw = w / nTr;
+      C.box(MAT.conD, -6, L, Y(-4), Y(0.1), -w / 2 - 0.5, w / 2 + 0.5);
+      for (let i = 0; i <= nTr; i++) { const z = -w / 2 + i * tw; C.box(MAT.con, 0, L, Y(-4), Y(3), z - 0.25, z + 0.25); }
+      C.box(MAT.con, -0.6, 0, Y(-4), Y(3), -w / 2, w / 2);                              // 沉砂溝末端（表層水溢流進側槽）
+      C.box(MAT.con, -6.5, -6, Y(-4), Y(3.2), -w / 2 - 0.5, w / 2 + 0.5);              // 側槽外牆
+      for (const sg of [-1, 1]) C.box(MAT.con, -6.5, L, Y(-4), Y(3.2), sg * (w / 2 + 0.5) - 0.3, sg * (w / 2 + 0.5) + 0.3);
+      for (let i = 0; i < nTr / 2; i++) { const zc = -w / 2 + (i * 2 + 1) * tw; C.box(MAT.blue, L - 1.5, L + 0.5, Y(3), Y(4.4), zc - 1.4, zc + 1.4); }   // 排砂閘門（每兩道沉砂溝一座，位置示意）
+      for (let i = 0; i < nTr / 2; i++) { const zc = -w / 2 + (i * 2 + 1) * tw; C.box(panel, 3, L - 3, Y(5.6), Y(5.75), zc - tw * 0.55, zc + tw * 0.55); }   // 太陽能板（間隔排列，看得到下面）
+      for (let x = 4; x < L - 3; x += 12) for (let i = 0; i < nTr / 2; i++) { const zc = -w / 2 + (i * 2 + 1) * tw; C.cyl(MAT.pole, x, zc, Y(3), Y(5.6), 0.12, 6); }
+      // 入口漸變段（喇叭口）
+      const tip = b.tip, fL = b.fL, to = b.tipOff;
+      for (const sg of [-1, 1]) {
+        const x0 = L, z0 = sg * (w / 2 + 0.5), x1 = L + fL, z1 = to + sg * tip / 2, len = Math.hypot(x1 - x0, z1 - z0);
+        const bg = new THREE.BoxGeometry(len, 7.2, 0.6); bg.rotateY(-Math.atan2(z1 - z0, x1 - x0)); bg.translate((x0 + x1) / 2, -0.4, (z0 + z1) / 2);
+        C.push(MAT.con, bg);
+      }
+      C.box(MAT.blue, L + fL - 0.8, L + fL, Y(0), Y(4.2), to - tip / 2, to + tip / 2);            // 分水閘門（示意）
+      const sh = new THREE.Shape([new THREE.Vector2(L, -w / 2), new THREE.Vector2(L + fL, to - tip / 2), new THREE.Vector2(L + fL, to + tip / 2), new THREE.Vector2(L, w / 2)]);
+      const fl = new THREE.ShapeGeometry(sh); fl.rotateX(Math.PI / 2); fl.translate(0, -1.5, 0); fl.deleteAttribute('uv'); fl.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(fl.attributes.position.count * 2), 2)); C.push(MAT.conD, fl);
+      C.flush(G);
+      // 水面
+      const body = new THREE.PlaneGeometry(L + 6, w + 0.8); body.rotateX(-Math.PI / 2); body.translate((L - 6) / 2, 2.3, 0);
+      const fw = new THREE.ShapeGeometry(sh); fw.rotateX(Math.PI / 2); fw.translate(0, 2.3, 0);
+      const wm = new THREE.Mesh(mergeGeometries([body.toNonIndexed(), fw.toNonIndexed()]), wMat); wm.renderOrder = 2; G.add(wm);
+      // 沉砂溝裡的砂（高度隨 ST.basin）
+      const sg = [];
+      for (let i = 0; i < nTr; i++) { const zc = -w / 2 + (i + 0.5) * tw, bx = new THREE.BoxGeometry(L - 1, 1, tw - 0.6); bx.translate(L / 2, 0.5, zc); sg.push(bx); }
+      const sm = new THREE.Mesh(mergeGeometries(sg), sMat); sm.position.y = -1.5; G.add(sm); OBJ.sed.push(sm);
+      // 排砂時的水流（往濁水溪的方向，路線示意）
+      const px = b.o[0] + ux * L, pz = b.o[1] + uz * L;
+      OBJ.flushPlumes.push(makeRibbon([[px, pz], [px + def.flush[0] * 30, pz + def.flush[1] * 30], [px + def.flush[0] * 70, pz + def.flush[1] * 70]], { w: 3, c1: 0x5b4127, c2: 0xb08a5a, speed: 1.6, dash: 8, a0: 0.75, a1: 0.2, on: 0, smooth: 1 }).mat);
+    }
+  }
+}
+
+/* =====================================================================
+   水量與水位（簡化計算，示意）
+   ===================================================================== */
+const G9 = 9.81;
+function qSp(o, L) {
+  const H = L - SPEC.spCrest; if (o < 0.001 || H <= 0) return 0;
+  const a = lipSp(o), free = 2.1 * SPEC.spW * H ** 1.5;
+  return a >= H ? free : Math.min(free, 0.62 * SPEC.spW * a * Math.sqrt(2 * G9 * Math.max(H - a / 2, 0.01)));
+}
+function qSl(o, L) {
+  const H = L - SPEC.slCrest; if (o < 0.001 || H <= 0) return 0;
+  const a = lipSl(o), free = 2.1 * SPEC.slW * H ** 1.5;
+  return a >= H ? free : Math.min(free, 0.62 * SPEC.slW * a * Math.sqrt(2 * G9 * Math.max(H - a / 2, 0.01)));
+}
+const qFish = L => L > 207.4 ? 1 : 0;
+const outflow = (L, gs = ST.gate, sls = ST.sl) => gs.reduce((s, o) => s + qSp(o, L), 0) + sls.reduce((s, o) => s + qSl(o, L), 0) + qFish(L);
+const intakeQ = () => { const k = ST.level > SPEC.inUp + 0.3 ? 1 : 0.5; const t = Math.min(ST.Q, 160) * k; return [t * 70 / 160, t * 90 / 160]; };
+function solveLevel(need, gs, sls) {
+  if (outflow(216, gs, sls) < need) return 216;
+  let a = SPEC.slCrest, b = 216; for (let k = 0; k < 40; k++) { const m = (a + b) / 2; if (outflow(m, gs, sls) < need) a = m; else b = m; }
+  return (a + b) / 2;
+}
+function openingFor(q, L, f = qSp) { let a = 0, b = 1; if (f(1, L) <= q) return 1; for (let k = 0; k < 30; k++) { const m = (a + b) / 2; if (f(m, L) < q) a = m; else b = m; } return (a + b) / 2; }
+
+/* 依法規的操作方式（閘門編號 1–18 由北往南） */
+const PLANS = {
+  normal: { Q: 150, label: '平時', open: [] },
+  400: { Q: 400, label: '400', open: [9, 10, 11] },
+  650: { Q: 650, label: '650 以上', open: [7, 8, 9, 10, 11, 12] },
+  1300: { Q: 3000, label: '1300 以上（例：3000）', open: Array.from({ length: 18 }, (_, i) => i + 1) },
+};
+const RULE = {
+  normal: ['常時操作：水位調節閘門全開、弧形閘門全關，把水位撐高，讓取水口取水。取水口上層閘門依下游需要的水量打開，下層平時關閉。', '第四點（一）、第七點（一）'],
+  warn: ['警告性放水：正式放水前 1 小時，先開 1 座閘門慢慢放水（不超過 50 m³/s），並每 10～20 分鐘響一次放水警報，提醒下游的人離開河床。※ 畫面把 1 小時縮短成 8 秒', '第四點（二）、第十點（一）'],
+  400: ['調節性放水：水比取水口能取的多，打開幾座閘門（畫面開第 9～11 號，示意）放掉多的水，讓水位維持。', '第四點（三）'],
+  650: ['入流量超過 650 m³/s：把洪水集中在幾座閘門放（畫面開第 7～12 號，示意），順便沖走堰前的淤積、維持主河道。', '第四點（四）1'],
+  1300: ['入流量超過 1300 m³/s：18 座溢洪道閘門全部打開，全面洩洪排砂。閘門全開時水直接流走，水庫水位不會一直上升。', '第四點（四）1'],
+  resume: ['入流量降到 400 m³/s 以下：關閉排砂道閘門，弧形閘門關回去，恢復蓄水。', '第四點（四）2'],
+  sluice: ['排砂道排砂：打開排砂道閘門，把取水口前的淤砂和雜物沖走，沖完就關。', '第五點（一）、第十點（二）'],
+  basin: ['沉砂池排砂：沉砂溝裡的砂堆多了，就打開排砂閘門，用水把砂沖回濁水溪，清完就關。打開前要響放水警報。', '第八點（二）、第十點（三）'],
+  sluiceFlood: ['溢洪道放水期間，可以打開排砂道閘門，排除淤砂、維持取水口前的主流路（不必再做警告性放水）。', '第五點（三）'],
+};
+let seq = 0, warnTimer = 0;
+function showRule(k, warn = false) {
+  const [t, c] = RULE[k]; document.getElementById('ruleTxt').innerHTML = `${t}<span class="cite">〈集集攔河堰水庫水門操作規定〉${c}</span>`;
+  document.getElementById('rule').classList.toggle('warn', warn);
+}
+function startWarning(next) {
+  const my = seq; ST.warn = true; showRule('warn', true);
+  ST.gateT.fill(0); ST.gateT[8] = openingFor(45, Math.max(ST.level, TEACH.normal));
+  clearTimeout(warnTimer);
+  warnTimer = setTimeout(() => { if (my !== seq) return; ST.warn = false; next(); }, 8000);
+}
+function setInflow(key, instant = false) {
+  const plan = PLANS[key] || PLANS.normal, prev = ST.key; const my = ++seq;
+  ST.key = key in PLANS ? key : 'normal'; ST.Q = plan.Q; ST.warn = false; clearTimeout(warnTimer);
+  document.querySelectorAll('#qOpts .opt').forEach(b => b.classList.toggle('on', b.dataset.q === ST.key));
+  const apply = () => {
+    if (my !== seq) return;
+    ST.gateT.fill(0);
+    if (plan.open.length) {
+      const L = ST.key === '1300' ? 216 : TEACH.normal, need = plan.Q - Math.min(plan.Q, 160);
+      const o = ST.key === '1300' ? 1 : openingFor(need / plan.open.length, L);
+      for (const no of plan.open) ST.gateT[no - 1] = o;
+    }
+    if (ST.key === 'normal') { if (!ST.flushing) ST.slT.fill(0); showRule(prev !== 'normal' && !instant ? 'resume' : 'normal'); }
+    else showRule(ST.key);
+    if (ST.key === '1300' || ST.key === '650') ST.slT.fill(ST.flushing ? 0.35 : 0);
+    if (instant) { ST.gate = [...ST.gateT]; ST.sl = [...ST.slT]; ST.level = ST.key === 'normal' ? TEACH.normal : solveLevel(plan.Q - Math.min(plan.Q, 160), ST.gate, ST.sl); }
+  };
+  const anyOpen = ST.gateT.some(o => o > 0.01) || ST.gate.some(o => o > 0.01);
+  if (plan.open.length && !anyOpen && !instant) startWarning(apply); else apply();
+  gsap.to(U.mud, { value: { normal: 0, 400: 0.55, 650: 0.9, 1300: 1 }[ST.key], duration: instant ? 0 : 6 });
+}
+function startSluice() {
+  if (ST.flushing) return;
+  ST.flushing = true; document.getElementById('btnSluice').disabled = true;
+  const spilling = ST.gate.some(o => o > 0.05) && !ST.warn;
+  const open = () => { ST.slT.fill(0.35); showRule(spilling ? 'sluiceFlood' : 'sluice', !spilling); ST.sirenSl = !spilling; };
+  if (spilling) open();
+  else { ST.warn = true; showRule('warn', true); const before = [...ST.gateT]; ST.gateT[8] = Math.max(ST.gateT[8], openingFor(45, ST.level)); setTimeout(() => { ST.warn = false; open(); ST.gateT[8] = before[8]; }, 8000); }
+}
+function endSluice() {
+  ST.flushing = false; ST.sirenSl = false; ST.slT.fill(0); document.getElementById('btnSluice').disabled = false;
+  showRule(ST.key === 'normal' ? 'normal' : ST.key);
+}
+
+/* =====================================================================
+   每幀更新
+   ===================================================================== */
+const DEG62 = 62 * Math.PI / 180;
+let uiT = 0;
+function step(dt) {
+  const rate = 0.13 * dt;
+  for (let i = 0; i < 18; i++) ST.gate[i] += clamp(ST.gateT[i] - ST.gate[i], -rate, rate);
+  for (let i = 0; i < 4; i++) ST.sl[i] += clamp(ST.slT[i] - ST.sl[i], -rate, rate);
+  const [qN, qS] = intakeQ(), need = ST.Q - qN - qS;
+  const closed = outflow(216) - qFish(216) < 1;
+  let target = closed ? (need > 1 ? 216 : ST.level) : solveLevel(need, ST.gate, ST.sl);
+  if (ST.key === 'normal' && !closed) target = Math.max(target, 207.0);       // 排砂時水位最多降到約 207（示意）
+  const sp = closed ? 0.06 : 0.35;
+  ST.level += clamp(target - ST.level, -sp * dt, sp * dt);
+  // 淤砂：閘門都關時慢慢堆積；排砂道打開或全面洩洪時被沖走（示意，時間加速）
+  const slOpen = ST.sl.reduce((a, b) => a + b, 0) / 4, allOpen = ST.gate.reduce((a, b) => a + b, 0) / 18;
+  if (slOpen > 0.15) ST.mound -= 0.75 * dt * slOpen / 0.35;
+  else if (allOpen > 0.8) ST.mound -= 0.12 * dt;
+  else if (closed) ST.mound += 0.05 * dt;
+  ST.mound = clamp(ST.mound, 0, 6.8);
+  if (ST.flushing && ST.mound < 0.3 && slOpen > 0.3) endSluice();
+  // 沉砂池：有取水就慢慢淤積
+  if (ST.basinFlush) { ST.basin -= 0.12 * dt; if (ST.basin <= 0.02) { ST.basin = 0.02; ST.basinFlush = false; basinBtn(); showRule(ST.key === 'normal' ? 'normal' : ST.key); } }
+  else ST.basin = Math.min(1, ST.basin + 0.012 * dt * (qN > 1 ? 1 : 0));
+}
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  U.time.value += dt;
+  step(dt);
+  const L = ST.level, Ly = E(L);
+  OBJ.pool.position.y = Ly;
+  for (let i = 0; i < 18; i++) {
+    OBJ.spPiv[i].rotation.x = ST.gate[i] * DEG62;
+    const q = qSp(ST.gate[i], L), m = OBJ.spSheet[i].material.uniforms;
+    m.uFlow.value = clamp(q / 25, 0, 1); m.uH.value = clamp(Math.pow(q / (1.7 * SPEC.spW), 2 / 3) * 0.8, 0.1, 3.5);
+    OBJ.basin.material.uniforms.uI.value[i + 2] = clamp(Math.sqrt(q / 350), 0, 1);
+  }
+  for (let i = 0; i < 4; i++) {
+    OBJ.slPiv[i].rotation.x = ST.sl[i] * DEG62;
+    const q = qSl(ST.sl[i], L), m = OBJ.slSheet[i].material.uniforms, bi = i < 2 ? i : i + 18;
+    m.uFlow.value = clamp(q / 25, 0, 1); m.uH.value = clamp(Math.pow(q / (1.7 * SPEC.slW), 2 / 3) * 0.8, 0.1, 3.5);
+    OBJ.basin.material.uniforms.uI.value[bi] = clamp(Math.sqrt(q / 300), 0, 1);
+  }
+  U.mudSl.value = ST.sl.some(o => o > 0.05) ? 1 : U.mud.value;
+  const Qd = outflow(L);
+  const dB = 0.3 + 0.45 * Math.sqrt(Qd / 50);
+  OBJ.basin.position.y = E(TEACH.apron + Math.min(dB, 5)); OBJ.basin.material.uniforms.uDepth.value = dB;
+  const dR = Math.min(0.04 + 0.22 * Math.sqrt(Qd / 50), 3.2), rp = OBJ.river.geometry.attributes.position;
+  for (let i = 0; i < rp.count; i++) rp.setY(i, OBJ.riverBase[i] + dR); rp.needsUpdate = true;
+  const col = new THREE.Color(0x4f8f88).lerp(new THREE.Color(0x7d6b52), U.mud.value);
+  OBJ.poolMat.color.copy(col); OBJ.riverMat.color.copy(new THREE.Color(0x4f8f88).lerp(new THREE.Color(0x7d6b52), Math.max(U.mud.value, U.mudSl.value * 0.8)));
+  OBJ.fishWater.visible = L > 207.4;
+  for (const m of OBJ.mounds) m.scale.y = 3.4 + ST.mound;
+  // 取水口閘門：上層依需水量開（示意），下層關
+  const [qN, qS] = intakeQ();
+  OBJ.inGates.forEach((g, k) => { const lift = (k ? qS / 90 : qN / 70) * 2.0; g.up.forEach(m => m.position.y = m.userData.y0 + lift); g.low.forEach(m => m.position.y = m.userData.y0); });
+  for (const m of OBJ.routeN) m.uniforms.uOn.value = qN > 1 ? 1 : 0.15;
+  for (const m of OBJ.routeS) m.uniforms.uOn.value = qS > 1 ? 1 : 0.15;
+  for (const m of OBJ.sed) m.scale.y = 0.05 + ST.basin * 3.0;
+  for (const m of OBJ.flushPlumes) m.uniforms.uOn.value = ST.basinFlush ? 1 : 0;
+  OBJ.basinWater.color.copy(new THREE.Color(0x3f7f86).lerp(new THREE.Color(0x6e5c44), ST.basinFlush ? 0.8 : U.mud.value * 0.5));
+  const siren = ST.warn || ST.sirenSl || ST.basinFlush;
+  OBJ.siren.visible = siren && Math.sin(U.time.value * 8) > 0; sirenLbl.el.style.display = siren ? '' : 'none';
+  waterN.offset.x -= dt * 0.02;
+  controls.update(); updateLabels();
+  if ((uiT -= dt) < 0) { uiT = 0.2; updateUI(L, Qd, qN, qS); }
+  if (document.getElementById('basinBox').classList.contains('open')) drawBasin();
+  renderer.render(scene, camera);
+}
+
+/* ---------- 右側結果 ---------- */
+const GAUGE = { lo: 198, hi: 216 };
+function buildGauge() {
+  const g = document.getElementById('gauge'), pct = y => ((y - GAUGE.lo) / (GAUGE.hi - GAUGE.lo) * 100).toFixed(1) + '%';
+  for (const [y, t, up] of [[SPEC.spCrest, '堰頂 205.25', 0], [TEACH.normal, '平時', 1], [SPEC.slAssist, '212.75', 0], [215.4, '最高 215.4', 1]]) {
+    const m = document.createElement('div'); m.className = 'mk'; m.style.left = pct(y); m.innerHTML = `<span${up ? ' style="top:-17px"' : ''}>${t}</span>`; g.appendChild(m);
+  }
+  document.getElementById('cellsS').innerHTML = Array.from({ length: 18 }, (_, i) => `<i title="第 ${i + 1} 號"></i>`).join('');
+  document.getElementById('cellsL').innerHTML = Array.from({ length: 4 }, (_, i) => `<i title="排砂道第 ${i + 1} 號"></i>`).join('');
+}
+function updateUI(L, Qd, qN, qS) {
+  document.getElementById('resMini').textContent = `水位 ${L.toFixed(1)}・閘門 ${ST.gate.filter(o => o > 0.02).length}/18`;
+  document.getElementById('cfgMini').textContent = `來水 ${PLANS[ST.key].label}`;
+  const f = v => Math.round(v).toLocaleString();
+  document.getElementById('rQ').textContent = `${f(ST.Q)} m³/s`;
+  document.getElementById('rL').textContent = `EL ${L.toFixed(1)} m`;
+  document.getElementById('gFill').style.width = `${clamp((L - GAUGE.lo) / (GAUGE.hi - GAUGE.lo), 0, 1) * 100}%`;
+  document.getElementById('rG').textContent = `${ST.gate.filter(o => o > 0.02).length}/18 座開`;
+  document.getElementById('rSl').textContent = `${ST.sl.filter(o => o > 0.02).length}/4 座開`;
+  document.querySelectorAll('#cellsS i').forEach((c, i) => c.style.setProperty('--o', `${Math.round(ST.gate[i] * 100)}%`));
+  document.querySelectorAll('#cellsL i').forEach((c, i) => c.style.setProperty('--o', `${Math.round(ST.sl[i] / 0.35 * 100)}%`));
+  document.getElementById('rI').textContent = `${f(qN)}／${f(qS)} m³/s`;
+  document.getElementById('rD').textContent = Qd < 2 ? '只有魚道的水' : `${f(Qd)} m³/s`;
+  document.getElementById('rM').textContent = ST.mound > 5.6 ? '堆到水面了' : ST.mound > 3.5 ? '很多' : ST.mound > 1.5 ? '有一些' : '很少';
+  document.getElementById('mBar').style.width = `${ST.mound / 6.8 * 100}%`;
+}
+
+/* ---------- 標籤 ---------- */
+function addLabel(html, cls, lx, lz, el, maxDist = 1e9, onClick, color) {
+  const div = document.createElement('div'); div.className = 'lbl'; div.innerHTML = `<div class="${cls}">${html}</div>`;
+  if (color) div.firstChild.style.setProperty('--c', color);
+  if (onClick) div.firstChild.addEventListener('click', onClick);
+  document.getElementById('labels').appendChild(div);
+  const x = lx - CX, z = lz - CZ, L = { el: div, pos: new THREE.Vector3(x, el === null ? heightAt(x, z) + 8 : E(el), z), maxDist };
+  labels.push(L); return L;
+}
+let sirenLbl;
+function buildLabels() {
+  const P = (u, v) => wp(u, v);
+  addLabel('<b>堰</b>溢洪道・18 座弧形閘門', 'pin', ...P(176, -4), 228, 3000, () => openPanel('spill'), '#0369a1');
+  addLabel('<b>砂</b>排砂道 1・2 號', 'pin', ...P(8, -2), 222, 1600, () => openPanel('sluice'), '#a16207');
+  addLabel('<b>砂</b>排砂道 3・4 號', 'pin', ...P(344, -2), 222, 1600, () => openPanel('sluice'), '#a16207');
+  addLabel('<b>魚</b>魚道（位置推定）', 'pin', ...P(355, 40), 206, 900, () => openPanel('fish'), '#059669');
+  addLabel('<b>取</b>北岸取水口', 'pin', ...INTAKES.N.m, 220, 2500, () => openPanel('intakeN'), '#b45309');
+  addLabel('<b>取</b>南岸取水口', 'pin', ...INTAKES.S.m, 220, 2500, () => openPanel('intakeS'), '#b45309');
+  addLabel('<b>管</b>管理中心・台灣水資源館', 'pin', 1955, 1240, null, 3000, () => openPanel('center'), '#475569');
+  addLabel('<b>石</b>開闢鴻荒石碣', 'pin', 1793.5, 1346.6, null, 900, () => openPanel('kaipi'), '#7c3aed');
+  addLabel('<b>消</b>消能池', 'pin', ...P(176, 60), 196, 1800, () => openPanel('stilling'), '#64748b');
+  addLabel('水庫（攔河堰上游）', 'geo water', ...P(176, -380), 211, 6000);
+  addLabel('濁水溪 ↓ 往下游（二水）', 'geo water', ...P(240, 700), 196, 6000);
+  const qs = OSM.lines.find(l => l.kind === 'river' && l.name === '清水溪');
+  if (qs) { const p = qs.pts.filter(q => q[0] < 3600 && q[1] > 0)[Math.floor(qs.pts.length * 0.6)] || qs.pts[0]; addLabel('清水溪（在堰前匯入）', 'geo water', p[0], p[1], null, 6000); }
+  addLabel('北岸引水隧道（地下）', 'geo canal', ...OBJ.lblTunnel, null, 5000);
+  addLabel('北岸引水暗渠', 'geo canal', ...OBJ.lblConduit, null, 5000);
+  addLabel('北岸聯絡渠道 → 往名間、二水', 'geo canal', ...OBJ.lblNDown, null, 6000);
+  addLabel('南岸引水暗渠', 'geo canal', ...OBJ.lblSUp, null, 5000);
+  addLabel('南岸聯絡渠道 → 往雲林', 'geo canal', 630, 1603, null, 6000);
+  addLabel('<b>沉</b>北岸沉砂池（2 座）', 'pin', 950, 262, null, 6000, () => openPanel('nbasin'), '#a16207');
+  addLabel('<b>沉</b>南岸沉砂池（3 座）', 'pin', 830, 1612, null, 6000, () => openPanel('sbasin'), '#a16207');
+  addLabel('<b>範</b>水庫蓄水範圍（大概位置）', 'pin', 3000, 1135, null, 9000, () => openPanel('reservoir'), '#dc2626');
+  sirenLbl = addLabel('放水警報', 'siren', 1955, 1240, null, 1e9);
+  sirenLbl.pos.copy(OBJ.centerPos);
+}
+const _v = new THREE.Vector3();
+function updateLabels() {
+  const w = innerWidth, h = innerHeight;
+  for (const L of labels) {
+    _v.copy(L.pos).project(camera);
+    const vis = _v.z < 1 && Math.abs(_v.x) < 1.1 && Math.abs(_v.y) < 1.1 && camera.position.distanceTo(L.pos) < L.maxDist;
+    L.el.classList.toggle('hide', !vis);
+    if (vis) L.el.style.transform = `translate(${(_v.x * .5 + .5) * w}px,${(-_v.y * .5 + .5) * h}px)`;
+  }
+}
+
+/* ---------- 說明卡（內容與出處見 階段3_集集攔河堰史實清單.md） ---------- */
+const SRC = {
+  law: '<a href="https://law.moea.gov.tw/LawContent.aspx?id=FL011530" target="_blank">〈集集攔河堰水庫水門操作規定〉（113.01.03 修正）</a>',
+  home: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8785" target="_blank">水利署集集攔河堰網站</a>',
+  works: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8793" target="_blank">水利署〈攔河堰及附屬工程〉</a>',
+  hist: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8792" target="_blank">水利署〈水庫興建緣起〉</a>',
+  sb: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8786" target="_blank">水利署〈南岸沉砂池〉</a>',
+  big: '<a href="https://web.wra.gov.tw/jiji/News_Content.aspx?n=8798&s=50082" target="_blank">水利署〈最大規模沉砂池〉</a>',
+  nbp: '<a href="https://web.wra.gov.tw/jiji/News_Photo_Content.aspx?n=8801&s=50129" target="_blank">水利署〈北岸沉砂池〉照片</a>',
+  resmap: '<a href="https://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg011207/ch04/type3/gov31/num1/Eg.htm" target="_blank">經濟部公告（94.10.28 經授水字第 09420219050 號）〈集集攔河堰管理機關、蓄水範圍及其申請許可管理事項〉附圖</a>',
+  pipe: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8787" target="_blank">水利署〈聯絡渠道與管路〉</a>',
+  route: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8794" target="_blank">水利署〈南北岸聯絡渠道〉選線佈置圖</a>',
+};
+const src = (...k) => `<div class="src">資料來源：${k.map(x => SRC[x]).join('；')}</div>`;
+const INFO = {
+  spill: { t: '集集攔河堰・溢洪道', s: '南投縣集集鎮林尾隘口・2002 年正式營運',
+    b: `<div class="keys"><span>堰長</span><span>352.5 公尺，混凝土重力壩</span>
+        <span>弧形閘門</span><span>18 座，每座寬 15 公尺、高 10.33 公尺，由北岸到南岸編號 1～18</span>
+        <span>水位調節閘門</span><span>第 1～4、15～18 號前面還有 8 座（高 2 公尺），平時全開</span>
+        <span>平時</span><span>弧形閘門全關，把水位撐高，讓兩岸取水口取水</span>
+        <span>洪水</span><span>依上游來水量，打開幾座或全部閘門放水</span></div>
+        <p style="font-size:13.5px;color:#64748b">※ 閘門數量、尺寸依法規；閘墩、橋、機房的外型是示意。</p>${src('law', 'home', 'hist')}` },
+  sluice: { t: '排砂道', s: '北岸 1、2 號・南岸 3、4 號',
+    b: `<p>排砂道的堰頂比溢洪道低 6.5 公尺，每座弧形閘門寬 6.25 公尺、高 7.6 公尺。平日關閉；取水口前淤積了砂和雜物時打開，把砂沖走，讓取水口可以順利取水。</p>
+        <p>按左邊「排砂道排砂」，看看取水口前的淤砂怎麼被沖走。</p>${src('law', 'works')}` },
+  fish: { t: '魚道', s: '讓魚可以游過攔河堰',
+    b: `<p>法規寫魚道在「第四號排砂道左側」，有 15 座魚槽閘門。平時依水位只開一座魚槽閘門，讓少量的水流下去，魚可以沿著一階一階的魚槽往上游。</p>
+        <p style="font-size:13.5px;color:#64748b">※「左側」我們推定是面向下游的左手邊（南端），位置與階梯形狀是示意。</p>${src('law')}` },
+  intakeN: { t: '北岸取水口', s: '送水給彰化（八堡圳等）',
+    b: `<div class="keys"><span>閘門</span><span>上、下兩層各 8 座，共 16 座（每座寬 4.38、高 2.3 公尺）</span>
+        <span>平時</span><span>上層閘門依下游需要的水量打開，下層關閉；淤積或漂流物多時才開下層</span>
+        <span>計畫取水量</span><span>每秒 70 立方公尺</span>
+        <span>接著</span><span>水進入北岸聯絡渠道（新建段約 23 公里，再接擴建的原有渠道，共約 51 公里），經二水的八堡圳分水工送進八堡圳</span></div>${src('law', 'home', 'pipe')}` },
+  intakeS: { t: '南岸取水口', s: '送水給雲林',
+    b: `<div class="keys"><span>閘門</span><span>上、下兩層各 9 座，共 18 座</span><span>計畫取水量</span><span>每秒 90 立方公尺</span><span>接著</span><span>南岸聯絡渠道共約 38 公里（新建 15＋擴建 23），接斗六堰、林內分水工等</span></div>${src('law', 'home', 'pipe')}` },
+  center: { t: '集集攔河堰管理中心', s: '台灣水資源館',
+    b: `<p>攔河堰的閘門都有電動設備，可以在現場操作，也可以在控制室遙控（取水口緊急閘門、沉砂池退水閘門只能在現場操作）。放水前要先響放水警報。</p><p style="font-size:13.5px;color:#64748b">※ 建築外型示意。</p>${src('law')}` },
+  stilling: { t: '消能池', s: '攔河堰下游',
+    b: `<p>水從溢洪道、排砂道衝下來時速度很快。消能池讓急流在池裡翻滾，再撞上末端一整排 T 形的消能塊，把力量消掉，才不會一路把下游的河床沖壞。</p>
+        <p>平時閘門關著，消能池裡只剩一些水窪和砂石；開閘放水時，池裡會翻起白色水花。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 消能塊、閘墩延伸牆、維修橋的外型依照片示意，尺寸、距離沒有官方數字。</p>` },
+  nbasin: { t: '北岸沉砂池', s: '2 座並排・上方架太陽能板',
+    b: `<p>北岸取水口的水先經過<strong>北岸引水隧道</strong>穿過山，再由<strong>引水暗渠</strong>送到這裡。濁水溪的水含砂很多，水在沉砂池裡流慢下來，砂就沉到沉砂溝底；上層比較清的水溢流進側槽，再送進北岸聯絡渠道。</p>
+        <div class="keys"><span>閘門</span><span>分水閘門 2 座、排砂閘門 12 座、退水閘門 2 座</span>
+        <span>沉砂溝</span><span>每兩道沉砂溝一座排砂閘門，可以分開排砂</span>
+        <span>排砂</span><span>砂堆多了就打開排砂閘門，用水把砂沖回濁水溪（打開前要響放水警報）</span>
+        <span>興建</span><span>約 1995～1998 年（施工照片日期）</span></div>
+        <p style="font-size:13.5px;color:#64748b">※ 位置、方向依正射影像判讀；沉砂溝、閘門的排列與外型是示意；排砂水流回到濁水溪的路線沒有畫出。</p>${src('law', 'big', 'nbp', 'works')}` },
+  sbasin: { t: '南岸沉砂池', s: '3 座並聯・竹山鎮富州里',
+    b: `<p>在攔河堰下游約一公里、富州堤防邊的河川新生地上（用開挖攔河堰的礫石回填約 3 公尺）。南岸取水口的水經<strong>南岸引水暗渠</strong>送到這裡沉砂，再進南岸聯絡渠道送往雲林。</p>
+        <div class="keys"><span>沉砂池</span><span>3 座並聯，每座運轉水量每秒 36 立方公尺</span>
+        <span>每座有</span><span>逆坡工、退水管路、沉砂溝、側槽、排砂道，排砂閘門 6 扇</span>
+        <span>量水</span><span>大型巴歇爾量水槽（喉寬 50 呎）</span>
+        <span>供水給</span><span>雲林約 6 萬公頃農田、離島工業區、民生用水</span></div>
+        <p style="font-size:13.5px;color:#64748b">※ 位置依正射影像判讀，外型示意。</p>${src('law', 'sb', 'works')}` },
+  reservoir: { t: '水庫蓄水範圍', s: '攔河堰上游的調整池',
+    b: `<div class="keys"><span>北邊</span><span>台 16 線林尾圍堤（劃到堤頂欄杆），還包括北清水溝溪一段</span>
+        <span>東邊</span><span>集鹿大橋</span><span>南邊</span><span>小嶺產業道路臨水面的路肩，到清瑞橋</span>
+        <span>西邊</span><span>攔河堰</span>
+        <span>怎麼劃</span><span>設計最高洪水位 EL 215.4 公尺，加上迴水到得了的水域、重要設施的土地和水面</span>
+        <span>面積</span><span>蓄水範圍 265 公頃（集集鎮、鹿谷鄉、竹山鎮）；其中調整池約 242 公頃，有效容量約 1,000 萬立方公尺</span>
+        <span>限制活動</span><span>重要設施周圍 27.5 公頃</span></div>
+        <p style="font-size:13.5px;color:#64748b">※ 紅線是依公告附圖，沿道路、橋描出的大概位置，不是測量界線。</p>${src('resmap', 'works')}` },
+  kaipi: { t: '開闢鴻荒石碣', s: '堰的北端',
+    b: `<p>建攔河堰時，為了避開這塊古碑，溢洪道比原本的規劃少了一孔。</p>${src('works')}` },
+};
+function openPanel(key) {
+  const d = INFO[key]; document.getElementById('pTitle').textContent = d.t; document.getElementById('pSub').textContent = d.s;
+  document.getElementById('pBody').innerHTML = d.b; document.getElementById('panel').classList.add('open');
+}
+
+/* ---------- 路線圖（OSM） ---------- */
+function drawRoute() {
+  const LO0 = 120.605, LO1 = 120.79, LA0 = 23.755, LA1 = 23.865, Wd = 1000, Ht = 595;
+  const X = lo => (lo - LO0) / (LO1 - LO0) * Wd, Y = la => (LA1 - la) / (LA1 - LA0) * Ht;
+  const style = { 濁水溪: ['#7fb4d6', 9], 清水溪: ['#7fb4d6', 5], 清水溝溪: ['#7fb4d6', 4], 北岸聯絡渠道: ['#dc2626', 5], 集集共同引水計畫: ['#dc2626', 5], 八堡圳: ['#ea580c', 4], 八堡一圳: ['#f59e0b', 2.5], 八堡二圳: ['#f59e0b', 2.5] };
+  let s = `<defs><clipPath id="cp"><rect width="${Wd}" height="${Ht}"/></clipPath></defs><g clip-path="url(#cp)" fill="none" stroke-linecap="round" stroke-linejoin="round">`;
+  for (const k of ['濁水溪', '清水溪', '清水溝溪', '八堡一圳', '八堡二圳', '八堡圳', '集集共同引水計畫', '北岸聯絡渠道'])
+    for (const l of ROUTE.filter(r => r.name === k)) s += `<polyline points="${l.ll.map(([la, lo]) => `${X(lo).toFixed(1)},${Y(la).toFixed(1)}`).join(' ')}" stroke="${style[k][0]}" stroke-width="${style[k][1]}"/>`;
+  const sth = [[23.8165, 120.7632], [23.8176, 120.7539], [23.811, 120.730], [23.806, 120.715], [23.797, 120.700], [23.787, 120.685], [23.779, 120.667], [23.774, 120.652], [23.770, 120.638]];
+  s += `<polyline points="${sth.map(([la, lo]) => `${X(lo).toFixed(1)},${Y(la).toFixed(1)}`).join(' ')}" stroke="#2563eb" stroke-width="5" stroke-dasharray="12 8"/>`;
+  s += '</g>';
+  const pt = (la, lo, t, c, dx = 10, dy = -10) => `<circle cx="${X(lo)}" cy="${Y(la)}" r="9" fill="${c}" stroke="#fff" stroke-width="3"/><text x="${X(lo) + dx}" y="${Y(la) + dy}" font-size="22" font-weight="900" fill="#0d2238" stroke="#fff" stroke-width="5" paint-order="stroke">${t}</text>`;
+  s += pt(23.8182, 120.7634, '集集攔河堰', '#0369a1', -60, -20);
+  s += pt(23.79994, 120.65749, '八堡圳頭（二水）', '#ea580c', -60, 36);
+  s += `<text x="${X(120.71)}" y="${Y(23.845)}" font-size="20" font-weight="800" fill="#b91c1c" stroke="#fff" stroke-width="5" paint-order="stroke">北岸聯絡渠道（新建段約 23 公里）</text>`;
+  s += pt(23.81763, 120.75394, '南岸沉砂池', '#a16207', -40, 34) + pt(23.82982, 120.75509, '北岸沉砂池', '#a16207', -40, -16);
+  s += `<text x="${X(120.66)}" y="${Y(23.762)}" font-size="20" font-weight="800" fill="#1d4ed8" stroke="#fff" stroke-width="5" paint-order="stroke">南岸聯絡渠道（示意）→ 林內、雲林</text>`;
+  s += `<text x="${X(120.70)}" y="${Y(23.792)}" font-size="20" font-weight="800" fill="#1d6fa5" stroke="#fff" stroke-width="5" paint-order="stroke">濁水溪</text>`;
+  s += `<g transform="translate(${Wd - 70},${Ht - 80})"><path d="M0 30 L10 0 L20 30 Z" fill="#0d2238"/><text x="10" y="52" font-size="18" text-anchor="middle" font-weight="900">北</text></g>`;
+  s += `<g transform="translate(24,${Ht - 30})"><rect width="${(5 / ((LO1 - LO0) * 101.9)) * Wd}" height="8" fill="#0d2238"/><text y="-8" font-size="16" font-weight="800">5 公里</text></g>`;
+  document.getElementById('routeSvg').innerHTML = s;
+}
+
+/* ---------- 沉砂池示意圖（2D 剖面） ---------- */
+const grains = Array.from({ length: 90 }, () => ({ x: Math.random() * 600 + 130, y: 150 + Math.random() * 60, vy: 0 }));
+function drawBasin() {
+  const cv = document.getElementById('basinCv'), g = cv.getContext('2d'), t = U.time.value, s = ST.basin;
+  g.clearRect(0, 0, 900, 380);
+  const top = 130, floor = 300, x0 = 140, x1 = 740, sed = s * 110;
+  g.fillStyle = '#d6d3d1'; g.fillRect(x0 - 20, top - 10, 20, floor - top + 30); g.fillRect(x1, top - 10, 20, floor - top + 30); g.fillRect(x0 - 20, floor, x1 - x0 + 40, 20);
+  g.fillStyle = '#8fbcc4'; g.fillRect(0, top + 10, x0 - 20, 50); g.fillRect(x1 + 20, top + 10, 140, 50);
+  g.fillStyle = 'rgba(120,170,175,.75)'; g.fillRect(x0, top + 10, x1 - x0, floor - top - 10);
+  g.fillStyle = '#8b7355'; g.beginPath(); g.moveTo(x0, floor); g.lineTo(x0, floor - sed * 1.15); g.quadraticCurveTo((x0 + x1) / 2, floor - sed, x1, floor - sed * 0.55); g.lineTo(x1, floor); g.closePath(); g.fill();
+  g.fillStyle = '#5b4a35';
+  for (const p of grains) {
+    p.x += 1.4; p.y += 0.35 + (p.x - x0) * 0.0004;
+    const bed = floor - sed * (1.15 - 0.6 * (p.x - x0) / (x1 - x0));
+    if (p.x > x1 || p.y > bed) { p.x = x0 - 90 + Math.random() * 60; p.y = top + 15 + Math.random() * 40; }
+    if (p.x > x0 - 100) g.fillRect(p.x, p.y, 3, 3);
+  }
+  g.strokeStyle = '#0369a1'; g.lineWidth = 3; g.fillStyle = '#0369a1';
+  for (let k = 0; k < 4; k++) { const ax = ((t * 60 + k * 230) % 920) - 20; g.beginPath(); g.moveTo(ax, top + 35); g.lineTo(ax + 30, top + 35); g.stroke(); g.beginPath(); g.moveTo(ax + 38, top + 35); g.lineTo(ax + 28, top + 29); g.lineTo(ax + 28, top + 41); g.fill(); }
+  g.fillStyle = '#3b9ad9'; const go = ST.basinFlush ? 18 : 0; g.fillRect(x1 - 70, floor + 2 + go, 40, 16);
+  if (ST.basinFlush) {
+    g.fillStyle = 'rgba(110,85,55,.85)'; g.beginPath(); g.moveTo(x1 - 70, floor + 20); g.lineTo(x1 - 30, floor + 20); g.lineTo(x1 + 60, 375); g.lineTo(x1 - 40, 375); g.closePath(); g.fill();
+  }
+  g.font = '800 18px "Noto Sans TC", sans-serif'; g.fillStyle = '#0d2238';
+  g.fillText('從取水口來（含砂多）', 4, top - 6); g.fillText('往聯絡渠道 →', x1 + 22, top - 6);
+  g.fillText('沉砂池：水流變慢，砂沉到池底', x0 + 120, top - 6);
+  g.fillText('排砂閘門', x1 - 110, floor + 52); if (ST.basinFlush) g.fillText('砂排回濁水溪 ↘', x1 + 30, 350);
+  g.fillStyle = '#5b4a35'; g.fillText(`池底的砂：${s > 0.75 ? '快滿了' : s > 0.4 ? '一半' : '很少'}`, x0 + 10, floor - 8 - sed * 1.15 < top + 30 ? top + 40 : floor - 8 - sed * 1.15);
+}
+function basinBtn() {
+  const b = document.getElementById('btnFlush'); b.disabled = ST.basinFlush; b.textContent = ST.basinFlush ? '排砂中…' : '打開排砂閘門';
+  document.getElementById('basinTxt').textContent = ST.basinFlush ? '放水警報響起，排砂閘門打開，池底的砂被水沖回濁水溪。' : '有在取水時，砂會慢慢堆在池底。';
+}
+
+/* ---------- 視角 ---------- */
+function viewDef(v) {
+  const P = (u, vv, el) => { const [x, z] = wp(u, vv); return new THREE.Vector3(x - CX, E(el), z - CZ); };
+  if (v === 'weir') return { t: P(176, 10, 203), p: P(330, 300, 262), sh: 420 };
+  if (v === 'stilling') return { t: P(150, 50, 192), p: P(262, 150, 210), sh: 160 };
+  if (v === 'gate') return { t: P(150, 0, 209), p: P(105, 62, 222), sh: 120 };
+  if (v === 'intake') { const it = INTAKES.N, t = new THREE.Vector3(it.m[0] - CX, E(207), it.m[1] - CZ); return { t, p: t.clone().add(new THREE.Vector3(it.zx * 90 + it.dx * 30, 38, it.zz * 90 + it.dz * 30)), sh: 160 }; }
+  if (v === 'sluice') return { t: P(10, -30, 204), p: P(95, -130, 238), sh: 200 };
+  const G = (lx, lz) => new THREE.Vector3(lx - CX, groundY(lx, lz), lz - CZ);
+  if (v === 'nbasin') { const t = G(950, 262); return { t, p: t.clone().add(new THREE.Vector3(150, 130, 170)), sh: 220 }; }
+  if (v === 'sbasin') { const t = G(830, 1612); return { t, p: t.clone().add(new THREE.Vector3(170, 140, 160)), sh: 220 }; }
+  if (v === 'reservoir') { const t = G(2500, 1700); return { t, p: t.clone().add(new THREE.Vector3(-1500, 2600, 2600)), sh: 2600 }; }
+  return { t: P(176, -150, 205), p: P(900, 1150, 900), sh: 1300 };
+}
+function flyTo(v, dur = 1.8) {
+  document.querySelectorAll('.vw').forEach(b => b.classList.toggle('active', b.dataset.v === v));
+  const d = viewDef(v); placeSunShadow(d.t, d.sh);
+  if (!dur) { camera.position.copy(d.p); controls.target.copy(d.t); controls.update(); return; }
+  gsap.to(camera.position, { x: d.p.x, y: d.p.y, z: d.p.z, duration: dur, ease: 'power2.inOut' });
+  gsap.to(controls.target, { x: d.t.x, y: d.t.y, z: d.t.z, duration: dur, ease: 'power2.inOut', onUpdate: () => controls.update() });
+}
+function setupUI() {
+  // 面板收合：寬度不夠時預設收起；窄螢幕一次只展開一個
+  const cfg = document.getElementById('cfg'), res = document.getElementById('res');
+  const fold = () => { const w = innerWidth; cfg.classList.toggle('closed', w < 760); res.classList.toggle('closed', w < 1000); };
+  fold(); let lastW = innerWidth; addEventListener('resize', () => { if (Math.abs(innerWidth - lastW) > 80) { lastW = innerWidth; fold(); } });
+  for (const [a, b] of [[cfg, res], [res, cfg]]) a.querySelector('h3').addEventListener('click', () => {
+    a.classList.toggle('closed');
+    if (!a.classList.contains('closed') && innerWidth < 1000) b.classList.add('closed');
+  });
+  buildGauge();
+  document.querySelectorAll('.vw').forEach(b => b.addEventListener('click', () => flyTo(b.dataset.v)));
+  document.querySelectorAll('#qOpts .opt').forEach(b => b.addEventListener('click', () => setInflow(b.dataset.q)));
+  document.getElementById('btnSluice').addEventListener('click', () => { startSluice(); flyTo('sluice'); });
+  document.getElementById('btnBasin').addEventListener('click', () => { if (ST.basinFlush) return; ST.basinFlush = true; basinBtn(); showRule('basin', true); flyTo('nbasin'); });
+  document.getElementById('btnBasinDiag').addEventListener('click', () => { basinBtn(); document.getElementById('basinBox').classList.add('open'); });
+  document.getElementById('btnFlush').addEventListener('click', () => { if (ST.basinFlush) return; ST.basinFlush = true; basinBtn(); showRule('basin', true); });
+  document.getElementById('btnRoute').addEventListener('click', () => document.getElementById('routeBox').classList.add('open'));
+  document.querySelector('#panel .x').addEventListener('click', () => document.getElementById('panel').classList.remove('open'));
+  document.querySelectorAll('.modal').forEach(m => { m.querySelector('.x').addEventListener('click', () => m.classList.remove('open')); m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }); });
+}
+</script>
+<script src="js/nav.js" data-narrow="1100" data-narrow-pos="center" defer></script>
+</body>
+</html>
