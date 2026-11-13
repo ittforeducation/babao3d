@@ -51,7 +51,7 @@
   .src { font-size: 11px; color: #7b8d97; line-height: 1.5; margin-top: auto; }
 
   /* 卡片 */
-  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-top: 16px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-top: 16px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; text-decoration: none;
     color: inherit; display: flex; flex-direction: column; transition: transform .15s, box-shadow .15s; }
   .card:hover, .card.hi { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(3,105,161,.18); border-color: var(--accent); }
@@ -70,6 +70,28 @@
   @media (max-width: 600px) { header { padding: 12px 16px 8px; } main { padding: 0 16px 20px; } h1 { font-size: 21px; }
   }
   @media (max-width: 760px) { .mapbox { grid-template-columns: 1fr; } .side { border-left: 0; border-top: 1px solid var(--line); } #map { height: 52vh; } }
+  /* 寬螢幕（電腦、Google Sites 嵌入框）：標題列對齊內容；地圖在左、五站卡片改成橫條排在右邊，一個畫面看完 */
+  header { max-width: 1400px; margin: 0 auto; }
+  @media (min-width: 1200px) {
+    main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(420px, 1fr); gap: 16px; align-items: stretch; }
+    .mapbox { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+    #map { height: 100%; min-height: 420px; }
+    .side { border-left: 0; border-top: 1px solid var(--line); flex-direction: row; align-items: center; padding: 8px 14px; gap: 14px; }
+    .side h3, .side ol { display: none; }
+    .side .src { margin: 0 0 0 auto; text-align: right; }
+    .cards { margin-top: 0; grid-template-columns: 1fr; grid-auto-rows: minmax(118px, 1fr); gap: 10px;
+      height: max(calc(100vh - 116px), 620px); }
+    .card { flex-direction: row; }
+    .card:hover, .card.hi { transform: translateX(-3px); }
+    .card .img { flex: none; width: 34%; aspect-ratio: auto; }
+    .card .body { padding: 10px 14px; gap: 4px; justify-content: center; }
+    .card h2 { font-size: 20px; }
+    .card p { flex: 0 1 auto; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card .go { position: absolute; right: 12px; bottom: 10px; margin: 0; font-size: 14px; padding: 4px 10px; }
+    .card { position: relative; }
+    .card .body { padding-right: 84px; }
+    footer { grid-column: 1 / -1; margin-top: 2px; }
+  }
 </style>
 </head>
 <body>
@@ -155,7 +177,7 @@
     const cards = document.getElementById('cards'); cards.innerHTML = '';
     list.forEach((id, i) => {
       const p = U.pages[id], a = document.createElement('a');
-      a.className = 'card'; a.href = link(id); a.dataset.id = id;
+      a.className = 'card'; a.href = link(id); a.dataset.id = id; a.title = p.desc;
       a.innerHTML = `<div class="img"><img src="${p.thumb}" alt="" loading="lazy"><span class="num">${i + 1}</span></div>
         <div class="body"><h2>${p.name}</h2><span class="place">📍 ${p.place}</span><p>${p.desc}</p><span class="go">進入 →</span></div>`;
       a.onmouseenter = () => hi(id, true); a.onmouseleave = () => hi(id, false);
@@ -174,7 +196,7 @@
     list.forEach((id, i) => {
       const p = U.pages[id], [x, y] = p.at;
       const g = el('g', { class: 'mk', 'data-id': id }, mkLayer);
-      const L = { era: ['start', 0.9, -0.9], lab: ['end', -0.5, 1.4], jiji: ['middle', 0, -1.1] }[id] || ['end', -0.95, 0.25];
+      const L = { era: ['start', 0.9, -0.9], lab: ['end', -0.5, 1.4], jiji: ['end', -0.6, -1.0] }[id] || ['end', -0.95, 0.25];
       el('circle', { cx: x, cy: y, r: 0.62, 'stroke-width': 0.14 }, g);
       el('text', { x, y: y + 0.03, class: 'n', 'font-size': 0.72 }, g).textContent = i + 1;
       el('text', { x: x + L[1], y: y + L[2], class: 't', 'font-size': 0.78, 'stroke-width': 0.28, 'text-anchor': L[0],
