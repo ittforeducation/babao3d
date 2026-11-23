@@ -43,7 +43,21 @@ ${narrow ? `@media (max-width:${narrow}px){
     let inFrame = false; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
     if (inFrame) { const f = a('⤢ 全螢幕', location.href, 'fs', '開新分頁全螢幕'); f.target = '_blank'; f.rel = 'noopener'; }
     card.appendChild(nav);
+    fitPanel();
   }).catch(() => { });
+  /* 說明卡（#panel）和標題卡在同一側時，說明卡的上緣要讓到標題卡下面，不然會蓋住「入口／上一站／下一站」（2026-11-19 使用者回報）。
+     下方保留原本樣式留的空間（例如流域探索頁下方的高度圖）。 */
+  function fitPanel() {
+    const card = document.getElementById('titleCard'), p = document.getElementById('panel'); if (!card || !p) return;
+    p.style.top = ''; p.style.maxHeight = '';
+    const cs = getComputedStyle(p), cc = getComputedStyle(card);
+    if (cc.display === 'none' || cs.left === 'auto' || cc.left === 'auto') return;                 // 不同側（說明卡在右邊）就不用讓
+    const t0 = parseFloat(cs.top) || 0, mc = /calc\(100% - ([\d.]+)px\)/.exec(cs.maxHeight), h0 = mc ? innerHeight - parseFloat(mc[1]) : parseFloat(cs.maxHeight), gap = isFinite(h0) ? Math.max(0, innerHeight - t0 - h0) : 20;
+    const r = card.getBoundingClientRect(), top = Math.max(t0, Math.round(r.bottom + 8));
+    if (top > t0) { p.style.top = top + 'px'; p.style.maxHeight = Math.max(160, innerHeight - top - gap) + 'px'; }
+  }
+  addEventListener('resize', fitPanel);
+  if (window.ResizeObserver) { const c = document.getElementById('titleCard'); if (c) new ResizeObserver(fitPanel).observe(c); }
   // 頁內其他頁面連結（含說明卡裡後來才產生的）點下去時帶上年級
   document.addEventListener('click', e => {
     const el = e.target.closest && e.target.closest('a[href]'); if (!el) return;

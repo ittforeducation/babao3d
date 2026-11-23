@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/photo_sets.js"></script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -63,6 +65,23 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 #panel p{font-size:15.5px;line-height:1.75;margin:8px 0}
 #panel .x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;font-size:20px;font-weight:900;color:var(--ink2)}
 #panel .x:hover{background:rgba(255,255,255,.7)}
+#panel .bk{display:inline-block;margin:0 0 10px;padding:6px 14px;border-radius:12px;background:#fff;color:#0369a1;font-size:14.5px;font-weight:900;box-shadow:0 2px 8px rgba(0,30,60,.15)}
+#panel .bk[hidden]{display:none}
+body.tl-open #legend,body.tl-open #flood{display:none}
+#flood{position:absolute;left:14px;bottom:74px;padding:10px 12px;z-index:5;width:min(300px,calc(100% - 28px));font-size:14px;line-height:1.55}
+#flood[hidden]{display:none}
+#flood b{font-size:15px}
+#flood .fb{display:flex;gap:6px;margin:6px 0 4px}
+#flood .fb button{flex:1;padding:8px 6px;border-radius:12px;font-size:14.5px;font-weight:900;color:#fff;background:#b45309}
+#flood .fb button:disabled{opacity:.4;cursor:default}
+#flood .fb button.re{background:#0369a1}
+#flood small{display:block;color:var(--ink2);font-size:12.5px}
+body.dbg #flood{display:none !important}
+.mvmap{display:block;width:100%;height:auto;border-radius:12px;background:#eef3ee;margin:6px 0}
+.mvstep{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.mvstep button{padding:7px 6px;border-radius:10px;background:#f1f5f9;font-size:13.5px;font-weight:900;text-align:left}
+.mvstep button.on{background:#0f766e;color:#fff}
+.gdia{display:block;width:100%;height:auto;margin:10px 0 4px;border-radius:12px;background:#f1ede4}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:15px;margin-top:10px;line-height:1.6}
 .keys span:nth-child(odd){font-weight:900;color:#7c4a12;white-space:nowrap}
 .src{font-size:12.5px;color:#64748b;line-height:1.6;margin-top:12px;border-top:1px solid rgba(100,116,139,.25);padding-top:8px}
@@ -76,6 +95,23 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 #loading div{font-size:17px;font-weight:700;color:var(--ink2)}
 #loading.done{opacity:0;pointer-events:none}
 @media (max-width:820px){#titleCard{display:none}#era{top:10px}#legend{display:none}#credit{max-width:92%}}
+#tl{position:absolute;left:50%;bottom:74px;transform:translateX(-50%);width:min(900px,calc(100% - 28px));padding:12px 16px 14px;z-index:7}
+#tl[hidden]{display:none}
+#tl .x{position:absolute;top:6px;right:8px;width:32px;height:32px;border-radius:50%;font-size:19px;font-weight:900;color:var(--ink2)}
+#tl h3{margin:0 0 8px;font-size:16px;font-weight:900}
+#tl h3 small{font-size:12.5px;font-weight:500;color:var(--ink2);margin-left:8px}
+#tlTrack{display:flex;overflow-x:auto;padding:4px 0 6px;scrollbar-width:thin}
+.tn{flex:1 0 82px;position:relative;padding:20px 4px 6px;text-align:center;font-size:13px;font-weight:700;color:var(--ink2);border-radius:12px;line-height:1.35}
+.tn::before{content:"";position:absolute;left:0;right:0;top:9px;height:3px;background:rgba(100,116,139,.35)}
+.tn::after{content:"";position:absolute;left:50%;top:3px;width:15px;height:15px;margin-left:-7.5px;border-radius:50%;background:var(--tc);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tn b{display:block;font-size:15px;font-weight:900;color:var(--ink)}
+.tn.on{background:#fff;box-shadow:0 2px 10px rgba(0,30,60,.15)}
+#tlText{margin-top:8px;font-size:15px;line-height:1.7;min-height:52px}
+#tlText .oral{display:inline-block;margin-right:6px;padding:0 7px;border-radius:7px;background:#fde68a;color:#78350f;font-size:12px;font-weight:900;vertical-align:1px}
+.oral{display:inline-block;margin-right:6px;padding:0 7px;border-radius:7px;background:#fde68a;color:#78350f;font-size:12px;font-weight:900;vertical-align:1px}
+.more{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.more button{padding:7px 12px;border-radius:12px;background:#92400e;color:#fff;font-size:14px;font-weight:900}
+body.dbg #titleCard,body.dbg #era,body.dbg #views,body.dbg #legend,body.dbg #credit,body.dbg .navrow{display:none !important}
 </style>
 </head>
 <body>
@@ -89,7 +125,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 
 <div id="era" class="glass">
   <button data-era="qing" style="--ec:#92400e">清代<small>石笱・土圳</small></button>
-  <button data-era="jp" style="--ec:#475569">日治<small>混凝土水門</small></button>
+  <button data-era="jp" style="--ec:#475569">日治<small>水門＋石笱</small></button>
   <button data-era="now" style="--ec:#0369a1">現代<small>集集攔河堰</small></button>
 </div>
 
@@ -98,14 +134,30 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   <button class="vw" data-v="intake" style="--c:#b45309"><b>2</b>取水口</button>
   <button class="vw" data-v="split" style="--c:#dc2626"><b>3</b>分水</button>
   <button class="vw" data-v="gou" style="--c:#a16207"><b>4</b>石笱近看</button>
+  <button class="vw" id="tlBtn" style="--c:#7c3aed"><b>年</b>時間軸</button>
+  <button class="vw" id="moveBtn" style="--c:#0f766e"><b>搬</b>圳頭搬家</button>
 </div>
 
 <div id="legend" class="glass"></div>
 
 <aside id="panel" class="glass">
   <button class="x" aria-label="關閉">×</button>
+  <button class="bk" hidden>‹ 返回上一張</button>
   <h2 id="pTitle"></h2><div class="sub" id="pSub"></div><div id="pBody"></div>
 </aside>
+
+<div id="flood" class="glass" hidden>
+  <b>石笱壩要一直重做</b>
+  <div class="fb"><button id="fGo">大水來了</button><button id="fRe" class="re" disabled>水退了，重新排</button></div>
+  <div id="fTxt">濁水溪每次發大水，石笱壩都可能被沖壞。按按看。</div>
+  <small id="fCnt"></small>
+</div>
+
+<div id="tl" class="glass" hidden>
+  <button class="x" aria-label="關閉">×</button>
+  <h3>八堡圳時間軸<small>點年份看那時候發生的事；有顏色的年份會切換畫面</small></h3>
+  <div id="tlTrack"></div><div id="tlText"></div>
+</div>
 
 <div id="credit">地形：內政部20公尺網格DEM｜影像：國土測繪中心正射影像（現代）｜古河道：依中研院人社中心GIS專題中心〈臺灣百年歷史地圖〉臺灣堡圖（1904）描繪｜圖資：© OpenStreetMap 貢獻者｜材質與天空：Poly Haven (CC0)｜畫面為教學示意</div>
 <div id="loading"><div>正在準備二水圳頭…</div></div>
@@ -176,13 +228,17 @@ let heightAt, terrainMat, eraMaskTex;
 const labels = [], waterTex = [];
 const ERA = { cur: 'qing', groups: { qing: [], jp: [], now: [] }, river: null };
 const U = { uQing: { value: 1 }, uJp: { value: 0 }, uTime: { value: 0 } };   // 地表 shader 的時代權重
-let OLD, OSM, GATE, GOU_SITE, OUTER_H;
+let MOVE = null, GATE_J = [3329, 1351], OLD, OSM, GATE, GOU_SITE, OUTER_H, GOU_ANIM = null, HEADOSM, HEAD_LABELS = [], HEAD_POOLS;
 
 init();
 
 async function init() {
   const [gB, gO, osm, old] = await Promise.all([loadGrid('b'), loadGrid('o'), fetch(DATA + 'osm_b.json').then(r => r.json()), fetch(DATA + 'era1904.json', { cache: 'no-cache' }).then(r => r.json())]);
   OSM = osm; OLD = Object.fromEntries(old.lines.map(l => [l.id, l.pts]));
+  { const HB = [3380, 1400], DV = [-60, -45], R = 700;          // 1904 堡圖的圳頭 (3380,1400) → 1913 年實測圖的圳頭 (3320,1355)，越遠修越少
+    for (const k of ['A', 'B', 'C', 'D']) OLD[k] = OLD[k].map(p => { const w = Math.max(0, 1 - Math.hypot(p[0] - HB[0], p[1] - HB[1]) / R); return [p[0] + DV[0] * w, p[1] + DV[1] * w]; }); }
+  HEADOSM = await fetch(DATA + 'osm_head.json', { cache: 'no-cache' }).then(r => r.json());
+  MOVE = await fetch(DATA + 'move_map.json', { cache: 'no-cache' }).then(r => r.json());
   setupRenderer();
   const envP = new RGBELoader().loadAsync('assets/hdri/sky_2k.hdr').then(hdr => {
     hdr.mapping = THREE.EquirectangularReflectionMapping;
@@ -198,15 +254,20 @@ async function init() {
   ERA.groups.jp.push(ERA.river); ERA.groups.now.push(ERA.river);
   buildCanalsAllEras();
   buildGates();
+  buildHeadNow();
   await buildShigouArc();
   buildLabels();
   setupUI();
   const q = new URLSearchParams(location.search);
   setEra(q.get('era') || 'qing', false);
   flyTo(q.get('view') || 'overview', 0);
+  if (q.get('card')) openPanel(q.get('card'));                   // 除錯：直接打開某張說明卡
+  { const dc = q.get('dbgcam');                                   // 除錯：?dbgcam=gate:-40,30,45（物件標記:相機相對位置），離線截圖用
+    if (dc) { const [k, o] = dc.split(':'), off = o.split(',').map(Number), ob = ERA.groups[ERA.cur].find(x => x.userData && x.userData.tag === k);
+      if (ob) { controls.target.set(ob.position.x, ob.position.y + 3, ob.position.z); camera.position.set(ob.position.x + off[0], ob.position.y + 3 + off[1], ob.position.z + off[2]); controls.update(); placeSunShadow(controls.target, 120); document.body.classList.add('dbg'); } } }
   const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
   renderer.setAnimationLoop(frame);
-  window.__era = { scene, camera, controls, setEra, flyTo, U, ERA, eraMaskTex };   // 除錯用
+  window.__era = { scene, camera, controls, renderer, setEra, flyTo, U, ERA, eraMaskTex };   // 除錯用
 }
 
 function setupRenderer() {
@@ -273,6 +334,19 @@ function buildTerrainB(g, river) {
     if (d < half) Y[id] = Math.min(o, lv - 0.12 - 0.5 * (1 - (d / half) ** 2));
     else if (d < half + 34) { const t = smooth(half, half + 34, d); Y[id] = Math.max(lerp(Math.min(o, lv - 0.12), o, t), lv - 0.12 + t * 1.4); }
   }
+  // 圳頭的水池：把池子範圍（外擴 10 m）的地形壓到水面下，水面才不會被 20 m 地形的起伏蓋住
+  { const big = HEADOSM.areas.find(a => a.id === '1575837290').pts.slice(0, -1);
+    HEAD_POOLS = { up: { poly: [[3566, 1188], [3502.5, 1220], [3530, 1249], [3570, 1197]] }, down: { poly: big }, mid: { poly: [[3511, 1229], [3528, 1247], [3492, 1284], [3473, 1278], [3462, 1270]] } };
+    const pip = (P, x, z) => { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) if ((P[i][1] > z) !== (P[j][1] > z) && x < (P[j][0] - P[i][0]) * (z - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0]) c = !c; return c; };
+    const dseg = (x, z, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], t = clamp(((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz || 1), 0, 1); return Math.hypot(a[0] + dx * t - x, a[1] + dz * t - z); };
+    const near = (P, x, z, r) => pip(P, x, z) || P.some((a, i) => dseg(x, z, a, P[(i + 1) % P.length]) < r);
+    const Y0 = Y.slice();
+    for (const k of ['up', 'down']) { const o = HEAD_POOLS[k], hs = [];
+      for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) if (near(o.poly, i * STEP, j * STEP, 5)) hs.push(Y0[j * NX + i]);
+      hs.sort((a, b) => a - b); o.lv = hs[Math.floor(hs.length / 2)] - BASE_H; }
+    HEAD_POOLS.mid.lv = HEAD_POOLS.down.lv;
+    for (const k of ['up', 'mid', 'down']) { const o = HEAD_POOLS[k];
+      for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) if (near(o.poly, i * STEP, j * STEP, 10)) Y[j * NX + i] = Math.min(Y[j * NX + i], o.lv + BASE_H - 0.7); } }
   heightAt = (wx, wz) => {
     const fx = clamp((wx + CX) / STEP, 0, NX - 1.001), fz = clamp((wz + CZ) / STEP, 0, NZ - 1.001), i = Math.floor(fx), j = Math.floor(fz), tx = fx - i, tz = fz - j;
     return lerp(lerp(Y[j * NX + i], Y[j * NX + i + 1], tx), lerp(Y[(j + 1) * NX + i], Y[(j + 1) * NX + i + 1], tx), tz) - BASE_H;
@@ -302,15 +376,21 @@ function buildEraMask() {
   // G：1904 水道（清代才顯示）
   g.filter = 'blur(1px)';
   strokes([['W1', 50], ['W2', 45], ['W3', 45], ['R1', 30], ['U2', 60], ['W2E', 55], ['QS', 50], ['DL1', 50], ['R1X', 30], ['SW1', 45]], 'rgb(0,255,0)');   // 水道略加寬，全景才看得到
-  // B：主流 U1 → 山腳溪道（C、D 中間）→ 取水點（清代、日治都顯示）
+  // ===== 圳頭一帶：依 1913〈濁水溪河川地形圖〉（中研院彰化百年歷史地圖；1932 水門之前的實測圖）重描，座標量自 tools/histmap_local.py 的重投影圖 =====
+  // R：圳頭東邊、南邊的砂礫河床（1913 圖上是分流與沙洲；往南接 1904 北側溪道的那一段是示意）
+  g.filter = 'blur(3px)'; g.fillStyle = 'rgb(255,0,0)';
+  path(sm(HEAD1913.bed), true); g.fill();
+  g.strokeStyle = 'rgb(255,0,0)'; g.lineWidth = 140 * S; path(sm(HEAD1913.bypass.slice(8))); g.stroke();
+  // G：沒被堤攔下的水（清代才顯示）——東邊來的分流、堤南側往西南流的水道
+  g.filter = 'blur(1px)'; g.strokeStyle = 'rgb(0,255,0)';
+  g.lineWidth = 30 * S; path(sm(HEAD1913.bypass)); g.stroke();
+  g.strokeStyle = 'rgb(0,0,255)'; g.lineWidth = 26 * S; path(sm(HEAD1913.bypass)); g.stroke(); g.strokeStyle = 'rgb(0,255,0)';   // 日治畫面也畫（B 通道）
+  // B：山腳溪道 → 水池 → 圳頭（清代、日治都顯示）
   const mid = OLD.C.map((p, i) => { const q = OLD.D[Math.min(i, OLD.D.length - 1)]; return [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; });
-  mid[0] = [3385, 1395];
-  g.strokeStyle = 'rgb(0,0,255)'; g.lineWidth = 24 * S; path(sm(mid)); g.stroke();
+  g.strokeStyle = 'rgb(0,0,255)'; g.lineWidth = 24 * S; path(sm([[3590, 1290], [3625, 1250], [3660, 1180], ...mid.slice(4)])); g.stroke();
+  g.lineWidth = 22 * S; path(sm(HEAD1913.east)); g.stroke();               // 從東邊流進水池的那一股
   strokes([['U1', 70]], 'rgb(0,0,255)');
-  // 石笱弧線內側（被兜住、流向圳口的水），形狀配合 buildShigouArc 的弧線
-  g.fillStyle = 'rgb(0,0,255)';
-  const arc = Array.from({ length: 20 }, (_, i) => { const t = i / 19; return [(1 - t) ** 2 * 3505 + 2 * (1 - t) * t * 3440 + t * t * 3390, (1 - t) ** 2 * 1318 + 2 * (1 - t) * t * 1405 + t * t * 1404]; });
-  g.filter = 'none'; path([...arc, [3382, 1392], [3420, 1340], [3470, 1300]], true); g.fill();
+  g.fillStyle = 'rgb(0,0,255)'; g.filter = 'none'; path(HEAD1913.pool, true); g.fill();   // 堤北側的水池
   g.filter = 'none';
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.NoColorSpace; t.anisotropy = 8;
   return t;
@@ -437,9 +517,13 @@ async function buildWater(river) {
 /* =====================================================================
    圳道：土圳（清代、日治）／混凝土內面工（現代）
    ===================================================================== */
-function canalMesh(src, w, style) {
+function distPL(x, z, P) {                                       // 點到折線的距離（local 座標）
+  let m = 1e9; for (let i = 0; i < P.length - 1; i++) { const a = P[i], b = P[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], L2 = dx * dx + dz * dz || 1, t = clamp(((x - a[0]) * dx + (z - a[1]) * dz) / L2, 0, 1); m = Math.min(m, Math.hypot(a[0] + dx * t - x, a[1] + dz * t - z)); }
+  return m;
+}
+function canalMesh(src, w, style, others = []) {
   const pts = resample(src, 3); if (pts.length < 2) return null;
-  const P = [], I = [], B = [], BI = [];
+  const P = [], I = [], B = [], BI = [], inside = [];
   const earth = style === 'earth';
   const bw = earth ? 1.6 : 0.3, bh = earth ? 0.7 : 1.1;            // 渠岸寬、高
   for (let i = 0; i < pts.length; i++) {
@@ -447,16 +531,19 @@ function canalMesh(src, w, style) {
     const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1, nx = -dz / L, nz = dx / L;
     const x = pts[i][0] - CX, z = pts[i][1] - CZ;
     let y = Infinity; for (const o of [-w, 0, w]) y = Math.min(y, heightAt(x + nx * o, z + nz * o));
-    const yw = y + 0.12;
+    y = Math.max(y, heightAt(x, z) - 0.15);                 // 土圳：橫向有坡時不要整條埋進地形（原本取最低點，八堡圳圳頭那一段會看不到）
+    const yw = Math.max(y + 0.12, heightAt(x, z) + 0.08);           // 水面不要低於中心地面（原本會被地形蓋住，只剩兩條渠岸）
     P.push(x - nx * w / 2, yw, z - nz * w / 2, x + nx * w / 2, yw, z + nz * w / 2);
     for (const sg of [-1, 1]) {
       const ex = x + nx * sg * (w / 2 + bw / 2), ez = z + nz * sg * (w / 2 + bw / 2);
       const y0 = y + (earth ? -0.2 : 0);                              // 渠岸剖面：內側腳、頂、外側腳
       B.push(ex - nx * bw / 2, y0, ez - nz * bw / 2, ex, y + bh, ez, ex + nx * bw / 2, y0, ez + nz * bw / 2);
+      // 渠岸若伸進別條渠道的水面（交會、分岔處），這一段就不畫（原本兩條圳的渠岸在分水門交叉、戳出去）
+      inside.push(others.some(([op, ow]) => distPL(ex + CX, ez + CZ, op) < ow / 2 + bw * 0.5));
     }
     if (i) {
       const p = (i - 1) * 2; I.push(p, p + 2, p + 1, p + 1, p + 2, p + 3);
-      const q = (i - 1) * 6; for (const o of [0, 3]) for (const e of [0, 1]) { const s0 = q + o + e; BI.push(s0, s0 + 6, s0 + 1, s0 + 1, s0 + 6, s0 + 7); }
+      const q = (i - 1) * 6; for (const [o, sd] of [[0, 0], [3, 1]]) { if (inside[(i - 1) * 2 + sd] || inside[i * 2 + sd]) continue; for (const e of [0, 1]) { const s0 = q + o + e; BI.push(s0, s0 + 6, s0 + 1, s0 + 1, s0 + 6, s0 + 7); } }
     }
   }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setIndex(I); g.computeVertexNormals();
@@ -465,7 +552,7 @@ function canalMesh(src, w, style) {
 }
 function canalGroup(list, style) {
   const ws = [], bs = [];
-  for (const [pts, w] of list) { const r = canalMesh(pts, w, style); if (r) { ws.push(r[0]); bs.push(r[1]); } }
+  for (const [pts, w] of list) { const r = canalMesh(pts, w, style, list.filter(o => o[0] !== pts)); if (r) { ws.push(r[0]); bs.push(r[1]); } }
   const earth = style === 'earth', grp = new THREE.Group();
   const water = new THREE.Mesh(mergeGeometries(ws), new THREE.MeshPhysicalMaterial({ color: earth ? 0x6a5a44 : 0x4a5a52, roughness: 0.16, normalMap: waterTex[0], normalScale: new THREE.Vector2(0.3, 0.3), envMapIntensity: 0.5, transparent: true, opacity: 0.9, polygonOffset: true, polygonOffsetFactor: -2, side: THREE.DoubleSide }));
   const bank = new THREE.Mesh(mergeGeometries(bs), new THREE.MeshStandardMaterial({ color: earth ? 0x7d6a4f : 0xb7b3a9, roughness: earth ? 1 : 0.85, side: THREE.DoubleSide }));
@@ -491,15 +578,15 @@ function buildCanalsAllEras() {
   const one = get('八堡一圳', 2058, 1377), two = [...get('八堡二圳', 2058, 1377), ...get('八堡二圳', 1198, 1160).slice(1)];
   GATE = cutAt(main, 3318, 1351);                                                   // 1932 取入口制排水門（座標依成大文資導覽）
   // 清代：依 1904 堡圖的兩條土圳
-  ERA.groups.qing.push(canalGroup([[OLD.A, 7], [OLD.B, 6]], 'earth'));
+  ERA.groups.qing.push(canalGroup([[[...HEAD1913.canalSW, ...OLD.A.slice(6)], 7], [GATE.after, 6]], 'earth'));   // 往西那條＝1904 堡圖標「十五庄圳」的圳，位置和現在取入口→林先生廟的幹線重合（堡圖描線 B 有偏差，改用現代圳線）；往西南那條前段用 1913 位置
   // 日治：取入口以下改由同一條圳送到林先生廟旁再分一圳、二圳（土圳）
-  ERA.groups.jp.push(canalGroup([[[[3388, 1393], [3350, 1362], GATE.point], 9], [GATE.after, 9], [one, 7], [two, 7]], 'earth'));   // 引水路尾端→水門（示意）
+  ERA.groups.jp.push(canalGroup([[GATE.after, 9], [one, 7], [two, 7]], 'earth'));   // 水池直接到水門（1913 圖）
   // 現代：混凝土內面工＋聯絡渠道
   ERA.groups.now.push(canalGroup([[feed, 10], [main, 9], [one, 7], [two, 7]], 'concrete'));
 }
 
 /* =====================================================================
-   水門（外型、道數為示意）
+   水門（gateModel 是早期的示意款，只剩日治畫面的分水門在用；其餘見下方依照片做的 intakePortal、intakeGate）
    ===================================================================== */
 const concrete = new THREE.MeshStandardMaterial({ color: 0xc9c4b8, roughness: 0.85 });
 const steel = new THREE.MeshStandardMaterial({ color: 0x3f4a52, roughness: 0.55, metalness: 0.4 });
@@ -521,28 +608,200 @@ function place(obj, lx, lz, ang, lift = 0) {
   const x = lx - CX, z = lz - CZ;
   obj.position.set(x, heightAt(x, z) + lift, z); obj.rotation.y = -ang; scene.add(obj); return obj;
 }
+/* ---------- 依 2026-11-18 實地照片做的水門（現況外觀；尺寸目測，位置示意） ---------- */
+const blueM = new THREE.MeshStandardMaterial({ color: 0x2f80d6, roughness: 0.5, metalness: 0.2 });
+const railM = new THREE.MeshStandardMaterial({ color: 0xcdd5da, roughness: 0.35, metalness: 0.7 });
+const leafM = new THREE.MeshStandardMaterial({ color: 0xa9a598, roughness: 0.9 });
+const darkM = new THREE.MeshStandardMaterial({ color: 0x4b4d4a, roughness: 0.95 });
+const whiteM = new THREE.MeshStandardMaterial({ color: 0xeeeae0, roughness: 0.9 });
+const boxer = g => (w, h, d, x, y, z, m = concrete, rz = 0) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.rotation.z = rz; b.castShadow = b.receiveShadow = true; g.add(b); return b; };
+function railX(box, x0, x1, y, z, m) {                       // 沿 x 方向的欄杆
+  const L = Math.abs(x1 - x0), cx = (x0 + x1) / 2;
+  box(L, 0.07, 0.07, cx, y + 1.05, z, m); box(L, 0.05, 0.05, cx, y + 0.55, z, m);
+  const n = Math.max(1, Math.round(L / 1.6)); for (let i = 0; i <= n; i++) box(0.07, 1.05, 0.07, x0 + (x1 - x0) * i / n, y + 0.52, z, m);
+}
+function signPlane(txt, w, h) {                               // 門楣上的字（依照片）
+  const c = document.createElement('canvas'); c.width = 1024; c.height = Math.round(1024 * h / w); const x = c.getContext('2d');
+  x.fillStyle = '#c9c4b8'; x.fillRect(0, 0, c.width, c.height); x.fillStyle = '#5b5346';
+  x.font = `900 ${Math.round(c.height * 0.62)}px "Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
+  if ('letterSpacing' in x) x.letterSpacing = Math.round(c.height * 0.18) + 'px';
+  x.fillText(txt, c.width / 2, c.height / 2 + 2);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: 0.85 }));
+}
+/* 一圳／二圳取水口：兩道閘門一窄一寬、上方操作平台與藍色啟閉機、下游側門型架（兩邊樓梯）與門楣題字。local +z＝上游 */
+function intakePortal(title) {
+  const g = new THREE.Group(), box = boxer(g), H = 3.6, pw = 0.7, bays = [1.6, 4.2];
+  const W = bays[0] + bays[1] + pw * 3; let x = -W / 2;
+  for (let i = 0; i < 3; i++) {
+    box(pw, H + 0.6, 3.2, x + pw / 2, H / 2 - 0.3, 0); x += pw;
+    if (i < 2) {
+      const bw = bays[i], cx = x + bw / 2;
+      box(bw, 1.5, 0.3, cx, i ? 2.0 : 1.3, 0.2, leafM);                               // 閘板（寬的那道拉得比較高）
+      box(0.35, 0.9, 0.35, cx, H + 0.75, 0.4, blueM); box(bw * 0.8, 0.22, 0.22, cx, H + 0.5, 0.4, blueM);   // 啟閉機
+      box(0.12, 1.7, 0.12, cx, H + 1.1, 0.4, blueM);
+      x += bw;
+    }
+  }
+  box(W + 1.2, 0.35, 3.4, 0, H + 0.12, 0);                                             // 操作平台
+  railX(box, -W / 2 - 0.6, W / 2 + 0.6, H + 0.3, 1.65, railM); railX(box, -W / 2 - 0.6, W / 2 + 0.6, H + 0.3, -1.65, railM);
+  // 門型架
+  const zf = -2.6, top = H + 2.3, half = W * 0.36, run = 3.4;
+  box(half * 2 + 0.6, 0.95, 0.55, 0, top, zf);                                         // 門楣
+  box(0.6, top, 0.55, 0, top / 2, zf);                                                 // 中柱
+  for (const sg of [-1, 1]) {
+    const L = Math.hypot(run, top - 0.2), ang = Math.atan2(top - 0.2, run);
+    box(L, 0.4, 1.3, sg * (half + run / 2), (top + 0.2) / 2 - 0.2, zf, concrete, -sg * ang);          // 斜的樓梯板
+    box(L, 0.06, 0.06, sg * (half + run / 2), (top + 0.2) / 2 + 0.9, zf - 0.6, railM, -sg * ang);     // 樓梯扶手
+    box(L, 0.06, 0.06, sg * (half + run / 2), (top + 0.2) / 2 + 0.9, zf + 0.6, railM, -sg * ang);
+  }
+  railX(box, -half, half, top + 0.45, zf - 0.2, railM);
+  const sp = signPlane(title, half * 1.7, 0.72); sp.position.set(0, top, zf - 0.285); sp.rotation.y = Math.PI; g.add(sp);
+  return g;
+}
+/* 取入口制排水門：橫跨圳道的 8 道（現況封閉）＋靠溪側斜向的 5 道（現況藍色門板）＋交接處的竣工碑。modern=false 是日治畫面 */
+function intakeGate(modern, ang = Math.PI / 3) {
+  const g = new THREE.Group(), H = 3.6;
+  const row = (n, bw, pw, mat, lift, into, pz = 0.5) => {
+    const r = new THREE.Group(), box = boxer(r), W = n * bw + (n + 1) * pw;
+    for (let i = 0; i <= n; i++) box(pw, H + 0.5, 3.0, -W / 2 + pw / 2 + i * (bw + pw), H / 2 - 0.35, 0);
+    for (let i = 0; i < n; i++) {
+      const cx = -W / 2 + pw + bw / 2 + i * (bw + pw);
+      box(bw, 2.3, 0.18, cx, 1.0 + lift(i), pz, mat);
+      if (modern) { box(0.1, 1.5, 0.1, cx, H + 0.9, 0.5, blueM); box(0.42, 0.1, 0.42, cx, H + 1.15, 0.5, blueM); }   // 手動啟閉機
+      else { box(0.12, 1.6, 0.12, cx, H + 0.9, 0.5, steel); box(bw * 0.7, 0.14, 0.2, cx, H + 1.7, 0.5, steel); }
+    }
+    box(W + 0.8, 0.35, 3.2, 0, H + 0.1, 0);
+    if (modern) { railX(box, -W / 2 - 0.4, W / 2 + 0.4, H + 0.28, 1.55, blueM); railX(box, -W / 2 - 0.4, W / 2 + 0.4, H + 0.28, -1.55, blueM); }
+    into.add(r); return { r, W };
+  };
+  const r8 = row(8, 1.15, 0.5, modern ? leafM : steel, i => modern ? 0 : [0.3, 0.9, 0.5, 1.0][i % 4], g);
+  const r5 = row(5, 1.4, 0.55, modern ? blueM : steel, i => modern ? 0.15 : [0.6, 0.2, 0.8][i % 3], g, 1.2);   // 門板在外側（朝西南）
+  /* 排法依使用者 2026-11-19 畫的示意圖（local：+x＝圳道北側、+z＝上游）：
+     J＝兩排的交接處，在圳道南岸。8 道那排從 J 沿著圳堤往上游排（夾在北邊的八堡圳和南邊的水池之間，門朝西北）；
+     5 道那排從 J 往東南斜出去，門朝西南，水從這裡流出去。往上游是把兩股水隔開的圳堤。 */
+  const jx = 0, J = [0, 0];
+  r8.r.rotation.y = -Math.PI / 2; r8.r.position.set(jx, 0, J[1] + 0.8 + r8.W / 2);
+  const a5 = Math.PI * 1.5 - ang, ux = Math.cos(a5), uz = -Math.sin(a5), d5 = r5.W / 2 + 1.6;
+  r5.r.rotation.y = a5; r5.r.position.set(jx + ux * d5, 0, J[1] + uz * d5);
+  const box = boxer(g);
+  box(2.6, 0.35, 2.6, jx, H + 0.1, J[1]);                        // 交接處平台
+  box(0.5, 1.5, 0.5, jx, H + 1.0, J[1], darkM);                  // 竣工碑：方柱＋角錐頂，高約 2 公尺
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.36, 0.6, 4), darkM); tip.position.set(jx, H + 2.05, J[1]); tip.rotation.y = Math.PI / 4; tip.castShadow = true; g.add(tip);
+  if (modern) { box(2.4, 2.2, 2.0, jx - 2.6, H + 1.35, J[1] - 2.4, whiteM); box(2.8, 0.15, 2.4, jx - 2.6, H + 2.5, J[1] - 2.4); }   // 管理小屋
+  // 5 道水門外側的出水（接到八堡圳放水路／莿仔埤圳）
+  const wm = new THREE.MeshStandardMaterial({ color: modern ? 0x4a5a52 : 0x6a5a44, roughness: 0.25, transparent: true, opacity: 0.92, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2 });
+  const quad = (pts, y) => { const P = []; for (const [x, z] of pts) P.push(x, y, z); const q = new THREE.BufferGeometry(); q.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); q.setIndex([0, 1, 2, 0, 2, 3]); q.computeVertexNormals(); const m = new THREE.Mesh(q, wm); m.receiveShadow = true; g.add(m); };
+  const E = [jx + ux * (r5.W + 2.4), J[1] + uz * (r5.W + 2.4)], nx = Math.sin(a5), nz = Math.cos(a5), OUT = 10;   // E＝5 道那排的外端；n＝朝外
+  quad([[jx + ux * 1.4 + nx * 1.8, J[1] + uz * 1.4 + nz * 1.8], [E[0] + nx * 1.8, E[1] + nz * 1.8], [E[0] + nx * OUT - ux * 2, E[1] + nz * OUT - uz * 2], [jx + nx * OUT + ux * 3, J[1] + nz * OUT + uz * 3]], 0.45);
+  g.userData.out = [jx + ux * r5.W / 2 + nx * 30, J[1] + uz * r5.W / 2 + nz * 30];                           // 標籤用：出水方向上的一點
+  return g;
+}
+/* =====================================================================
+   現代畫面：新式分水門與前後的水池、濁水排水、八堡圳放水路（使用者 2026-11-20 指出河道和地圖有出入、分水門要建模）
+   依據：OpenStreetMap（data/osm_head.json，tools/prep_head_osm.py）、國土測繪中心正射影像（2023）、老師 2026-11-18 的照片。
+   - 閘門線 (3502.5,1220)–(3530,1249)：量自正射影像，和 OSM 的 weir 線一致；孔數（6）是看照片數的
+   - 上游水池（三角形）：量自正射影像；下游南側的大水池：OSM 水域 1575837290
+   - 閘門下游內部的隔牆、沉澱的小池沒有細做，閘門到大水池之間的水面是示意
+   ===================================================================== */
+function buildHeadNow() {
+  const grp = new THREE.Group(), H = HEADOSM;
+  const conc = new THREE.MeshStandardMaterial({ color: 0xb9b5aa, roughness: 0.9, side: THREE.DoubleSide });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x3b4046, roughness: 0.8 });
+  const steel = new THREE.MeshStandardMaterial({ color: 0x8d949b, roughness: 0.5, metalness: 0.4 });
+  const wat = new THREE.MeshPhysicalMaterial({ color: 0x5e6257, roughness: 0.18, normalMap: waterTex[0], normalScale: new THREE.Vector2(0.3, 0.3), envMapIntensity: 0.5, transparent: true, opacity: 0.92, side: THREE.DoubleSide });
+  const box = (w, h, d, m, x, y, z, par) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; par.add(o); return o; };
+  const levels = {};
+  // 平的水面＋一圈混凝土池壁（池壁高出水面 0.7 m、往下 3 m，蓋住 20 m 地形的高低差）
+  const pool = (name, poly, rim = true) => {
+    const lv = HEAD_POOLS[name].lv; levels[name] = lv;
+    const sh = new THREE.Shape(poly.map(q => new THREE.Vector2(q[0] - CX, q[1] - CZ))), g = new THREE.ShapeGeometry(sh); g.rotateX(Math.PI / 2);
+    const m = new THREE.Mesh(g, wat); m.position.y = lv; m.renderOrder = 3; grp.add(m);
+    if (rim) { const P = [], I = [], n = poly.length;
+      for (let i = 0; i < n; i++) { const a = poly[i], b = poly[(i + 1) % n], k = P.length / 3;
+        P.push(a[0] - CX, lv + 0.7, a[1] - CZ, b[0] - CX, lv + 0.7, b[1] - CZ, a[0] - CX, lv - 3, a[1] - CZ, b[0] - CX, lv - 3, b[1] - CZ); I.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); }
+      const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); rg.setIndex(I); rg.computeVertexNormals();
+      const rm = new THREE.Mesh(rg, conc); rm.receiveShadow = true; grp.add(rm); }
+    return lv;
+  };
+  const G0 = [3502.5, 1220], G1 = [3530, 1249];
+  const lvUp = pool('up', HEAD_POOLS.up.poly);                                     // 上游水池（正射影像）
+  pool('down', HEAD_POOLS.down.poly);                                                                                 // 下游大水池（OSM）
+  pool('mid', HEAD_POOLS.mid.poly, false);         // 閘門→大水池（示意）
+  // 新式分水門：整面混凝土牆、下方一排閘孔與閘墩、上方操作平台、欄杆、啟閉機（依照片；尺寸目測）
+  const gx = (G0[0] + G1[0]) / 2, gz = (G0[1] + G1[1]) / 2, dx = G1[0] - G0[0], dz = G1[1] - G0[1], L = Math.hypot(dx, dz);
+  const gate = new THREE.Group(); gate.position.set(gx - CX, HEAD_POOLS.down.lv - 0.8, gz - CZ); gate.rotation.y = -Math.atan2(dz, dx); gate.userData.tag = 'newgate';
+  const gh = lvUp - HEAD_POOLS.down.lv + 0.8;                                                        // 上游水面相對閘門底的高度
+  box(L, 7.2 + gh, 2.6, conc, 0, (7.2 + gh) / 2, 0, gate);                                                           // 牆
+  const top = 7.2 + gh; box(L + 1, 0.45, 5, conc, 0, top + 0.2, -0.6, gate);                                                     // 操作平台
+  const N = 6, bay = L / N;
+  for (let i = 0; i <= N; i++) box(1.5, 2.4, 3.4, conc, -L / 2 + i * bay, gh + 0.2, -2.6, gate);          // 上游側閘墩
+  for (let i = 0; i < N; i++) { const x = -L / 2 + (i + 0.5) * bay;
+    box(bay - 1.7, 1.9, 0.3, dark, x, gh, -1.4, gate); box(bay - 1.7, 1.9, 0.3, dark, x, 1.3, 1.4, gate);   // 閘孔（上、下游）
+    box(1.1, 1.9, 1.1, steel, x, top + 1.35, -0.4, gate); box(0.5, 2.6, 0.5, conc, x + 1.4, top + 1.7, -0.4, gate); }    // 啟閉機、機柱
+  for (const zz of [-3.0, 1.8]) { box(L + 1, 0.06, 0.06, steel, 0, top + 1.5, zz, gate); box(L + 1, 0.06, 0.06, steel, 0, top + 1.0, zz, gate);
+    for (let x = -L / 2; x <= L / 2 + 0.1; x += 2) box(0.06, 1.1, 0.06, steel, x, top + 0.95, zz, gate); }           // 欄杆
+  grp.add(gate);
+  scene.add(grp); ERA.groups.now.push(grp);
+  // 濁水排水、八堡圳放水路（OSM 線；場景 B 範圍內）
+  const inB = q => q[0] > 5 && q[0] < 4395 && q[1] > 5 && q[1] < 3575;
+  const zs = H.lines.find(l => l.id === '399642275').pts.filter(q => inB(q) && q[0] > 3508), fs = [[3331.9, 1362], [3327, 1371], ...H.lines.find(l => l.id === '353808012').pts.filter(q => inB(q) && q[1] > 1375)];
+  ERA.groups.now.push(canalGroup([[zs, 5], [fs, 8]], 'concrete'));
+  const mid = a => a[Math.floor(a.length / 2)];
+  HEAD_LABELS = [['濁水排水 →', mid(zs.filter(q => q[0] < 3900))], ['八堡圳放水路 ↙', fs[Math.min(6, fs.length - 1)]], ['分水門上游的水池', [3548, 1210]], ['分水門下游的水池', [3415, 1320]]];
+  window.__headLv = levels;
+}
+
 function buildGates() {
-  // 1932 取入口制排水門：橫跨圳道（閘門面與圳道垂直）
-  const a = gateModel(8, 1.9, 6, 4.2, [0.2, 0.8, 0.3, 0.9]);
-  const mon = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.0, 0.7), concrete); mon.position.set(a.W / 2 + 4, 1.0, 3); mon.castShadow = true; a.g.add(mon);
-  const gateObj = place(a.g, GATE.point[0], GATE.point[1], GATE.dir + Math.PI / 2, -0.3);
-  ERA.groups.jp.push(gateObj); ERA.groups.now.push(gateObj);
+  // 1932 取入口制排水門：日治畫面與現代畫面各一座（道數、排列依文資資料與照片；位置與角度是示意）
+  /* 位置量自國土測繪中心正射影像（2023）＋ OpenStreetMap 水池範圍（使用者 2026-11-22 指出河道與閘門對不上）：
+     J（兩排交接處、竣工碑）在大水池西南角 (3329,1351)；5 道藍色水門沿水池南緣往東南東到 (3341,1356)，水往南流出去接八堡圳放水路；
+     8 道水閘沿水池西緣往北，西邊就是往源泉的八堡圳。兩排的夾角約 120°。8 道那排的確切長度在空拍上看不清，是依照片的道數排的 */
+  GATE_J = [3329, 1351];
+  const D8 = [-0.141, -0.990];
+  for (const [era, modern] of [['jp', false], ['now', true]]) {
+    const o = intakeGate(modern, Math.PI * 2 / 3), x = GATE_J[0] - CX, z = GATE_J[1] - CZ;
+    o.position.set(x, HEAD_POOLS.down.lv - 1.6, z); o.rotation.y = Math.atan2(D8[0], D8[1]); scene.add(o);
+    ERA.groups[era].push(o); o.userData.tag = 'gate';
+  }
+  addLabel('往溪州、竹塘（莿仔埤圳）', 'geo canal', 3318, 1392, 6, ['now'], 1500);
+  addLabel('往源泉、林先生廟（八堡圳）', 'geo canal', 3290, 1340, 6, ['now'], 1500);
   // 第一、二圳分水門（林先生廟旁）：一圳、二圳起點各一座
   const L = OSM.lines.filter(l => l.kind === 'canal');
-  for (const name of ['八堡一圳', '八堡二圳']) {
+  for (const [name, title] of [['八堡一圳', '八堡一圳取水口'], ['八堡二圳', '八堡二圳取水口']]) {
     const p = L.find(l => l.name === name && Math.hypot(l.pts[0][0] - 2058, l.pts[0][1] - 1377) < 3).pts;
-    const c = cutAt(p, ...(() => { const q = resample(p, 12)[2]; return q; })());
-    const s = gateModel(3, 1.8, 4, 3.2, [0.6, 0.3, 0.7]);
-    const o = place(s.g, c.point[0], c.point[1], c.dir + Math.PI / 2, -0.3);
-    ERA.groups.jp.push(o); ERA.groups.now.push(o);
+    const c = cutAt(p, ...resample(p, 12)[2]);
+    const s = gateModel(3, 1.8, 4, 3.2, [0.6, 0.3, 0.7]);                              // 日治：外型沒有資料，示意
+    ERA.groups.jp.push(place(s.g, c.point[0], c.point[1], c.dir + Math.PI / 2, -0.3));
+    const po = place(intakePortal(title), c.point[0], c.point[1], c.dir + Math.PI / 2, -0.3); po.userData.tag = name === '八堡一圳' ? 'split1' : 'split2'; ERA.groups.now.push(po);   // 現代：依照片
   }
 }
 
 /* =====================================================================
-   石笱（清代）：依文化部〈八堡圳取入口設施〉「依水深呈弧線型推疊並排」
-   排在山腳溪道裡，弧線把水導向取水點（位置、數量為示意）
+   石笱（清代）。排法 2026-11-19 使用者定案：「約 45° 斜排＋明顯弧度」，三種尺寸各有位置。
+   依據：文化部〈八堡圳取入口設施〉「依水深呈弧線型推疊並排」；
+         2026-11-18 源泉社區導覽員口述（雁堤工法、約 45°；十尺導水在河床、十二尺引水在開挖的圳口、八尺固堤在圳岸且反向擺）；
+         成美文化園／取水口解說圖（錐身順水流、大口朝上游、一個挨一個斜疊到圳口下游側）。
+   位置、數量、口徑都是示意；全部落在 1904 描圖的溪床（C 岸與西緣之間）裡。
+   溪床座標：T＝圳口（溪床西南端）、s＝往上游的距離、n＝橫向（正＝南岸 C 那一側）
    ===================================================================== */
-const GOU = { L: 6.0, R0: 0.85, R1: 0.08, RIBS: 18, HOOP: 0.17 };
+const GOU = { L: 6.0, R0: 0.85, R1: 0.08, RIBS: 18, HOOP: 0.34 };          // 模型以 6 m 為基準，再依尺寸等比例縮小
+const GOU_SIZE = { yin: 3.6 / 6, dao: 3.0 / 6, gu: 2.4 / 6 };              // 十二尺引水、十尺導水、八尺固堤（一台尺約 30 cm）
+/* 圳頭一帶的要素，量自 1913〈濁水溪河川地形圖〉（local 公尺）。圳頭＝後來 1932 取入口的位置 (約 3320,1355)。
+   dike：水池南側那道有短刻線的堤，從圳頭往東南東約 170 m，再轉東北約 160 m（再往東還有約 270 m，沒有畫石笱）；順序＝上游端 → 圳頭
+   pool：堤北側的水池（北岸是山腳那一側的護岸）；east：從東邊流進水池的一股；bypass：堤南側往西南流的水道（第 9 點以後接到 1904 北側溪道，是示意）
+   north：水池北岸（1913 圖上也有短刻線） */
+const HEAD1913 = {
+  head: [3320, 1355],
+  dike: [[3630, 1310], [3600, 1325], [3570, 1350], [3540, 1380], [3495, 1393], [3400, 1368], [3326, 1356]],
+  pool: [[3322, 1348], [3335, 1315], [3360, 1295], [3400, 1282], [3445, 1268], [3490, 1262], [3530, 1275], [3575, 1290], [3640, 1295], [3630, 1310], [3600, 1325], [3570, 1350], [3540, 1380], [3495, 1392], [3485, 1392], [3400, 1367], [3322, 1356]],
+  north: [[3326, 1344], [3335, 1315], [3360, 1295], [3400, 1280], [3445, 1262], [3500, 1235]],
+  east: [[4400, 985], [4250, 1150], [4100, 1270], [3900, 1280], [3750, 1295], [3650, 1293]],
+  bypass: [[4100, 1290], [3920, 1375], [3810, 1385], [3740, 1415], [3660, 1440], [3600, 1480], [3540, 1530], [3520, 1600], [3510, 1650], [3480, 1900], [3440, 2250], [3450, 2600]],
+  bed: [[3330, 1335], [3500, 1215], [3650, 1140], [4150, 1180], [4150, 1420], [3760, 1470], [3600, 1560], [3580, 1700], [3440, 1700], [3400, 1500], [3335, 1400]],
+  canalSW: [[3318, 1358], [3295, 1385], [3270, 1440], [3240, 1500], [3195, 1545], [3150, 1575], [3100, 1600], [3000, 1605]],   // 圳頭往西南的水路（1904 堡圖的 A 在這裡偏東南約 60–80 m，改用 1913 的位置）
+};
+function gouCurve(k = 80) { return resample(chaikin(HEAD1913.dike, 3), 2); }
 const gouR = s => GOU.R1 + (GOU.R0 - GOU.R1) * Math.pow(1 - s, 0.9);
 function strip(path, normals, w, out, vOff = 0) {
   const P = [], N = [], UV = [], I = []; let len = 0;
@@ -559,14 +818,14 @@ function strip(path, normals, w, out, vOff = 0) {
   g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(UV, 2));
   g.setIndex(I); out.push(g);
 }
-function buildCageGeometry() {
+function buildCageGeometry() {                                             // 座數多，分段數取少一點（約 2 千個三角形一座）
   const parts = [], { L, RIBS, HOOP } = GOU;
   const pt = (s, th, dr = 0) => { const r = gouR(s) + dr; return new THREE.Vector3(s * L, gouR(s) + r * Math.cos(th), r * Math.sin(th)); };
   const nrm = (s, th) => new THREE.Vector3(0.12, Math.cos(th), Math.sin(th)).normalize();
-  for (let k = 0; k < RIBS; k++) { const th = k / RIBS * Math.PI * 2, P = [], N = []; for (let i = 0; i <= 40; i++) { const s = i / 40 * 0.985; P.push(pt(s, th)); N.push(nrm(s, th)); } strip(P, N, 0.045, parts, k * 0.37); }
+  for (let k = 0; k < RIBS; k++) { const th = k / RIBS * Math.PI * 2, P = [], N = []; for (let i = 0; i <= 16; i++) { const s = i / 16 * 0.985; P.push(pt(s, th)); N.push(nrm(s, th)); } strip(P, N, 0.07, parts, k * 0.37); }
   let ring = 0;
-  for (let x = 0.04; x < L * 0.97; x += HOOP, ring++) { const s = x / L, P = [], N = []; for (let i = 0; i <= 64; i++) { const th = i / 64 * Math.PI * 2; P.push(pt(s, th, 0.014 * Math.sin(th * RIBS / 2 + (ring % 2) * Math.PI))); N.push(nrm(s, th)); } strip(P, N, 0.03, parts, ring * 0.21); }
-  for (let k = 0; k < 3; k++) { const P = [], N = []; for (let i = 0; i <= 96; i++) { const th = i / 96 * Math.PI * 2; P.push(pt(0.004 + k * 0.004, th, 0.02 + k * 0.012)); N.push(nrm(0, th)); } strip(P, N, 0.07, parts, k); }
+  for (let x = 0.04; x < L * 0.97; x += HOOP, ring++) { const s = x / L, P = [], N = []; for (let i = 0; i <= 36; i++) { const th = i / 36 * Math.PI * 2; P.push(pt(s, th, 0.014 * Math.sin(th * RIBS / 2 + (ring % 2) * Math.PI))); N.push(nrm(s, th)); } strip(P, N, 0.05, parts, ring * 0.21); }
+  for (let k = 0; k < 2; k++) { const P = [], N = []; for (let i = 0; i <= 48; i++) { const th = i / 48 * Math.PI * 2; P.push(pt(0.004 + k * 0.006, th, 0.02 + k * 0.014)); N.push(nrm(0, th)); } strip(P, N, 0.09, parts, k); }
   return mergeGeometries(parts);
 }
 function rockGeometry(seed, detail = 1) {
@@ -578,33 +837,118 @@ function rockGeometry(seed, detail = 1) {
 async function buildShigouArc() {
   const [bD, bN, rD] = await Promise.all([loadTex(TEX + 'bamboo_wall_diff.jpg', true), loadTex(TEX + 'bamboo_wall_nor.jpg'), loadTex(TEX + 'dry_riverbed_rock_diff.jpg', true)]);
   const cageMat = new THREE.MeshStandardMaterial({ map: bD, normalMap: bN, color: 0xd9c08a, roughness: 0.75, side: THREE.DoubleSide });
-  const stoneMat = new THREE.MeshStandardMaterial({ map: rD, roughness: 0.8 });
-  // 溪水由東北往西南流；弧線從上游溪道南岸開始，順著水流往下，再往左（西）收攏到圳口，
-  // 把溪水兜進圳口（使用者 2026-11-10 修正：弧線往圳口那側收攏）
-  const flow = [-0.71, 0.71], fa = Math.atan2(flow[1], flow[0]);
-  const p0 = [3505, 1318], p1 = [3440, 1405], p2 = [3390, 1404];
-  const bz = t => [(1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0], (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]];
-  const pts = resample(Array.from({ length: 60 }, (_, i) => bz(i / 59)), 3.4), N = pts.length;   // 笱口間距約 3.4 m（一個挨一個）
-  const grp = new THREE.Group(), cages = [];
+  const stoneMat = new THREE.MeshStandardMaterial({ map: rD, roughness: 0.8, flatShading: true });
+  const rr = rng(5);
+  let bankAt = [3250, 1440];
+  const list = [];                                                          // { x, y, z（world）, yaw, k（縮放）, per（卵石數） }
+  // 一、壩：排在 1913 年實測圖上那道堤的位置（水池南側）。水池裡的水往西流進圳頭，所以石笱大口朝東（上游）、尖端朝西，
+  //     一個挨一個沿著堤斜疊，尖端略偏向堤外（南）。靠圳頭約 60 m 用十二尺（開挖的圳口、水較深），其餘十尺。
+  const pts = resample(gouCurve(), 2.6), hd = HEAD1913.head, pc = [3480, 1320];   // pc＝水池中間，用來分辨堤的內外側
+  const lower = pts.map((p, i) => {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+    let dx = b[0] - a[0], dz = b[1] - a[1]; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;        // 沿堤往圳頭
+    let ex = -dz, ez = dx; if (ex * (pc[0] - p[0]) + ez * (pc[1] - p[1]) > 0) { ex = -ex; ez = -ez; }    // 堤外側（背水側）
+    const ax = dx * 0.906 + ex * 0.423, az = dz * 0.906 + ez * 0.423;
+    const k = Math.hypot(p[0] - hd[0], p[1] - hd[1]) < 60 ? GOU_SIZE.yin : GOU_SIZE.dao, x = p[0] - CX, z = p[1] - CZ;
+    return { x, y: heightAt(x, z) - 0.12, z, yaw: -Math.atan2(az, ax) + (rr() - 0.5) * 0.05, k, per: 70, d: Math.hypot(p[0] - hd[0], p[1] - hd[1]) };
+  });
+  list.push(...lower);
+  // 依水深往上疊：靠圳頭約 170 m 那一段疊兩層，上層放在下層兩個的中間
+  for (let i = 0; i < lower.length - 1; i++) {
+    const a = lower[i], b = lower[i + 1], k = Math.min(a.k, b.k); if (a.d > 175) continue;
+    list.push({ x: (a.x + b.x) / 2, y: Math.max(a.y, b.y) + 1.7 * k * 0.8, z: (a.z + b.z) / 2, yaw: a.yaw, k, per: 70, d: a.d });
+  }
+  const nDamCount = list.length;
+  // 二、固堤：八尺，垂直堤岸、大口（屁股）朝水道、尖端朝外。
+  //     （a）水池北岸靠圳頭的一段（1913 圖上這一岸也畫了短刻線）
+  const guLen = GOU.L * GOU_SIZE.gu, nb = resample(chaikin(HEAD1913.north, 2), 2.3);
+  for (let i = 1; i < nb.length - 1; i++) {
+    const a = nb[i - 1], b = nb[i + 1]; let ox = -(b[1] - a[1]), oz = b[0] - a[0]; const L = Math.hypot(ox, oz) || 1; ox /= L; oz /= L;
+    if (ox * (pc[0] - nb[i][0]) + oz * (pc[1] - nb[i][1]) > 0) { ox = -ox; oz = -oz; }                      // 朝岸上（離開水池）
+    const mx = nb[i][0] - CX, mz = nb[i][1] - CZ;
+    list.push({ x: mx, y: Math.max(heightAt(mx, mz), heightAt(mx + ox * guLen, mz + oz * guLen)) - 0.08, z: mz, yaw: -Math.atan2(oz, ox) + (rr() - 0.5) * 0.08, k: GOU_SIZE.gu, per: 60, kind: 'n', d: Math.hypot(nb[i][0] - hd[0], nb[i][1] - hd[1]) });
+  }
+  //     （b）圳頭往西南那條土圳的兩岸。十五庄圳不排（清代它的水從哪裡來，文獻說法不一）
+  for (const [line, w] of [[HEAD1913.canalSW, 7]]) {
+    const cp = resample(line, 2.3);
+    for (let i = 3; i < Math.min(cp.length - 1, 22); i++) {
+      const a = cp[i - 1], b = cp[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1, nx = -dz / L, nz = dx / L;
+      const cx = cp[i][0] - CX, cz = cp[i][1] - CZ;
+      let y = Infinity; for (const o of [-w, 0, w]) y = Math.min(y, heightAt(cx + nx * o, cz + nz * o));
+      y = Math.max(y, heightAt(cx, cz) - 0.15);                          // 同 canalMesh 的土圳高度
+      for (const sg of [-1, 1]) {
+        const mx = cx + nx * sg * (w / 2 + 0.15), mz = cz + nz * sg * (w / 2 + 0.15);
+        const gy = Math.max(y + 0.3, heightAt(mx, mz) - 0.08, heightAt(mx + nx * sg * guLen, mz + nz * sg * guLen) - 0.08);   // 不要陷進地形裡
+        list.push({ x: mx, y: gy, z: mz, yaw: -Math.atan2(nz * sg, nx * sg) + (rr() - 0.5) * 0.08, k: GOU_SIZE.gu, per: 60, kind: 'sw' });
+        if (i === 12 && sg === -1) bankAt = [cp[i][0] - nx * 10, cp[i][1] - nz * 10];
+      }
+    }
+  }
+  const N = list.length, grp = new THREE.Group(), cages = [];
   const inst = new THREE.InstancedMesh(buildCageGeometry(), cageMat, N); inst.castShadow = inst.receiveShadow = true;
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), rr = rng(5);
-  pts.forEach((p, i) => {
-    const x = p[0] - CX, z = p[1] - CZ, yaw = -fa + (rr() - 0.5) * 0.1;
-    q.setFromEuler(new THREE.Euler(0, yaw, 0));
-    m.compose(new THREE.Vector3(x, heightAt(x, z) - 0.2, z), q, new THREE.Vector3(1, 1, 1));
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion();
+  list.forEach((c, i) => {
+    q.setFromEuler(new THREE.Euler(0, c.yaw, 0));
+    m.compose(new THREE.Vector3(c.x, c.y, c.z), q, new THREE.Vector3(c.k, c.k, c.k));
     inst.setMatrixAt(i, m); cages.push(m.clone());
   });
   grp.add(inst);
-  const per = 160, rock = rockGeometry(3), im = new THREE.InstancedMesh(rock, stoneMat, N * per), col = new THREE.Color(); let n = 0;
-  for (let ci = 0; ci < N; ci++) for (let j = 0; j < per; j++) {
-    const s = 0.02 + rr() * 0.95, r = gouR(s), a = rr() * Math.PI * 2, rad = Math.sqrt(rr()) * r * 0.8, size = (0.09 + rr() * 0.1) * clamp(r / 0.6, 0.45, 1.15);
-    im.setMatrixAt(n, cages[ci].clone().multiply(new THREE.Matrix4().compose(new THREE.Vector3(s * GOU.L, r + Math.cos(a) * rad, Math.sin(a) * rad), new THREE.Quaternion().setFromEuler(new THREE.Euler(rr() * 6, rr() * 6, rr() * 6)), new THREE.Vector3(size, size, size))));
+  const rockLoc = [], rockCage = [];
+  const total = list.reduce((s, c) => s + c.per, 0), im = new THREE.InstancedMesh(rockGeometry(3, 0), stoneMat, total), col = new THREE.Color(); let n = 0;
+  list.forEach((c, ci) => { for (let j = 0; j < c.per; j++) {
+    const s = 0.02 + rr() * 0.95, r = gouR(s), a = rr() * Math.PI * 2, rad = Math.sqrt(rr()) * r * 0.8, size = (0.13 + rr() * 0.13) * clamp(r / 0.6, 0.45, 1.15);
+    const loc = new THREE.Matrix4().compose(new THREE.Vector3(s * GOU.L, r + Math.cos(a) * rad, Math.sin(a) * rad), new THREE.Quaternion().setFromEuler(new THREE.Euler(rr() * 6, rr() * 6, rr() * 6)), new THREE.Vector3(size, size, size));
+    rockLoc.push(loc); rockCage.push(ci); im.setMatrixAt(n, cages[ci].clone().multiply(loc));
     const v = 0.28 + rr() * 0.28; col.setRGB(v * 0.92, v * 0.97, v * 1.05); im.setColorAt(n++, col);
-  }
+  } });
   im.castShadow = true; grp.add(im); scene.add(grp);
-  ERA.groups.qing.push(grp);
-  const c = pts[Math.floor(N / 2)];
-  GOU_SITE = { center: new THREE.Vector3(c[0] - CX, heightAt(c[0] - CX, c[1] - CZ), c[1] - CZ), fa };
+  ERA.groups.qing.push(grp); ERA.groups.jp.push(grp);                        // 石笱一直用到約民國 78 年，日治畫面也有（使用者 2026-11-20）
+  const c = [3440, 1352];                                                    // 近看：靠圳頭那一段堤與水池
+  GOU_SITE = { center: new THREE.Vector3(c[0] - CX, heightAt(c[0] - CX, c[1] - CZ), c[1] - CZ), nDam: nDamCount, nBank: N - nDamCount, bankAt };
+  // 大水動畫用：被沖走的石笱（堤中段為主）各自的位移；p＝0 完好、1 沖壞
+  const fr = rng(11), off = list.map((c, i2) => {
+    if (i2 >= nDamCount) return null;
+    const hit = (c.d > 45 && c.d < 240 && fr() < 0.8) || fr() < 0.1; if (!hit) return null;
+    const far = 12 + fr() * 60, side = (fr() - 0.5) * 26;
+    return { dx: -0.45 * far + side, dz: 0.9 * far + side * 0.4, sink: 0.25 + fr() * 0.35, rot: (fr() - 0.5) * 2.6, delay: fr() * 0.45 };
+  });
+  const byCage = list.map(() => []); rockCage.forEach((ci, k2) => byCage[ci].push(k2));
+  GOU_ANIM = { inst, im, list, cages, rockLoc, byCage, off, nDam: nDamCount, p: 0, count: 0 };
+}
+
+/* ---------- 石笱：依時代與「大水」狀態更新每一座的位置 ----------
+   日治畫面有 1932 年的混凝土水門，靠圳頭 55 m 內的石笱、往西南土圳上的八尺不顯示（那條土圳只在清代畫面） */
+function applyGou() {
+  const A = GOU_ANIM; if (!A) return;
+  const jp = ERA.cur === 'jp', m = new THREE.Matrix4(), pos = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3(), q2 = new THREE.Quaternion(), zero = new THREE.Matrix4().makeScale(0, 0, 0), tmp = new THREE.Matrix4();
+  A.list.forEach((c, i) => {
+    const hide = jp && (c.kind === 'sw' || (c.d !== undefined && c.d < 55));
+    if (hide) m.copy(zero);
+    else {
+      m.copy(A.cages[i]); const o = A.off[i];
+      if (o && A.p > 0) {
+        const f0 = clamp((A.p - o.delay) / (1 - o.delay), 0, 1), f = f0 * f0 * (3 - 2 * f0);
+        m.decompose(pos, q, sc); pos.x += o.dx * f; pos.z += o.dz * f; pos.y -= o.sink * f;
+        q.multiply(q2.setFromEuler(new THREE.Euler(f * 0.5, o.rot * f, f * 0.35))); m.compose(pos, q, sc);
+      }
+    }
+    A.inst.setMatrixAt(i, m);
+    for (const k of A.byCage[i]) A.im.setMatrixAt(k, hide ? zero : tmp.multiplyMatrices(m, A.rockLoc[k]));
+  });
+  A.inst.instanceMatrix.needsUpdate = true; A.im.instanceMatrix.needsUpdate = true;
+}
+function setupFlood() {
+  const A = GOU_ANIM, go = document.getElementById('fGo'), re = document.getElementById('fRe'), txt = document.getElementById('fTxt'), cnt = document.getElementById('fCnt');
+  const broken = A.off.filter(Boolean).length;
+  go.addEventListener('click', () => {
+    go.disabled = true; flyTo('gou');
+    txt.textContent = '大水衝過來，石笱一座一座被沖開……';
+    gsap.to(A, { p: 1, duration: 3.2, ease: 'none', delay: 1.2, onUpdate: applyGou, onComplete: () => { re.disabled = false; txt.textContent = `壩破了一個大缺口，約 ${broken} 座石笱被沖走。水池的水從缺口流掉，進圳的水就變少了。`; } });
+  });
+  re.addEventListener('click', () => {
+    re.disabled = true; txt.textContent = '水退了。工人把新編的竹籠扛到位置、躺好，再把石頭丟進去……';
+    gsap.to(A, { p: 0, duration: 4, ease: 'none', onUpdate: applyGou, onComplete: () => { A.count++; go.disabled = false; txt.textContent = '排好了，水又能進圳了。下一次大水來，可能又要重做。'; cnt.textContent = `已經重排 ${A.count} 次。導覽員說，石笱最久用三年半，也可能做好隔天就被颱風沖走（口述）。`; } });
+  });
 }
 
 /* ---------- 標籤（依時代顯示） ---------- */
@@ -614,7 +958,7 @@ function addLabel(html, cls, lx, lz, lift, eras, maxDist = 1e9, onClick, color) 
   if (onClick) el.firstChild.addEventListener('click', onClick);
   document.getElementById('labels').appendChild(el);
   const x = lx - CX, z = lz - CZ, inB = lx > 0 && lx < 4400 && lz > 0 && lz < 3580;
-  labels.push({ el, pos: new THREE.Vector3(x, (inB ? heightAt(x, z) : OUTER_H(lx, lz)) + lift, z), maxDist, eras });
+  labels.push({ el, pin: cls.includes('pin'), pos: new THREE.Vector3(x, (inB ? heightAt(x, z) : OUTER_H(lx, lz)) + lift, z), maxDist, eras });
 }
 function buildLabels() {
   const ALL = ['qing', 'jp', 'now'];
@@ -623,35 +967,51 @@ function buildLabels() {
   addLabel('<b>廟</b>林先生廟', 'pin', lin.x, lin.z, 6, ['qing', 'jp'], 3000, () => openPanel('lin'), '#b45309');
   addLabel('<b>管</b>林先生廟・用水管制中心', 'pin', lin.x, lin.z, 6, ['now'], 3000, () => openPanel('center'), '#0369a1');
   // 清代
-  addLabel('<b>笱</b>取水點・石笱弧線（示意）', 'pin', 3400, 1360, 8, ['qing'], 3500, () => openPanel('gou'), '#a16207');
-  addLabel('八堡圳（施厝圳）', 'geo old', 2700, 1720, 4, ['qing'], 3200);
-  addLabel('十五庄圳', 'geo old', 2650, 1250, 4, ['qing'], 3200);
-  addLabel('溪水貼著山腳流到圳頭', 'geo water', 3950, 1090, 4, ['qing'], 4500);
+  addLabel('<b>笱</b>圳頭・石笱壩', 'pin', 3440, 1340, 9, ['qing'], 3500, () => openPanel('gou'), '#a16207');
+  addLabel('<b>笱</b>石笱壩（用到約民國 78 年）', 'pin', 3520, 1375, 9, ['jp'], 3500, () => openPanel('gou'), '#a16207');
+  addLabel('十尺・導水', 'geo old', 3545, 1400, 3, ['qing'], 420);
+  addLabel('十二尺・引水', 'geo old', 3372, 1385, 3, ['qing'], 420);
+  addLabel('八尺・固堤', 'geo old', 3385, 1265, 3, ['qing'], 420);
+  addLabel('八尺・固堤', 'geo old', ...GOU_SITE.bankAt, 3, ['qing'], 420);
+  addLabel('水池（水往西流進圳頭）', 'geo water', 3500, 1300, 3, ['qing', 'jp'], 700);
+  addLabel('沒被攔下的水 ↙', 'geo water', 3640, 1460, 3, ['qing', 'jp'], 1500);
+  addLabel('↗ 文獻記載的早期引水口：名間濁水（畫面外）', 'geo old', 7300, -1050, 8, ['qing'], 16000, () => openPanel('early'));
+  addLabel('往西南的圳路（1904 年地圖沒標名字）', 'geo old', 2700, 1720, 4, ['qing'], 3200, () => openPanel('bao'));
+  addLabel('1904 年地圖標「十五庄圳」', 'geo old', 2700, 1330, 4, ['qing'], 3200, () => openPanel('bao'));
+  addLabel('溪水貼著山腳流到圳頭', 'geo water', 3950, 1060, 4, ['qing'], 4500);
   addLabel('濁水溪主流（1904）', 'geo water', 6300, -500, 6, ['qing'], 16000);
   addLabel('濁水溪（1904）', 'geo water', 3500, 2580, 4, ['qing'], 16000);
   addLabel('東螺溪 ↖ 往北流', 'geo water', -1500, 1950, 4, ['qing'], 16000);
   addLabel('清水溪（1904）', 'geo water', 3150, 5000, 4, ['qing'], 16000);
   // 日治
-  addLabel('<b>門</b>取入口制排水門（約 1930 年代）', 'pin', GATE.point[0], GATE.point[1], 9, ['jp'], 3500, () => openPanel('gate'), '#475569');
+  addLabel('<b>門</b>取入口制排水門（1932）', 'pin', GATE_J[0], GATE_J[1], 9, ['jp'], 3500, () => openPanel('gate'), '#475569');
   addLabel('<b>分</b>第一・二圳分水門', 'pin', 2058, 1377, 10, ['jp', 'now'], 3500, () => openPanel('split'), '#dc2626');
   addLabel('引水路（依 1904 堡圖示意）', 'geo water', 3950, 1090, 4, ['jp'], 4500);
   addLabel('濁水溪（築堤後河道固定）', 'geo water', 2600, 3200, 4, ['jp'], 16000);
   // 現代
-  addLabel('<b>文</b>取入口制排水門（歷史建築）', 'pin', GATE.point[0], GATE.point[1], 9, ['now'], 3500, () => openPanel('gate'), '#475569');
+  addLabel('<b>文</b>取入口制排水門（歷史建築）', 'pin', GATE_J[0], GATE_J[1], 9, ['now'], 3500, () => openPanel('gate'), '#475569');
+  addLabel('<b>新</b>新式分水門', 'pin', 3516, 1234, 13, ['now'], 3500, () => openPanel('newgate'), '#0369a1');   // 位置＝正射影像上的閘門線
+  for (const [t, q] of HEAD_LABELS) addLabel(t, 'geo water', q[0], q[1], 5, ['now'], t.includes('水池') ? 900 : 2500);
   addLabel('北岸聯絡渠道 ← 集集攔河堰（東邊約 11 公里）', 'geo canal', 4300, 480, 4, ['now'], 6000);
   addLabel('濁水溪', 'geo water', 2600, 3200, 4, ['now'], 16000);
   addLabel('八堡一圳 →', 'geo canal', 1500, 860, 4, ['jp', 'now'], 2600);
   addLabel('← 八堡二圳', 'geo canal', 1550, 1290, 4, ['jp', 'now'], 2600);
   addLabel('八卦山（南端）', 'geo', 2700, 150, 30, ALL, 9000);
+  labels.sort((a, b) => (b.pin ? 1 : 0) - (a.pin ? 1 : 0));          // 可以點的標籤優先顯示
 }
 const _v = new THREE.Vector3();
 function updateLabels() {
-  const w = innerWidth, h = innerHeight;
+  const w = innerWidth, h = innerHeight, used = [];
   for (const L of labels) {
     _v.copy(L.pos).project(camera);
-    const vis = L.eras.includes(ERA.cur) && _v.z < 1 && Math.abs(_v.x) < 1.1 && Math.abs(_v.y) < 1.1 && camera.position.distanceTo(L.pos) < L.maxDist;
+    let vis = L.eras.includes(ERA.cur) && _v.z < 1 && Math.abs(_v.x) < 1.1 && Math.abs(_v.y) < 1.1 && camera.position.distanceTo(L.pos) < L.maxDist;
+    if (vis) {                                                          // 標籤互相重疊時，後面的（不能點的）先藏起來
+      const sx = (_v.x * .5 + .5) * w, sy = (-_v.y * .5 + .5) * h, bw = (L.bw || (L.bw = L.el.firstChild.offsetWidth || 120)) / 2 + 5;
+      const r = L.pin ? [sx - bw, sy - 44, sx + bw, sy + 2] : [sx - bw, sy - 18, sx + bw, sy + 18];
+      if (used.some(u => r[0] < u[2] && r[2] > u[0] && r[1] < u[3] && r[3] > u[1])) vis = false;
+      else { used.push(r); L.el.style.transform = `translate(${sx}px,${sy}px)`; }
+    }
     L.el.classList.toggle('hide', !vis);
-    if (vis) L.el.style.transform = `translate(${(_v.x * .5 + .5) * w}px,${(-_v.y * .5 + .5) * h}px)`;
   }
 }
 
@@ -662,66 +1022,306 @@ const SRC = {
   moc: '<a href="https://themefile.culture.tw/file/2019-03-06/780ddbdc-6603-4ecd-b444-76b5fc03da9b/12.%E5%85%AB%E5%A0%A1%E5%9C%B3%E5%8F%96%E5%85%A5%E5%8F%A3%E8%A8%AD%E6%96%BD.pdf" target="_blank">文化部〈八堡圳取入口設施〉</a>',
   bao: '中研院人社中心GIS專題中心〈臺灣百年歷史地圖〉臺灣堡圖（1904）',
   wra: '<a href="https://www.wra.gov.tw/epaper/Article_Detail.aspx?s=4068&n=30173" target="_blank">水利署電子報第242期〈清代與日治初期的濁水溪堤防〉</a>',
-  chc: '彰化縣文化資產登錄資料（八堡圳取水口）',
+  chc: '<a href="https://nchdb.boch.gov.tw/city/CWH/assets/overview/historicalBuilding/20060926000005" target="_blank">國家文化資產網〈八堡圳取水口〉</a>',
+  wra280: '<a href="https://www.wra.gov.tw/epaper/Article_Detail.aspx?s=4574&n=30177" target="_blank">水利署電子報第280期〈林先生的「笱」傳奇〉</a>',
   jiji: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8792" target="_blank">水利署〈集集攔河堰 興建緣起〉</a>',
   law: '〈集集攔河堰水庫水門操作規定〉',
   iachu: '<a href="https://www.iachu.nat.gov.tw/about/WorkStationPage?a=10461&id=140&q=" target="_blank">農田水利署彰化管理處〈用水管制中心〉</a>',
   tt: '<a href="https://www.taipeitimes.com/News/feat/archives/2024/09/22/2003824154" target="_blank">Taipei Times 2024-09-22</a>',
 };
 const src = (...k) => `<div class="src">資料來源：${k.map(x => SRC[x]).join('；')}</div>`;
+SRC.stele89 = '現場碑文（彰化農田水利會，民國 89 年 5 月立）';
+SRC.field = '現場觀察（2026 年 11 月 18 日）';
+SRC.riv1913 = '中研院人社中心GIS專題中心〈彰化百年歷史地圖〉濁水溪河川地形圖（1913）';
+SRC.chen = '陳水源〈八堡圳開築工程大功業〉，《臺灣學研究通訊》創刊號';
+SRC.mit856 = '<a href="https://www.youtube.com/watch?v=bNyrykmWKyE" target="_blank">MIT台灣誌第 856 集〈獨特石笱工法引水入圳 百年八堡圳蘊含二水歷史〉</a>';
+SRC.daodu = '<a href="https://www.youtube.com/watch?v=veJN7gygcxo" target="_blank">三立〈導讀台灣〉八堡圳與施世榜</a>';
+SRC.zhifu = '<a href="https://www.youtube.com/watch?v=c4w_37B6I1M" target="_blank">三立〈智富食代〉2024 年 7 月 5 日</a>';
+SRC.tcmb = '<a href="https://tcmb.culture.tw/zh-tw/detail?indexCode=Culture_Place&id=334048" target="_blank">國家文化記憶庫〈彰化八堡圳取入水口〉</a>';
+SRC.guide = '源泉社區現場導覽（2026 年 11 月 18 日，導覽員口述，老師整理）';
+SRC.wiki = '<a href="https://zh.wikipedia.org/zh-tw/%E5%85%AB%E5%A0%A1%E5%9C%B3" target="_blank">維基百科〈八堡圳〉</a>';
+const ORAL = '<span class="oral">口述</span>';
+const MORE = (...list) => `<div class="more">${list.map(([k, t]) => `<button onclick="window.__openCard('${k}')">${t}</button>`).join('')}</div>`;
 const INFO = {
   qing: { t: '清代：石笱與土圳', s: '1709 年開工・竹籠裝卵石把溪水導進圳裡',
-    b: `<div class="keys"><span>1709–1719</span><span>施世榜出錢，從二水鼻仔頭開八堡圳（施厝圳），灌溉彰化平原八個「堡」</span>
+    b: `<div class="keys"><span>1709–1719</span><span>施世榜出錢，從二水鼻仔頭開八堡圳（舊名施厝圳、濁水圳），灌溉彰化平原八個「堡」</span>
         <span>1721</span><span>黃仕卿等人開十五庄圳（後來的八堡二圳）</span>
-        <span>怎麼取水</span><span>用藤紮竹木編成筍形竹籠，填滿卵石，依水深排成<strong>弧線</strong>，溪水順著弧線流進圳路</span>
+        <span>怎麼取水</span><span>用藤紮竹木編成筍形竹籠，填滿卵石，<strong>斜斜地排成一道弧線</strong>，把溪水帶進圳路</span>
         <span>河道</span><span>溪水貼著八卦山腳流到圳頭；濁水溪還有一支東螺溪往北流</span></div>
-        <p style="font-size:13.5px;color:#64748b">※ 畫面的古河道、兩條圳依 1904 年臺灣堡圖描繪（日治初期測量，是最接近清末的地圖）。底圖仍是現代影像，只是把顏色調淡；石笱位置、數量是示意。</p>
-        ${src('moc', 'bao', 'wra', 'tt')}` },
+        ${MORE(['why', '為什麼引水這麼難？'], ['gou', '石笱怎麼排？'], ['bao', '八堡是哪八個堡？'], ['craft', '做石笱的人'])}
+        <p style="font-size:13.5px;color:#64748b">※ 畫面的古河道、兩條圳依 1904 年臺灣堡圖描繪（日治初期測量）；圳頭附近的水池、堤和水路改依 1913 年〈濁水溪河川地形圖〉，因為它量得比較細，位置也和現在的取入口對得上。底圖仍是現代影像，只是把顏色調淡。石笱的數量是示意。</p>
+        ${MORE(['early', '最早的引水口在哪裡？'])}
+        ${src('moc', 'bao', 'riv1913', 'wra', 'tt', 'guide')}` },
   jp: { t: '日治：堤防與混凝土水門', s: '把河道固定下來，用水門控制水量',
-    b: `<div class="keys"><span>1902</span><span>八堡圳、十五庄圳收歸公共</span>
+    b: `<div class="keys"><span>1902</span><span>八堡圳、十五庄圳收歸公共（總督府 1901 年公布〈公共埤圳規則〉；其他資料也有寫 1897 年、1905 年的）</span>
         <span>1906～1907</span><span>兩條圳合併管理，用制水閘門連成一個系統</span>
         <span>1923</span><span>成立「八堡圳水利組合」</span>
         <span>約 1918–1923</span><span>濁水溪兩岸築了 70 多公里堤防，堵住往北流的舊濁水溪，河道才固定在今天的位置</span>
-        <span>約 1930 年代</span><span>建鋼筋混凝土「取入口制排水門」，在林先生廟旁設第一、二圳分水門</span></div>
-        <p style="font-size:13.5px;color:#64748b">※ 水門外型、閘門道數是示意；水門前的引水路依 1904 年堡圖示意，日治時期的實際位置還沒查到資料。</p>
-        ${src('moc', 'wra', 'chc')}` },
+        <span>1932</span><span>建鋼筋混凝土「取入口制排水門」，在林先生廟旁設第一、二圳分水門</span>
+        <span>石笱還在用</span><span>水門蓋好以前，圳頭還是靠石笱堤把水擋高（1913 年的實測圖上畫著水池和堤）。水門蓋好以後，溪裡仍然要排石笱把水引過來，一直用到大約民國 78 年</span></div>
+        <p style="font-size:13.5px;color:#64748b">※ 水池和石笱堤的位置依 1913 年〈濁水溪河川地形圖〉。1932 年水門蓋好以後，石笱排在溪裡的哪些地方，沒有找到地圖，畫面沿用 1913 年的位置。水門外型是示意。</p>
+        ${src('moc', 'riv1913', 'wra', 'chc', 'stele89', 'guide', 'zhifu', 'chen', 'tt')}` },
   now: { t: '現代：集集攔河堰與混凝土圳道', s: '水從上游 11 公里外的攔河堰送來',
     b: `<div class="keys"><span>1960 年代</span><span>土圳改成鋼筋混凝土內面工</span>
         <span>1998</span><span>八堡圳制分水門竣工</span>
         <span>2002</span><span>集集攔河堰正式營運：在上游把濁水溪攔起來，水經<strong>北岸聯絡渠道（約 23 公里）</strong>送到八堡圳</span>
         <span>用水管制中心</span><span>在林先生廟旁、一圳二圳分水門邊</span>
-        <span>舊水門</span><span>取入口制排水門 2006 年登錄為歷史建築，原來的 8 道水閘已經封閉</span></div>
+        <span>舊水門</span><span>取入口制排水門 2006 年登錄為歷史建築，原來的 8 道水閘已經封閉；現在水在上游約 200 公尺的新式分水門就分流</span></div>
+        <p>${ORAL}導覽員說，攔河堰蓋好以前，八堡圳一年到頭都有水，只有水多水少的差別；之後水要和其他用途一起分配，彰化才開始有枯水期。</p>
         <p style="font-size:13.5px;color:#64748b">※ 集集攔河堰不在畫面範圍內（在東邊約 11 公里）。</p>
+        ${phset('signs', '二水圳頭一帶的解說牌')}
         <p><a href="jiji.html" style="display:inline-block;padding:8px 14px;border-radius:12px;background:#0369a1;color:#fff;font-weight:900;text-decoration:none">到上游看集集攔河堰 →</a></p>
         ${src('jiji', 'law', 'iachu', 'chc', 'tt')}` },
-  gou: { t: '石笱弧線（清代）', s: '林先生傳授的引水方法',
-    b: `<p>把筍形竹籠<strong>笱口朝上游</strong>橫躺在溪床、填滿卵石，「依水深呈弧線型推疊並排，再以石塊塡實」。溪水順著弧線流進圳路，壩也不容易被急流沖毀。</p>
-        <p>想自己排排看？<a href="lab.html" style="color:#0369a1;font-weight:900">到「石笱運作原理」試試成排、斜線、弧線導流 →</a></p>${src('moc')}` },
+  gou: { t: '石笱壩（清代）', s: '林先生傳授的引水方法',
+    b: `<p>石笱的工作只有一句話：<strong>讓水轉彎，也讓水變慢</strong>。筍形竹籠<strong>橫躺</strong>在溪床上，大口朝上游、尖端朝下游，裡面填滿卵石。水可以從石縫穿過去，壩就不容易被急流沖垮。</p>
+        <p>文化部的資料寫石笱「依水深呈弧線型推疊並排，再以石塊塡實」。源泉社區的導覽員說，石笱和水流大約成 <strong>45 度</strong>斜斜排過去，下面排一排、上面再疊在兩個的中間，像雁子排隊飛，現在叫「雁堤工法」。畫面把兩種說法合在一起：一道斜向圳口的弧線。</p>
+        <p><strong>壩為什麼擺在這一邊？</strong>溪水從東邊、東北邊沿著山腳流過來，圳頭在西邊。北邊是山腳，南邊是濁水溪寬闊的河床，不擋的話水會往南散掉。所以壩排在<strong>南側</strong>，把水圍在山腳這一邊，形成一個水池，水位抬高以後往西流進圳頭。沒被攔下的水，從壩的南邊繼續往西南流。</p>
+        <p>文史工作者張錫池也這樣說：水本來在南邊流過去就流走了，把石笱像堆沙包一樣一個一個堆起來，就能「把南邊的水引到北邊」，導進北岸的圳裡。</p>
+        <p><strong>石笱壩不是排一次就好。</strong>濁水溪的河道很寬，而且常常改道。水跑到哪裡，石笱壩就要跟到哪裡，斜斜地把水引到圳頭，一次要用幾十個到上百個。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 壩和水池的位置，依 1913 年的〈濁水溪河川地形圖〉。那是 1932 年蓋混凝土水門以前的實測圖，圖上圳頭東邊有水池，水池南邊畫著一道堤，池裡標了往西的箭頭。清代沒有留下實測圖，1913 年這張是找得到最早、最接近的；圖上沒有註明那道堤用什麼材料，畫成石笱是依文獻對石笱壩的記載。</p>
+        <p>${ORAL}導覽員說，石笱依長度分三種，各有各的工作：</p>
+        <div class="keys"><span>十尺<br>約 3 公尺</span><span><strong>導水</strong>：排在河床上，先把水攔緩、帶往圳口。<strong>最先放</strong></span>
+        <span>十二尺<br>約 3.6 公尺</span><span><strong>引水</strong>：放在挖深的圳口，那裡水比較深。水勢緩下來以後才放</span>
+        <span>八尺<br>約 2.4 公尺</span><span><strong>固堤</strong>：護住壩對面的堤岸和土圳的圳岸。擺法<strong>反過來</strong>，垂直堤岸、大口朝水道、尖端朝外</span></div>
+        ${gouDiagram()}
+        <p><strong>從側面看：</strong>1913 年的實測圖上，堤裡面（水池）標的高程大約 384，堤外面大約 381.5。這些數字的單位應該是臺尺（換成公尺約 116 公尺，和現在量到的地面高度相符），也就是堤把裡面的水<strong>墊高了大約 2–3 尺（約 0.6–0.9 公尺）</strong>。</p>
+        <div class="mvstep"><button id="secOn" class="on" onclick="__secT(1)">有石笱堤</button><button id="secOff" onclick="__secT(0)">沒有石笱堤</button></div>
+        <div id="secBox">${secSVG(1)}</div>
+        <p style="font-size:13px;color:#64748b;margin-top:0">俯視示意圖：每個三角形是一座石笱，寬的一頭是大口。</p>
+        <p><strong>小提醒：</strong>石笱在河裡是<strong>躺著</strong>的。林先生廟旁展示的是還沒裝石頭的空籠，立著放，不要記錯了。</p>
+        ${phset('gou')}
+        <div class="keys"><span>頂端</span><span>竹條交叉卡在一起，像兩隻手扣住，水越沖越不會散。如果只在外面綁一圈，沖久了會爆開</span>
+        <span>黃藤</span><span>那時候沒有鐵絲，用黃藤綁。黃藤泡水會脹，越泡綁得越緊</span>
+        <span>縫隙</span><span>石笱和石笱之間塞麻布袋</span>
+        <span>名字</span><span>地方上叫「籠仔篙」（籠仔笱）。導覽員說二水老一輩唸起來像「lah-muâ-ko」</span>
+        <span>壽命</span><span>竹子泡水會壞，最久大約三年半，也可能做好隔天就被颱風沖走，要一直重做</span></div>
+        <p>想自己排排看？<a href="lab.html" style="color:#0369a1;font-weight:900">到「石笱運作原理」試試看 →</a></p>
+        ${MORE(['craft', '做石笱的人'], ['why', '為什麼引水這麼難？'])}
+        <p style="font-size:13.5px;color:#64748b">※ 三種尺寸、擺的順序、頂端和黃藤的說明是導覽員口述。哪一段用哪一種尺寸，解說圖沒有標，是依導覽員「導水在沒開挖的河床、引水在開挖的水道裡」這句話推定的。其他資料提到的尺寸不一樣：水利署電子報寫一座約 1.2 到 3.3 公尺；《MIT台灣誌》裡的師傅說河床有高有低，石笱也有大有小，「有時候 7 尺、6 尺、5 尺」；三立的報導說高約 12 尺。畫面上石笱的粗細依長度等比例縮放，是示意。</p>
+        ${PHCREDIT}${src('moc', 'riv1913', 'wra280', 'guide', 'daodu', 'mit856', 'zhifu')}` },
   lin: { t: '林先生廟', s: '二水鄉源泉｜八堡圳頭',
-    b: `<p>相傳施世榜開圳時，引水屢次失敗，一位自稱「林先生」的人教了石笱築壩導水的方法才成功。農民建廟供奉林先生，也祭祀施世榜、黃仕卿。</p>${src('moc')}` },
+    b: `<p>相傳施世榜開圳時，引水屢次失敗，一位自稱「林先生」的人教了石笱築壩導水的方法才成功。農民建廟供奉林先生，也祭祀施世榜、黃仕卿。</p>
+        <p>${ORAL}<strong>源泉社區流傳的版本：</strong>一個下過西北雨的下午，八卦山飄來一團雲霧，裡面走出一位老先生，穿著明朝的寬袖衣服、拿著摺扇。他從袖子裡拿出一張畫著三角形的圖，教大家做石笱。他不收錢、不留名字，只說想學的人到芒果樹下找他。引水成功後，人不見了，只在兩棵樹中間留下一雙草鞋。兩個「木」合起來是「林」，大家就叫他林先生。</p>
+        <p>每年 11 月的二水跑水節，就是在紀念這段故事，提醒大家飲水思源。</p>
+        <p>民國 66 年（1977），彰化農田水利會重修這座廟，並立了紀念碑。廟旁的空地放著竹編的籠仔篙（石笱）。</p>
+        ${phset('lin')}
+        ${PHCREDIT}${src('moc', 'wra280', 'guide')}` },
   center: { t: '用水管制中心', s: '二水鄉源泉村員集路二段 227 號',
-    b: `<p>和林先生廟在同一個地點，就在八堡一圳、二圳分水門旁邊，屬於農田水利署彰化管理處。</p>
-        <div class="keys"><span>八堡一圳</span><span>灌溉約 9,951 公頃</span><span>八堡二圳</span><span>灌溉約 5,787 公頃</span></div>${src('iachu')}` },
-  gate: { t: '取入口制排水門', s: '約 1930 年代・鋼筋混凝土',
-    b: `<p>日治時期修建的八堡一圳、二圳共同進水口，旁邊立有竣工紀念碑。2006 年由彰化縣政府登錄為歷史建築。</p>
-        <p>現在原來的 8 道水閘已經封閉，改由上游新的進水閘管制。</p>
-        <p style="font-size:13.5px;color:#64748b">※ 畫面中的外型與閘門道數是示意。</p>${src('chc', 'moc')}` },
+    b: `<p>和林先生廟在同一個地點，就在八堡一圳、二圳取水口旁邊，屬於農田水利署彰化管理處。門口也掛著「二水工作站」的牌子。</p>
+        <div class="keys"><span>八堡一圳</span><span>灌溉約 9,951 公頃</span><span>八堡二圳</span><span>灌溉約 5,787 公頃</span>
+        <span>水門何時開</span><span>${ORAL}不是看天氣。導覽員說是照作物、季節和輪灌表來排，例如這邊放四天、那邊放五天。圳頭的水門一關，下游整片灌區就沒有水</span></div>
+        ${phset('center')}${PHCREDIT}${src('iachu', 'field')}` },
+  gate: { t: '取入口制排水門', s: '1932 年・鋼筋混凝土・歷史建築',
+    b: `<p>1932 年（昭和 7 年）修建的八堡一圳、二圳共同進水口，2006 年由彰化縣政府登錄為歷史建築。它有兩排水閘，交接的地方立著竣工紀念碑。</p>
+        <div class="keys"><span>8 道水閘</span><span>原本朝西北，水從這裡進八堡圳。<strong>現在已經封閉</strong>，沒有水流過</span>
+        <span>5 道藍色水門</span><span>朝西南。水從這裡流出去，往溪州、竹塘方向的莿仔埤圳。日治時期，這座水門就是用來把水分給八堡圳和莿仔埤圳的</span>
+        <span>竣工碑</span><span>高約 2 公尺，刻著「八堡圳取入口制排水門」「民國廿一年十二月竣功」。民國 21 年就是 1932 年</span></div>
+        <p><strong>現在往源泉的水不走這 8 道水閘了。</strong>水在上游約 200 公尺的<a href="#" onclick="event.preventDefault();window.__openCard('newgate')" style="color:#0369a1;font-weight:900">新式分水門</a>就分成兩股，中間隔著圳堤：一股沿著圳堤的北邊流過這裡，往源泉、林先生廟；另一股流到這 5 道藍色水門。</p>
+        ${phset('gate')}
+        <p style="font-size:13.5px;color:#64748b">※ 3D 畫面的道數、兩排的排法、竣工碑和水的走向，依文資資料、照片和老師現場畫的示意圖；大小、角度和圳堤的位置是目測的示意。日治畫面沒有當時的照片，用同樣的排法、不上藍漆，8 道水閘是打開的。</p>
+        ${PHCREDIT}${src('chc', 'moc', 'field', 'mit856')}` },
+  newgate: { t: '新式分水門', s: '取入口制排水門上游約 200 公尺・八堡圳公園斜對面',
+    b: `<p>集集攔河堰的水，經北岸聯絡渠道送到這裡。現場看到水在這裡就<strong>分成兩股</strong>，中間隔著圳堤：</p>
+        <div class="keys"><span>往西</span><span>八堡圳：流到源泉的一圳、二圳取水口</span><span>往西南</span><span>流過舊水門的 5 道藍色水門，往溪州、竹塘方向（莿仔埤圳）</span></div>
+        ${phset('newgate')}
+        <p>《MIT台灣誌》訪問的水利會人員說，以前八堡圳和莿仔埤圳是在舊水門那裡「分左右水」；集集攔河堰完成後，改由北岸聯絡渠道在這裡就分給八堡圳和莿仔埤圳。</p>
+        <p>水利法規列出北岸聯絡渠道沿線的設施，裡面有「八堡圳分水工」和「莿仔埤圳分水工」。這座水門現場沒有拍到名牌，正式名稱還沒確認。</p>
+        ${MORE(['move', '取水的地方搬過幾次？'])}
+        ${phset('park', '斜對面的八堡圳公園')}
+        <p>水門的上游是一個三角形的水池，水先在這裡緩下來。下游南邊是一個長長的大水池，「濁水排水」也從東北邊流進這個水池；水池的水再從西南端流到舊水門的 5 道藍色水門，接「八堡圳放水路」。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 3D 畫面的水門位置、上游水池依國土測繪中心空拍影像；下游水池、濁水排水、放水路依 OpenStreetMap。水門有幾孔是看照片數的（約 6 孔），大小是目測；水門下游內部的隔牆和小池沒有細做。</p>
+        ${PHCREDIT}${src('field', 'mit856', 'law', 'jiji')}` },
   split: { t: '第一・二圳分水門', s: '林先生廟旁',
     b: `<p>水在這裡分成往西北的<strong>八堡一圳</strong>（原施厝圳）和往西的<strong>八堡二圳</strong>（原十五庄圳），方便調節水量、輪流灌溉。</p>
-        <p>八堡二圳經過田中，在東西溝分水門再分出東溝，東溝往北流到永靖。</p>${src('chc', 'iachu')}` },
+        <p>現場是<strong>兩座各自獨立的取水口</strong>，一座通往一圳，一座通往二圳。門楣上寫著名字，上面藍色的機器用來升降閘門。</p>
+        <div class="keys"><span>1932</span><span>修建一圳、二圳共同的進水口，並在林先生廟旁設分水門</span></div>
+        ${phset('split')}
+        <p>八堡二圳經過田中，在東西溝分水門再分出東溝，東溝往北流到永靖。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 現代畫面的兩座取水口依照片做（大小是目測）。日治時期的外型沒有資料，日治畫面是示意。</p>
+        ${PHCREDIT}${src('stele89', 'field', 'chc', 'iachu')}` },
 };
-function openPanel(key) {
-  const d = INFO[key]; document.getElementById('pTitle').textContent = d.t; document.getElementById('pSub').textContent = d.s;
-  document.getElementById('pBody').innerHTML = d.b; document.getElementById('panel').classList.add('open');
+/* ---------- 圳頭搬家：取水的地方搬過好幾次（地圖＋高低） ---------- */
+const MOVE_STEPS = [
+  { k: 'head', y: '最早', t: '在二水鼻仔頭取水', h: 116,
+    d: '文史工作者張錫池說，一開始是在二水鼻仔頭取水，可是那裡的地勢不夠高，水送不到那麼遠的田。', src: ['daodu'] },
+  { k: 'zs', y: '清代', t: '往上游搬到名間濁水村', h: 170,
+    d: '取水的地方往上游移到南投縣名間鄉濁水村（同源圳邊），那裡比鼻仔頭高約 50 公尺，水沖下來才推得到最末端。水沿著山腳的水道流到鼻仔頭（1904 年的地圖上還畫著這條水道），再進八堡圳。', src: ['chen', 'daodu', 'bao'] },
+  { k: 'head', y: '1907、1932 年', t: '回到二水倡和村的取入口', h: 116,
+    d: '1907 年日本政府在二水倡和村設「取入水口」，把十五庄圳和施厝圳連在一起取水；1932 年改建成鋼筋混凝土的「取入口制排水門」。', src: ['tcmb', 'stele89'] },
+  { k: 'jiji', y: '2002 年', t: '集集攔河堰', h: 194,
+    d: '集集攔河堰在上游約 11 公里外把濁水溪攔起來，水經北岸聯絡渠道送到新式分水門，再進八堡圳。', src: ['jiji', 'law'] },
+];
+function moveSVG(i) {
+  const M = MOVE, W = M.view[0], H = M.view[1], P = M.pts, st = MOVE_STEPS[i];
+  const path = p => 'M' + p.map(q => q[0].toFixed(2) + ' ' + q[1].toFixed(2)).join('L');
+  const sty = { river: 'stroke:#7fb4d6;stroke-width:.28', irr: 'stroke:#2563eb;stroke-width:.09', old: 'stroke:#b45309;stroke-width:.14;stroke-dasharray:.3 .18' };
+  let g = M.lines.map(l => `<path d="${path(l.p)}" fill="none" style="${sty[l.k] || sty.irr};stroke-linecap:round;stroke-linejoin:round${(l.k === 'old' && i !== 1) || (l.n === '北岸聯絡渠道' && i !== 3) ? ';opacity:.25' : ''}"/>`).join('');
+  const dot = (k, name, on, left) => `<circle cx="${P[k][0]}" cy="${P[k][1]}" r="${on ? 0.34 : 0.2}" fill="${on ? '#dc2626' : '#475569'}" stroke="#fff" stroke-width=".07"/><text x="${P[k][0] + (left ? -0.38 : 0.38)}" y="${P[k][1] + (left ? 0.62 : -0.25)}" text-anchor="${left ? 'end' : 'start'}" font-size="${on ? 0.52 : 0.42}" font-weight="${on ? 900 : 700}" fill="${on ? '#b91c1c' : '#334155'}">${name}</text>`;
+  g += dot('lin', '林先生廟', false, true) + dot('head', '鼻仔頭圳頭', st.k === 'head') + dot('zs', '名間濁水村', st.k === 'zs') + dot('jiji', '集集攔河堰', st.k === 'jiji');
+  g += `<text x="0.3" y="${H - 0.3}" font-size="0.36" fill="#64748b">← 西　　水路：OpenStreetMap；虛線：1904 年堡圖描的山腳水道</text>`;
+  // 高低：取水的地方 vs 下游
+  const bars = [['名間濁水村', 170, st.k === 'zs'], ['鼻仔頭圳頭', 116, st.k === 'head'], ['林先生廟', 108, false], ['永興國小（永靖）', 29, false]];
+  const bw = 100 / bars.length;
+  const bsvg = bars.map(([n, h, on], j) => `<rect x="${j * bw + 4}" y="${70 - h / 4}" width="${bw - 8}" height="${h / 4}" rx="1.5" fill="${on ? '#dc2626' : '#94a3b8'}"/><text x="${j * bw + bw / 2}" y="${67 - h / 4}" font-size="4.2" text-anchor="middle" font-weight="900" fill="#0d2238">${h} 公尺</text><text x="${j * bw + bw / 2}" y="76" font-size="3.6" text-anchor="middle" fill="#334155">${n}</text>`).join('');   // 最高的長條頂在 y 27.5，標題在 y 7，不會疊到
+  return `<svg class="mvmap" viewBox="0 0 ${W} ${H}" role="img" aria-label="圳頭位置地圖">${g}</svg>
+    <svg class="mvmap" viewBox="0 0 100 80" role="img" aria-label="高度比較"><text x="2" y="7" font-size="4" font-weight="900" fill="#0f766e">地勢有多高（海拔）</text>${bsvg}</svg>`;
 }
+window.__moveStep = i => {
+  const st = MOVE_STEPS[i], b = document.getElementById('mvBody'); if (!b) return;
+  document.querySelectorAll('.mvstep button').forEach((x, k) => x.classList.toggle('on', k === i));
+  b.innerHTML = moveSVG(i) + `<p><strong>${st.y}　${st.t}</strong><br>${st.d}</p>` + src(...st.src);
+};
+INFO.move = { t: '圳頭搬家', s: '取水的地方搬過好幾次',
+  b: `<p>水只會往低的地方流。取水的地方越高，水就能自己流得越遠。八堡圳取水的地方，搬過好幾次：</p>
+      <div class="mvstep">${MOVE_STEPS.map((x, i) => `<button onclick="__moveStep(${i})">${i + 1}. ${x.y}<br>${x.t}</button>`).join('')}</div>
+      <div id="mvBody"></div>
+      <p style="font-size:13px;color:#64748b">※ 海拔取自內政部 20 公尺數值地形（地面高度；集集攔河堰是河床高度）。名間濁水村的位置用內庄巷的位置標示（文獻寫內庄巷八號附近，確切門牌位置沒有對）。「先在鼻仔頭、再搬到名間」的先後是張錫池在電視節目裡的說法，年份沒有記載。</p>` };
+INFO.early = { t: '最早的引水口在哪裡？', s: '文獻的說法',
+  b: `<p>陳水源的研究寫到：很多人以為八堡圳的源頭在二水鼻子頭，其實早期真正的引水口，在上游的<strong>南投縣名間鄉濁水村</strong>（同源圳邊）。那裡用倒笱裝石塊攔住濁水溪的水，引進渠道，再經過外埔、檨仔寮、龍仔頭，流到鼻子頭（林先生廟這一帶）。</p>
+      <p>1904 年的臺灣堡圖上，確實有一條標著「濁水」的水道，從名間濁水的方向沿著山腳流到鼻子頭，畫面上「溪水貼著山腳流到圳頭」那一條就是它。名間濁水在畫面的東北方，超出畫面範圍。</p>
+      <p>1907 年，日本政府在二水倡和村設了取入水口，把十五庄圳和施厝圳連在一起取水。1932 年再改建成鋼筋混凝土的「取入口制排水門」。</p>
+      <p><strong>為什麼要往上游移？</strong>文史工作者張錫池在電視節目裡說：一開始是在二水鼻仔頭取水，可是那裡不夠高，水流不到那麼遠的田。後來把取水的地方往上游移到名間的濁水村，那裡地勢比較高，水沖下來才推得到最末端。《MIT台灣誌》也拍到名間那邊留下來的舊水道，旁邊長滿芒草，看起來像天然的小河。</p>
+      ${MORE(['move', '圳頭搬過幾次？看地圖'])}
+      <p style="font-size:13.5px;color:#64748b">※ 名間濁水那一處引水口，沒有找到實測地圖，畫面上沒有畫出它的石笱。</p>
+      ${src('chen', 'bao', 'tcmb', 'daodu', 'mit856')}` };
+INFO.why = { t: '為什麼引水這麼難？', s: '施世榜試了大約十年',
+  b: `<p>${ORAL}三百年前彰化平原缺水，田開不成。施世榜帶著人和錢來開圳，請了很多師傅，試了大約十年都沒有成功。導覽員說原因有兩個：</p>
+      <div class="keys"><span>水太多<br>溝太小</span><span>濁水溪又寬、水又多，挖出來的土溝卻小很多。大水擠不進去，就在圳頭滿出來</span>
+      <span>水太急</span><span>濁水溪從高山一路衝下來，二水正好是山區進平原的地方。水直直「衝過去」，不肯「轉進來」</span></div>
+      <p>石笱解決的就是這兩件事：<strong>先讓水慢下來，再讓水轉彎</strong>。</p>
+      <p><strong>想一想：</strong>既然二水最難引水，為什麼不到下游的溪州、大城取水？<br><span style="font-size:14px;color:#64748b">提示：水只會從高的地方往低的地方流。從圳頭到永靖大約 20 公里，到鹿港大約 36 公里，水要自己流完全程。</span></p>
+      <p><a href="lab.html" style="color:#0369a1;font-weight:900">到「石笱運作原理」自己試試看 →</a></p>
+      ${src('guide')}` };
+INFO.bao = { t: '「八堡」是哪八個堡？', s: '堡是清代的行政區，像現在的鄉鎮',
+  b: `<p>東螺東堡、東螺西堡、武東堡、武西堡、燕霧上堡、燕霧下堡、線東堡、馬芝堡（馬芝遴堡）。圳水流過這八個堡，所以叫八堡圳。</p>
+      <div class="keys"><span>八堡一圳</span><span>舊名施厝圳、濁水圳。施世榜開，1709 年開工、1719 年通水</span>
+      <span>八堡二圳</span><span>舊名十五庄圳。黃仕卿等人開，1721 年</span></div>
+      <p>${ORAL}導覽員說，兩條圳原本都是私人開的，用水要付錢。兩條圳共用水源以後，各地農民曾經趕到圳頭搶水、要求開水門，後來才由官方統一管理。</p>
+      <p><strong>地圖上看得到的：</strong>1904 年的臺灣堡圖，從圳頭畫出兩條圳。一條往西，沿線寫著「十五庄圳」，位置和現在從取入口到林先生廟的八堡圳幹線重合。另一條往西南，在南邊繞一圈，也到林先生廟附近。兩條在那裡會合，再分成兩條往下游，路線就是現在的八堡一圳和八堡二圳。往西南那條，地圖上沒有寫名字。</p>
+      <p><strong>十五庄圳的水從哪裡來，說法不一樣：</strong></p>
+      <div class="keys"><span>導覽員</span><span>它原本「沒有頭」，不接濁水溪，只收雨水，日治時期才往上接到二水</span>
+      <span>文化部資料</span><span>它原本就有自己的取水口，在八堡圳下游</span>
+      <span>陳水源的研究</span><span>它是八堡一圳旁邊的另一支流，「亦係截取濁水溪溪水」</span></div>
+      <p style="font-size:13.5px;color:#64748b">※ 畫面照 1904 年地圖畫兩條圳。地圖上的兩條，哪一條接下游的一圳、哪一條接二圳，從地圖還分不出來，所以畫面沒有把往西南那條標成八堡圳。</p>
+      ${src('wiki', 'moc', 'bao', 'chen', 'guide')}` };
+INFO.craft = { t: '做石笱的人', s: '源泉社區導覽員的家族記憶',
+  b: `<p>${ORAL}導覽員的阿公、爸爸都靠做石笱過生活，他小時候也在濁水溪的河床上幫忙丟石頭。下面都是他說的。</p>
+      <div class="keys"><span>怎麼做</span><span>①竹籠在岸邊編好 → ②空籠扛到位置，躺好 → ③上面搭平台，牛車把石頭載上來 → ④撐開頂端的竹條，把石頭丟進去 → ⑤填滿一層再疊下一層 → ⑥縫隙塞麻布袋</span>
+      <span>挑石頭</span><span>大石頭撐體積，小石頭塞縫</span>
+      <span>工資</span><span>搬一顆石頭，工頭發一個六角形代幣，下工再拿去換錢</span>
+      <span>一直重做</span><span>石笱最久用三年半，壞了就要重做，所以很多家庭靠它養家</span>
+      <span>退場</span><span>大約民國 78 年（1989）前後，消波塊取代了石笱。消波塊不怕泡水，大水過後不用重做</span>
+      <span>人口</span><span>源泉社區最多曾有六千多人，現在只剩六百多人</span>
+      <span>八七水災</span><span>1959 年，彰化平原很多地方淹到快一層樓高。他說源泉有成排的石笱擋著，水只到腳踝、膝蓋</span>
+      <span>小動物</span><span>石頭縫是螃蟹、蝦子的家，他小時候在這裡抓螃蟹</span></div>
+      <p style="font-size:13.5px;color:#64748b">※ 這些是在地人的記憶，沒有文獻可以對照。</p>
+      <p><strong>電視節目拍到的做法：</strong></p>
+      <div class="keys"><span>材料</span><span>當地的桂竹，用藤條綁。一座大約要 30 支直的竹條</span>
+      <span>步驟</span><span>①竹子剖成長條、去掉竹節 → ②用竹條繞成頂圈 → ③竹條砍出缺口、加熱變軟再反折，才不會斷 → ④竹條穿過頂圈，兩兩交叉 → ⑤用藤條綁在底圈上 → ⑥立起來，再用竹條一圈一圈圍住</span>
+      <span>關鍵</span><span>頂圈。竹條在那裡互相卡住，越用力越緊</span>
+      <span>網目</span><span>和石頭差不多大，或再小一點。竹子有彈性，石頭塞進去就卡住了</span>
+      <span>時間</span><span>一座大約要做 3 小時</span>
+      <span>交貨</span><span>做好交給水利會，一個一個點數，再派人到溪裡去放</span>
+      <span>下水很危險</span><span>濁水溪的水又急又混濁，看不到水底。衣服如果被竹籠勾住，人會被困在水裡，旁邊的人很難救。所以以前下水放石笱的工人，會把容易被勾住的衣物先脫掉再下水</span></div>
+      ${src('guide', 'zhifu', 'mit856')}` };
+/* 排法俯視圖（示意）：畫法同 3D 畫面——壩沿弧線斜疊、八尺在對岸和圳岸 */
+/* 石笱堤的側面（示意）：左邊山腳和圳頭，右邊溪床；有堤時堤內水位比堤外高約 0.75 m（依 1913 年圖上的高程數字） */
+function secSVG(on) {
+  const wIn = on ? 46 : 64, wOut = 64;                                  // 水面的 y（越小越高）
+  const cages = on ? [[150, 82], [166, 82], [182, 82], [158, 69], [174, 69]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="8" ry="7" fill="#c8a96a" stroke="#7c5a22" stroke-width="1.5"/><circle cx="${x - 2}" cy="${y + 1}" r="2" fill="#6b6b6b"/><circle cx="${x + 3}" cy="${y - 1}" r="2" fill="#7a7a7a"/>`).join('') : '';
+  return `<svg class="gdia" viewBox="0 0 360 120" role="img" aria-label="石笱堤的側面">
+    <path d="M0 20 L40 30 L60 90 L340 92 L360 92 L360 120 L0 120 Z" fill="#b9ad98"/>
+    <rect x="58" y="${wIn}" width="${on ? 96 : 0}" height="${90 - wIn}" fill="#7fb4d6" opacity=".85"/>
+    <rect x="${on ? 188 : 58}" y="${wOut}" width="${on ? 172 : 302}" height="${92 - wOut}" fill="#7fb4d6" opacity=".85"/>
+    ${cages}
+    <path d="M58 ${wIn} L48 ${wIn} L44 40" stroke="#2563eb" stroke-width="2" fill="none"/>
+    <g font-size="11" font-weight="900" font-family="inherit">
+      <text x="6" y="16" fill="#3f5a2c">山腳</text><text x="40" y="${wIn - 8}" fill="#0d4f6e">圳頭</text>
+      ${on ? `<text x="70" y="${wIn - 6}" fill="#0d4f6e">堤內約 384</text><text x="210" y="${wOut - 6}" fill="#0d4f6e">堤外約 381.5</text><text x="140" y="104" fill="#7c5a22">石笱堤</text>`
+           : `<text x="150" y="${wOut - 6}" fill="#0d4f6e">水位一樣低，水不容易進圳頭</text>`}
+    </g></svg>`;
+}
+window.__secT = on => { const b = document.getElementById('secBox'); if (b) b.innerHTML = secSVG(on); document.getElementById('secOn')?.classList.toggle('on', !!on); document.getElementById('secOff')?.classList.toggle('on', !on); };
+function gouDiagram() {
+  const cone = (x, y, ang, len, wd, col) => { const c = Math.cos(ang), s2 = Math.sin(ang), px = -s2 * wd / 2, py = c * wd / 2;
+    return `<polygon points="${(x + px).toFixed(1)},${(y + py).toFixed(1)} ${(x - px).toFixed(1)},${(y - py).toFixed(1)} ${(x + c * len).toFixed(1)},${(y + s2 * len).toFixed(1)}" fill="${col}" fill-opacity=".85" stroke="${col}" stroke-width="1"/>`; };
+  // 版面：上＝北（山腳），水從右邊（東）流進水池，往左（西）進圳頭；堤在水池下緣（南側）
+  const D = [[330, 92], [300, 112], [270, 132], [240, 138], [200, 132], [150, 118], [96, 104]];           // 堤：上游端 → 圳頭
+  const at = t => { const f = t * (D.length - 1), i = Math.min(D.length - 2, Math.floor(f)), u = f - i; return [D[i][0] + (D[i + 1][0] - D[i][0]) * u, D[i][1] + (D[i + 1][1] - D[i][1]) * u]; };
+  let g = '';
+  for (let i = 0; i < 15; i++) { const t = i / 14, a = at(Math.max(0, t - .03)), b = at(Math.min(1, t + .03)), [x, y] = at(t), big = i >= 11;
+    g += cone(x, y, Math.atan2(b[1] - a[1], b[0] - a[0]) + 0.44, big ? 30 : 25, big ? 12 : 10, big ? '#2563eb' : '#ea580c'); }
+  for (let i = 0; i < 8; i++) g += cone(112 + i * 22, 62 - i * 3.2, -1.72, 18, 9, '#16a34a');                    // 水池北岸
+  for (let i = 0; i < 3; i++) { const x = 62 - i * 11, y = 128 + i * 13; g += cone(x - 8, y - 7, -2.44, 17, 8, '#16a34a') + cone(x + 8, y + 7, 0.7, 17, 8, '#16a34a'); }
+  return `<svg class="gdia" viewBox="0 0 360 236" role="img" aria-label="石笱排法俯視圖">
+    <rect x="0" y="0" width="360" height="34" fill="#b7c9a4"/><text x="10" y="22" font-size="12" font-weight="700" fill="#3f5a2c">北邊：八卦山腳</text>
+    <polygon points="92,98 110,64 280,38 360,40 360,84 330,92 300,112 270,132 240,138 200,132 150,118" fill="#9cc3d8"/>
+    <polygon points="92,98 78,112 30,172 44,184 96,118" fill="#9cc3d8"/>
+    <path d="M352 62 L 120 86" fill="none" stroke="#fff" stroke-width="3.5" stroke-dasharray="8 6"/><polygon points="106,88 121,80 122,93" fill="#fff"/>
+    <path d="M356 118 C 300 150 240 176 150 226" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6"/><polygon points="138,232 150,218 157,230" fill="#94a3b8"/>
+    ${g}
+    <g font-size="12.5" font-weight="900" font-family="inherit">
+      <text x="296" y="58" fill="#0d2238">← 溪水</text>
+      <text x="170" y="96" font-size="11.5" font-weight="700" fill="#0d4f6e">水池：水往西流</text>
+      <text x="262" y="160" fill="#c2410c">十尺・導水</text>
+      <text x="118" y="152" fill="#1d4ed8">十二尺・引水</text><text x="118" y="166" font-size="11" font-weight="500" fill="#3a536d">靠圳頭，水較深</text>
+      <text x="206" y="22" fill="#15803d">八尺・固堤（大口朝水）</text>
+      <text x="4" y="206" fill="#0d2238">土圳</text>
+      <text x="196" y="214" font-size="11" font-weight="700" fill="#64748b">沒被攔下的水往西南流</text>
+      <text x="4" y="120" font-size="11.5" fill="#0d2238">圳頭</text>
+    </g></svg>`;
+}
+const TL = [
+  ['1709', 'qing', '開工', '施世榜出錢，從二水鼻仔頭開圳（施厝圳）。'],
+  ['1719', 'qing', '通水', '試了大約十年，用石笱築壩才把水引進來。這條圳灌溉彰化平原八個堡，所以叫八堡圳。'],
+  ['1721', 'qing', '十五庄圳', '黃仕卿等人開十五庄圳，就是後來的八堡二圳。'],
+  ['1902', 'jp', '收歸公共', '八堡圳、十五庄圳收歸公共，不再是私人的圳。年份依文化部資料；陳水源的研究寫 1897 年、Taipei Times 寫 1905 年。'],
+  ['1906～07', 'jp', '兩圳合併', '兩條圳合併管理，用制水閘門連成一個系統，後來分別叫第一圳、第二圳。'],
+  ['1932', 'jp', '混凝土水門', '建鋼筋混凝土的「取入口制排水門」，並在林先生廟旁設第一、二圳分水門。'],
+  ['1959', '', '八七水災', ORAL + '彰化平原很多地方淹到快一層樓高。導覽員說源泉有成排的石笱擋著，水只到腳踝、膝蓋。'],
+  ['1960 年代', '', '土圳變混凝土', '圳道改成鋼筋混凝土內面工。'],
+  ['約 1989', '', '石笱退場', ORAL + '導覽員說，民國 78 年前後消波塊取代了石笱；三立的報導也說石笱在民國 78 年正式退役。從 1719 年算起，石笱用了大約 270 年。做石笱的工作沒了，源泉社區的人口從六千多人減到六百多人。'],
+  ['2002', 'now', '集集攔河堰', '集集攔河堰正式營運。水改從上游 11 公里外，經北岸聯絡渠道送到八堡圳。'],
+];
+function setupTimeline() {
+  const box = document.getElementById('tl'), track = document.getElementById('tlTrack'), text = document.getElementById('tlText');
+  const EC = { qing: '#92400e', jp: '#475569', now: '#0369a1', '': '#a8a29e' };
+  const pick = i => {
+    const [y, era, t, d] = TL[i];
+    track.querySelectorAll('.tn').forEach((n, k) => n.classList.toggle('on', k === i));
+    text.innerHTML = `<strong>${y}　${t}</strong><br>${d}`;
+    if (era && era !== ERA.cur) setEra(era, true, true);
+  };
+  track.innerHTML = TL.map(([y, era, t]) => `<button class="tn" style="--tc:${EC[era]}"><b>${y}</b>${t}</button>`).join('');
+  track.querySelectorAll('.tn').forEach((n, i) => n.addEventListener('click', () => pick(i)));
+  document.getElementById('tlBtn').addEventListener('click', () => { if (!box.hidden) return closeTimeline(); closePanel(); box.hidden = false; document.body.classList.add('tl-open'); if (!text.innerHTML) pick(0); });
+  box.querySelector('.x').addEventListener('click', closeTimeline);
+}
+/* 說明卡：從卡片裡的按鈕或連結開另一張卡時記住上一張，可以按「返回上一張」；從地圖標籤、時代按鈕開的卡是新的開始 */
+let curCard = null; const cardStack = [];
+window.__openCard = k => openPanel(k, 'push');
+
+function openPanel(key, mode) {
+  if (mode === 'push') { if (curCard && curCard !== key) cardStack.push(curCard); }
+  else if (mode !== 'back') cardStack.length = 0;
+  curCard = key;
+  const d = INFO[key], pn = document.getElementById('panel');
+  document.getElementById('pTitle').textContent = d.t; document.getElementById('pSub').textContent = d.s;
+  document.getElementById('pBody').innerHTML = d.b; pn.classList.add('open'); pn.scrollTop = 0;
+  pn.querySelector('.bk').hidden = !cardStack.length;
+  if (key === 'move') window.__moveStep(0);
+  closeTimeline();
+}
+function closePanel() { document.getElementById('panel').classList.remove('open'); cardStack.length = 0; curCard = null; }
+function closeTimeline() { document.getElementById('tl').hidden = true; document.body.classList.remove('tl-open'); }
 const LEGEND = {
   qing: [['#6b5b45', '1904 年的溪水'], ['#9a9488', '1904 年的河床（砂礫）'], ['#7d6a4f', '土圳'], ['#d9c08a', '石笱']],
-  jp: [['#6b5b45', '濁水溪、引水路'], ['#7d6a4f', '土圳'], ['#c9c4b8', '混凝土水門']],
+  jp: [['#6b5b45', '濁水溪、引水路'], ['#7d6a4f', '土圳'], ['#c9c4b8', '混凝土水門'], ['#d9c08a', '石笱']],
   now: [['#5f5546', '濁水溪'], ['#b7b3a9', '混凝土圳道、聯絡渠道'], ['#c9c4b8', '水門']],
 };
 
 /* ---------- 切換時代（鏡頭不動） ---------- */
-function setEra(e, anim = true) {
+function setEra(e, anim = true, quiet = false) {
   ERA.cur = e;
   document.querySelectorAll('#era button').forEach(b => b.classList.toggle('on', b.dataset.era === e));
   for (const [k, list] of Object.entries(ERA.groups)) for (const o of list) o.visible = false;
@@ -729,21 +1329,23 @@ function setEra(e, anim = true) {
   const tq = e === 'qing' ? 1 : 0, tj = e === 'jp' ? 1 : 0;
   if (anim) { gsap.to(U.uQing, { value: tq, duration: 0.8 }); gsap.to(U.uJp, { value: tj, duration: 0.8 }); }
   else { U.uQing.value = tq; U.uJp.value = tj; }
-  document.querySelector('.vw[data-v="gou"]').hidden = e !== 'qing';
+  document.querySelector('.vw[data-v="gou"]').hidden = e === 'now';
+  document.getElementById('flood').hidden = e === 'now';
+  applyGou();
   document.getElementById('legend').innerHTML = LEGEND[e].map(([c, t]) => `<div><i style="background:${c}"></i>${t}</div>`).join('');
-  openPanel(e);
+  if (!quiet) openPanel(e);
 }
 
 /* ---------- 視角 ---------- */
 function viewDef(v) {
   const P = (lx, lz) => new THREE.Vector3(lx - CX, heightAt(lx - CX, lz - CZ), lz - CZ);
-  if (v === 'intake') { const t = P(3360, 1360); return { t, p: t.clone().add(new THREE.Vector3(-110, 120, 190)), sh: 320 }; }
+  if (v === 'intake') { const now = ERA.cur === 'now', t = now ? P(3440, 1280) : P(3360, 1360); return { t, p: t.clone().add(now ? new THREE.Vector3(-90, 190, 230) : new THREE.Vector3(-110, 120, 190)), sh: now ? 420 : 320 }; }   // 現代：新式分水門、前後水池、舊水門一起入鏡
   if (v === 'split') { const t = P(2057, 1377); return { t, p: t.clone().add(new THREE.Vector3(-150, 110, 190)), sh: 360 }; }
-  if (v === 'gou') { const t = GOU_SITE.center.clone(); return { t, p: t.clone().add(new THREE.Vector3(26, 16, -30)), sh: 80 }; }
+  if (v === 'gou') { const t = GOU_SITE.center.clone(); return { t, p: t.clone().add(new THREE.Vector3(30, 150, 120)), sh: 260 }; }   // 從南邊上方往北看：堤、水池、圳頭一起入鏡
   const t = P(2600, 1500); return { t, p: t.clone().add(new THREE.Vector3(-1500, 7500, 6500)), sh: 5000 };   // 全景：從西南方看外圍約 12 km 範圍
 }
 function flyTo(v, dur = 1.8) {
-  if (v === 'gou' && ERA.cur !== 'qing') v = 'intake';
+  if (v === 'gou' && ERA.cur === 'now') v = 'intake';
   document.querySelectorAll('.vw').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   const d = viewDef(v); placeSunShadow(d.t, d.sh);
   if (!dur) { camera.position.copy(d.p); controls.target.copy(d.t); controls.update(); return; }
@@ -751,9 +1353,13 @@ function flyTo(v, dur = 1.8) {
   gsap.to(controls.target, { x: d.t.x, y: d.t.y, z: d.t.z, duration: dur, ease: 'power2.inOut', onUpdate: () => controls.update() });
 }
 function setupUI() {
-  document.querySelectorAll('.vw').forEach(b => b.addEventListener('click', () => flyTo(b.dataset.v)));
+  document.querySelectorAll('.vw[data-v]').forEach(b => b.addEventListener('click', () => flyTo(b.dataset.v)));
+  setupTimeline();
+  document.getElementById('moveBtn').addEventListener('click', () => openPanel('move'));
+  setupFlood();
   document.querySelectorAll('#era button').forEach(b => b.addEventListener('click', () => setEra(b.dataset.era)));
-  document.querySelector('#panel .x').addEventListener('click', () => document.getElementById('panel').classList.remove('open'));
+  document.querySelector('#panel .x').addEventListener('click', closePanel);
+  document.querySelector('#panel .bk').addEventListener('click', () => { if (cardStack.length) openPanel(cardStack.pop(), 'back'); });
 }
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05);

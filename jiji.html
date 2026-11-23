@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/photo_sets.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
 <script type="importmap">
 { "imports": {
@@ -103,7 +105,7 @@ a{color:var(--accent)}
 .modal .sub{font-size:13.5px;color:var(--ink2);margin-bottom:8px}
 #routeSvg{width:100%;height:auto;background:#eef3f6;border-radius:14px}
 #basinCv{width:100%;height:auto;background:#f1f5f9;border-radius:14px}
-.seg{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px;font-weight:700}.seg th{text-align:left;padding:4px 6px;white-space:nowrap}.seg td{padding:4px 6px;border:1px solid #cbd5e1;text-align:center;white-space:nowrap}.seg td.old{background:#e2e8f0;color:#475569}
+.seg{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px;font-weight:700}.seg th{text-align:left;padding:4px 6px;white-space:nowrap}.seg tr:first-child th{font-size:12px;color:#475569;text-align:center;font-weight:800}.seg tr:first-child th:first-child{text-align:left}.seg td{padding:4px 6px;border:1px solid #cbd5e1;text-align:center;white-space:nowrap}.seg td.old{background:#e2e8f0;color:#475569}
 .mrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
 .mrow .opt{padding:8px 14px}
 
@@ -192,10 +194,11 @@ a{color:var(--accent)}
   <h2>南北岸聯絡渠道：從攔河堰送水到彰化、雲林</h2>
   <div class="sub">北岸聯絡渠道共約 51 公里（新建 23 公里＋擴建原有渠道 28 公里），沿線有名間水力電廠取水口、小水力電廠、八堡圳分水工、莿仔埤圳分水工等；南岸聯絡渠道共約 38 公里（新建 15 公里＋擴建 23 公里），接斗六堰、林內分水工等，送水到雲林。</div>
   <svg id="routeSvg" viewBox="0 0 1000 595"></svg>
-  <table class="seg"><tr><th>北岸聯絡渠道</th><td>一 5.0</td><td>二 0.3</td><td>三 7.5</td><td>四 10.0</td><td class="old">五 11.0</td><td class="old">六 5.0</td><td class="old">七 4.5</td><td class="old">八 7.0</td></tr>
-  <tr><th>南岸聯絡渠道</th><td>一 2.0</td><td>二 5.0</td><td>三 3.0</td><td>四 2.0</td><td>五 2.5</td><td class="old">六 7.5</td><td class="old">七 7.0</td><td class="old">八 8.0</td></tr></table>
+  <table class="seg"><tr><th>分段（公里）</th><th>第一段</th><th>第二段</th><th>第三段</th><th>第四段</th><th>第五段</th><th>第六段</th><th>第七段</th><th>第八段</th></tr>
+  <tr><th>北岸聯絡渠道</th><td>5.0</td><td>0.3</td><td>7.5</td><td>10.0</td><td class="old">11.0</td><td class="old">5.0</td><td class="old">4.5</td><td class="old">7.0</td></tr>
+  <tr><th>南岸聯絡渠道</th><td>2.0</td><td>5.0</td><td>3.0</td><td>2.0</td><td>2.5</td><td class="old">7.5</td><td class="old">7.0</td><td class="old">8.0</td></tr></table>
   <div class="note">分段長度（公里）依水利署〈南北岸聯絡渠道〉選線佈置圖；灰底是利用原有渠道擴建的段落。分段加起來和水利署〈聯絡渠道與管路〉相符：北岸新建 23 公里（第一～四段 22.8）＋擴建 28 公里（第五～八段 27.5），共 51 公里；南岸新建 15 公里（第一～五段 14.5）＋擴建 23 公里（第六～八段 22.5），共 38 公里。法規寫的「北岸約 23 公里、南岸約 18 公里」主要是新建段的長度（南岸差的約 3 公里，待查）。藍色虛線的南岸路線是依選線佈置圖畫的示意，OpenStreetMap 沒有這條渠道。</div>
-  <div class="note">路線依 OpenStreetMap（© OpenStreetMap 貢獻者）；八堡圳分水工的確切位置沒有查到，圖上不標。資料來源：〈集集攔河堰水庫水門操作規定〉第三點（七）；水利署集集攔河堰網站〈南北岸聯絡渠道〉。</div>
+  <div class="note">路線依 OpenStreetMap（© OpenStreetMap 貢獻者）；綠點是二水的新式分水門（老師提供的座標）。影片說北岸聯絡渠道新建了「八堡圳分水工」，渠道的水在這裡分一半出去給八堡圳，八堡圳原來的進水口改當備用，後段則沿著莿仔埤圳的舊圳路往西；說明框寫進水閘門共 9 門、八堡圳分水門 2 座。新式分水門的位置和這些描述相符，但現場沒有名牌，還沒確認。資料來源：〈集集攔河堰水庫水門操作規定〉第三點（七）；水利署集集攔河堰網站〈南北岸聯絡渠道〉。</div>
 </div></div>
 
 <div class="modal" id="basinBox"><div class="box glass">
@@ -242,7 +245,7 @@ const [CX, CZ] = wp(176, 0);
 
 /* 官方數字（〈集集攔河堰水庫水門操作規定〉第三點）＋教學設定值（示意） */
 const SPEC = { spCrest: 205.25, spH: 10.33, spW: 15, slCrest: 198.75, slH: 7.6, slW: 6.25, inLow: 203.25, inUp: 205.85, inGH: 2.3, inGW: 4.38, slAssist: 212.75 };
-const TEACH = { normal: 209.0, deck: 217.4, apron: 190.5 };          // 平時水位、橋面、消能池底：沒有官方數字，示意
+const TEACH = { normal: 213.0, deck: 218.4, apron: 190.5 };          // 常水位 EL 213 依現場解說牌〈計畫內容〉（中區水資源局）；橋面 EL 218.40 依溢洪道標準斷面圖；消能池底示意          // 橋面 EL 218.40 依中區水資源局溢洪道標準斷面圖（影片畫面）；平時水位、消能池底仍是示意          // 平時水位、橋面、消能池底：沒有官方數字，示意
 const PIER = 2.5;
 const BAYS = []; { let u = PIER; const add = (type, no, w) => { BAYS.push({ type, no, u0: u, w, uc: u + w / 2 }); u += w + PIER; };
   add('sl', 1, SPEC.slW); add('sl', 2, SPEC.slW); for (let i = 1; i <= 18; i++) add('sp', i, SPEC.spW); add('sl', 3, SPEC.slW); add('sl', 4, SPEC.slW); }
@@ -335,6 +338,7 @@ async function init() {
   buildWeir(); buildIntakes(); buildMounds(); buildPool(); buildBasinWater(); buildRiverDown(); buildSplash(); buildCenter(); buildRoutes(); buildBasins();
   buildLabels(); setupUI(); drawRoute();
   const q = new URLSearchParams(location.search);
+  setTimeout(() => { if (q.get('card')) openPanel(q.get('card')); }, 0);   // 直接打開某張說明卡（連結、截圖用）
   setInflow(q.get('q') || 'normal', true);
   flyTo(q.get('view') || 'overview', 0);
   const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
@@ -594,18 +598,33 @@ function buildWeir() {
   C.box(MAT.yel, -8, END + 9, DECK + 0.1, DECK + 0.13, -18.2, -18.05); C.box(MAT.yel, -8, END + 9, DECK + 0.1, DECK + 0.13, -17.95, -17.8);
   C.box(MAT.con, -8, END + 9, DECK, DECK + 1.1, -26.5, -26); C.box(MAT.con, -8, END + 9, DECK, DECK + 1.1, -10, -9.5);
   for (let u = 4; u < END; u += 32) { C.cyl(MAT.pole, u, -9.75, DECK + 1.1, DECK + 10, 0.13, 6); C.box(MAT.pole, u - 0.1, u + 0.1, DECK + 9.8, DECK + 10, -11.8, -9.75); }
+  // 門型吊車：排砂道 1–2 號、3–4 號上方（街景照片），外型示意
+  for (const [a, b] of [[SL[0], SL[1]], [SL[2], SL[3]]]) { const u0 = a.u0 - 1, u1 = b.u0 + b.w + 1;
+    for (const uu of [u0, u1 - 0.8]) for (const vv of [-9.2, 0.2]) C.box(MAT.blue, uu, uu + 0.8, DECK + 2.4, DECK + 13, vv, vv + 0.8);
+    C.box(MAT.blue, u0, u1, DECK + 13, DECK + 14.2, -9.2, 1); C.box(MAT.blue, u0 + 2, u0 + 7, DECK + 14.2, DECK + 17, -8, -1); }
   // 水位調節閘門（第 1–4、15–18 號弧形閘門上游側，常時全開＝吊起）
   for (const b of SP) if (b.no <= 4 || b.no >= 15) C.box(MAT.blue, b.u0 + 0.2, b.u0 + b.w - 0.2, DECK - 3.0, DECK - 1.0, -5.2, -4.8);
-  // 消能池、末端消能塊、導牆、維修橋（下游側，寬 4.5 m）
+  // 消能池、拱形消能塊、導流牆、下游側道路（位置依國土測繪中心 2023 空拍與老師提供的街景，外型示意）
   C.box(MAT.gravel, -8, END + 9, 189.5, TEACH.apron, 11, 94);
-  C.box(MAT.conD, -8, END + 9, TEACH.apron, TEACH.apron + 1.4, 84, 88);                    // 末端檻
-  for (let u = 1; u < END - 2; u += 6.5) { C.box(MAT.conD, u, u + 2.6, TEACH.apron + 1.4, TEACH.apron + 3.4, 85, 87.6); C.box(MAT.conD, u - 0.8, u + 3.4, TEACH.apron + 3.4, TEACH.apron + 4.2, 84.6, 87.9); }   // T 形消能塊
-  for (const pu of [0, ...BAYS.map(b => b.u0 + b.w)]) { C.box(MAT.con, pu, pu + PIER, TEACH.apron, 196, 16, 24); C.box(MAT.con, pu, pu + PIER, TEACH.apron, 193, 24, 29); }   // 閘墩往下游延伸
+  C.box(MAT.conD, -8, END + 9, TEACH.apron, TEACH.apron + 1.2, 78, 90);                    // 消能塊底座（空拍：閘門下游約 80 m 一整排）
+  { const arch = [];                                                                       // 拱形消能塊：街景裡從側面看是一個個 ∩ 形的拱頂
+    for (let u = 3; u < END - 1; u += 8.0) { const g = new THREE.CylinderGeometry(3.0, 3.0, 9, 20, 1, false, 0, Math.PI); g.rotateZ(Math.PI / 2); g.rotateY(Math.PI / 2); g.translate(u + 3, E(TEACH.apron + 1.2), 84); arch.push(g.toNonIndexed());
+      const b = new THREE.BoxGeometry(6, 1.2, 9); b.translate(u + 3, E(TEACH.apron + 0.6), 84); arch.push(b.toNonIndexed()); }
+    C.push(MAT.conD, mergeGeometries(arch)); }
+  C.box(MAT.con, 245, 248, TEACH.apron, 198, 29, 86);                                      // 消能池中間的導流牆（空拍）
+  // 下游側道路＝原集集大橋（斷面圖標「原集集大橋」，橋面約 EL 206.5）；寬約 9 m，堰墩和大橋橋墩結合在一起（影片）
+  const RD = 206.6;
+  for (const pu of [0, ...BAYS.map(b => b.u0 + b.w)]) C.box(MAT.con, pu, pu + PIER, TEACH.apron, RD - 0.9, 13, 24.5);
+  C.box(MAT.con, -8, END + 9, RD - 0.9, RD, 14, 24); C.box(MAT.asph, -8, END + 9, RD, RD + 0.1, 14.4, 23.6);
+  C.box(MAT.yel, -8, END + 9, RD + 0.1, RD + 0.13, 18.85, 19.0); C.box(MAT.yel, -8, END + 9, RD + 0.1, RD + 0.13, 19.1, 19.25);
+  C.box(MAT.con, -8, END + 9, RD, RD + 0.9, 14, 14.4); C.box(MAT.con, -8, END + 9, RD, RD + 0.9, 23.6, 24);   // 混凝土護欄
+  C.box(MAT.pole, -8, END + 9, RD + 1.15, RD + 1.25, 14.1, 14.3); C.box(MAT.pole, -8, END + 9, RD + 1.15, RD + 1.25, 23.7, 23.9);   // 欄杆扶手
+  for (let u = 6; u < END; u += 24) { C.cyl(MAT.pole, u, 24.2, RD, RD + 10, 0.13, 6); C.box(MAT.pole, u - 0.1, u + 0.1, RD + 9.8, RD + 10, 21.8, 24.2); }   // 路燈
+  for (const pu of [0, ...BAYS.map(b => b.u0 + b.w)]) C.box(MAT.con, pu, pu + PIER, TEACH.apron, 193, 24.5, 29);   // 閘墩往下游延伸
   for (const b of SP) for (const d of [-3.8, 3.8]) C.box(MAT.conD, b.uc + d - 1.5, b.uc + d + 1.5, TEACH.apron, TEACH.apron + 1.3, 25, 28);   // 陡槽末端消能塊
-  C.box(MAT.con, -8, -4, 189.5, 201, 16, 94); C.box(MAT.con, END + 5, END + 9, 189.5, 201, 16, 94);
+  C.box(MAT.con, -8, -4, 189.5, 201, 16, 94); C.box(MAT.con, END + 5, END + 9, 189.5, 201, 16, 165);   // 南側導牆往下游延伸到約 160 m（空拍）
   for (const pu of [SL[1].u0 + SL[1].w, SL[2].u0 - PIER]) C.box(MAT.con, pu, pu + PIER, TEACH.apron, 199, 16, 84);
-  C.box(MAT.con, -8, END + 9, 196.2, 197, 31, 35.5); C.box(MAT.con, -8, END + 9, 197, 197.9, 31, 31.25); C.box(MAT.con, -8, END + 9, 197, 197.9, 35.25, 35.5);
-  for (const pu of piers) C.cyl(MAT.con, pu + PIER / 2, 33.25, TEACH.apron, 196.2, 0.9, 12);
+
   // 兩岸翼牆
   C.box(MAT.con, -8, 0, 189.5, DECK, -34, 16); C.box(MAT.con, END + 5, END + 9, 189.5, DECK, -34, 16);
   // 魚道（法規：第四號排砂道左側＝面向下游的左手邊，位置推定）：15 個魚槽階梯
@@ -769,15 +788,17 @@ function buildSplash() {
 
 /* 管理中心（台灣水資源館）：外型示意；警報燈 */
 function buildCenter() {
-  const p = [1955, 1240], x = p[0] - CX, z = p[1] - CZ, y = heightAt(x, z);
+  const p = [1963, 1270], x = p[0] - CX, z = p[1] - CZ, y = heightAt(x, z);   // 空拍上圓塔的位置
   const G = new THREE.Group(); G.position.set(x, y, z); G.rotation.y = 0.5; scene.add(G);
-  const m1 = new THREE.MeshStandardMaterial({ color: 0x9a8e80, roughness: 0.85 }), m2 = new THREE.MeshStandardMaterial({ color: 0xd9d4cc, roughness: 0.6 });
+  const m1 = new THREE.MeshStandardMaterial({ color: 0x8a7a6a, roughness: 0.85 }), m2 = new THREE.MeshStandardMaterial({ color: 0xd9d4cc, roughness: 0.6 }), mg = new THREE.MeshStandardMaterial({ color: 0x4f7fa8, roughness: 0.2, metalness: 0.4 });
   const add = (geo, mat, px, py, pz) => { const o = new THREE.Mesh(geo, mat); o.position.set(px, py, pz); o.castShadow = o.receiveShadow = true; G.add(o); return o; };
-  add(new THREE.BoxGeometry(44, 13, 16), m1, -6, 6.5, 0);
-  add(new THREE.BoxGeometry(14, 24, 16), m1, 18, 12, 0);
-  add(new THREE.CylinderGeometry(4.5, 4.5, 30, 20), m1, 22, 15, -6);
-  add(new THREE.CylinderGeometry(7, 7, 3.5, 24), m2, 22, 31, -6);
-  OBJ.siren = add(new THREE.SphereGeometry(1.6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xff2222 }), 22, 34, -6); OBJ.siren.visible = false;
+  add(new THREE.BoxGeometry(30, 9, 18), m1, -16, 4.5, 2);                // 兩層的側翼
+  add(new THREE.BoxGeometry(22, 22, 20), m1, 6, 11, 0);                    // 主樓（約 6 層）
+  add(new THREE.BoxGeometry(5, 18, 0.4), mg, 12, 11, 10.2);                // 正面直條玻璃窗（街景）
+  add(new THREE.CylinderGeometry(4.5, 4.5, 30, 24), m1, 0, 15, -7);        // 圓塔
+  add(new THREE.CylinderGeometry(7.5, 6.5, 4, 28), m2, 0, 31.5, -7);       // 塔頂圓盤觀景台
+  add(new THREE.CylinderGeometry(6.8, 6.8, 0.6, 28), m2, 0, 33.8, -7);
+  OBJ.siren = add(new THREE.SphereGeometry(1.6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xff2222 }), 0, 36, -7); OBJ.siren.visible = false;
   OBJ.centerPos = new THREE.Vector3(x, y + 40, z);
 }
 
@@ -1085,9 +1106,11 @@ function buildLabels() {
   addLabel('<b>魚</b>魚道（位置推定）', 'pin', ...P(355, 40), 206, 900, () => openPanel('fish'), '#059669');
   addLabel('<b>取</b>北岸取水口', 'pin', ...INTAKES.N.m, 220, 2500, () => openPanel('intakeN'), '#b45309');
   addLabel('<b>取</b>南岸取水口', 'pin', ...INTAKES.S.m, 220, 2500, () => openPanel('intakeS'), '#b45309');
-  addLabel('<b>管</b>管理中心・台灣水資源館', 'pin', 1955, 1240, null, 3000, () => openPanel('center'), '#475569');
+  addLabel('<b>管</b>管理中心・台灣水資源館', 'pin', 1963, 1270, null, 3000, () => openPanel('center'), '#475569');
   addLabel('<b>石</b>開闢鴻荒石碣', 'pin', 1793.5, 1346.6, null, 900, () => openPanel('kaipi'), '#7c3aed');
-  addLabel('<b>消</b>消能池', 'pin', ...P(176, 60), 196, 1800, () => openPanel('stilling'), '#64748b');
+  addLabel('<b>消</b>消能池・拱形消能塊', 'pin', ...P(176, 70), 196, 1800, () => openPanel('stilling'), '#64748b');
+  addLabel('攔河路・公路橋（上游側）', 'geo', ...P(120, -18), 220, 1500);
+  addLabel('原集集大橋（台3丙，下游側）', 'geo', ...P(120, 19), 208, 1500);
   addLabel('水庫（攔河堰上游）', 'geo water', ...P(176, -380), 211, 6000);
   addLabel('濁水溪 ↓ 往下游（二水）', 'geo water', ...P(240, 700), 196, 6000);
   const qs = OSM.lines.find(l => l.kind === 'river' && l.name === '清水溪');
@@ -1100,7 +1123,7 @@ function buildLabels() {
   addLabel('<b>沉</b>北岸沉砂池（2 座）', 'pin', 950, 262, null, 6000, () => openPanel('nbasin'), '#a16207');
   addLabel('<b>沉</b>南岸沉砂池（3 座）', 'pin', 830, 1612, null, 6000, () => openPanel('sbasin'), '#a16207');
   addLabel('<b>範</b>水庫蓄水範圍（大概位置）', 'pin', 3000, 1135, null, 9000, () => openPanel('reservoir'), '#dc2626');
-  sirenLbl = addLabel('放水警報', 'siren', 1955, 1240, null, 1e9);
+  sirenLbl = addLabel('放水警報', 'siren', 1963, 1270, null, 1e9);
   sirenLbl.pos.copy(OBJ.centerPos);
 }
 const _v = new THREE.Vector3();
@@ -1116,6 +1139,12 @@ function updateLabels() {
 
 /* ---------- 說明卡（內容與出處見 階段3_集集攔河堰史實清單.md） ---------- */
 const SRC = {
+  longen: '<a href="https://nchdb.boch.gov.tw/city/nthcc/assets/overview/monument/20060711000002" target="_blank">國家文化資產網〈竹山隆恩圳隧渠〉（南投縣政府文化局提供）</a>',
+  teacher23: '老師現場確認（2026 年 11 月 23 日）',
+  plaque: '現場解說牌〈計畫內容〉（經濟部水利署中區水資源局製，2026 年 11 月 23 日拍攝）',
+  guide23: '集集攔河堰管理中心導覽（前中心主任口述，2026 年 11 月 23 日）',
+  field23: '現場觀察（2026 年 11 月 23 日）',
+  v2: '<a href="https://www.youtube.com/watch?v=ooc9od45xRQ" target="_blank">日月光文教基金會〈台灣公共建設檔案：農田水利篇 集集攔河堰〉（斷面圖：中區水資源局）</a>',
   law: '<a href="https://law.moea.gov.tw/LawContent.aspx?id=FL011530" target="_blank">〈集集攔河堰水庫水門操作規定〉（113.01.03 修正）</a>',
   home: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8785" target="_blank">水利署集集攔河堰網站</a>',
   works: '<a href="https://web.wra.gov.tw/jiji/cp.aspx?n=8793" target="_blank">水利署〈攔河堰及附屬工程〉</a>',
@@ -1133,35 +1162,56 @@ const INFO = {
     b: `<div class="keys"><span>堰長</span><span>352.5 公尺，混凝土重力壩</span>
         <span>弧形閘門</span><span>18 座，每座寬 15 公尺、高 10.33 公尺，由北岸到南岸編號 1～18</span>
         <span>水位調節閘門</span><span>第 1～4、15～18 號前面還有 8 座（高 2 公尺），平時全開</span>
-        <span>平時</span><span>弧形閘門全關，把水位撐高，讓兩岸取水口取水</span>
-        <span>洪水</span><span>依上游來水量，打開幾座或全部閘門放水</span></div>
-        <p style="font-size:13.5px;color:#64748b">※ 閘門數量、尺寸依法規；閘墩、橋、機房的外型是示意。</p>${src('law', 'home', 'hist')}` },
+        <span>平時</span><span>弧形閘門全關，把水位撐高到常水位約 213 公尺，讓兩岸取水口取水（現場解說牌）</span>
+        <span>洪水</span><span>依上游來水量，打開幾座或全部閘門放水</span>
+        <span>低堰高閘門</span><span>堰本身做得低、閘門做得高：洪水來時把閘門全部打開，堰前淤積的砂就被水沖到下游（影片）</span>
+        <span>一共 22 座</span><span>溢洪道 18 座＋排砂道 4 座，是全台灣閘門最多的攔河堰（影片）</span>
+        <span>上面兩座橋</span><span>上游側是給車走的公路橋（攔河路），旁邊還有一座維修、操作閘門用的操作橋；下游側是原集集大橋（橋頭現在還有「集集大橋」橋名柱），蓋堰時把堰墩和大橋橋墩結合在一起</span></div>
+        <p style="font-size:13.5px;color:#64748b">※ 公路橋、操作橋、原集集大橋的相對位置與公路橋面高度（EL 218.40）依中區水資源局的溢洪道標準斷面圖（影片畫面）；其他尺寸仍是示意。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 閘門數量、尺寸依法規；閘墩、橋、機房的外型是示意。</p><p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：上游來水超過每秒 1,300 立方公尺，就規定閘門要全部打開。颱風豪雨閘門全開時，站在旁邊<strong>聽得到大石頭在堰面上撞的聲音</strong>。1996 年賀伯颱風來時堰還在蓋，洪水估計每秒約 12,000 立方公尺，整個工地被淹過，很粗的鋼筋都被沖彎、沖斷，停工了三個月。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('guide')" style="color:#0369a1;font-weight:900">看管理中心導覽員說的全部重點 →</a></p>${phset('jjsp')}${phset('jjview', '從南岸鼻頭山觀景台看攔河堰')}${phset('jjbridge', '下游側的原集集大橋')}${PHCREDIT}${src('plaque', 'law', 'v2', 'home', 'hist')}` },
   sluice: { t: '排砂道', s: '北岸 1、2 號・南岸 3、4 號',
     b: `<p>排砂道的堰頂比溢洪道低 6.5 公尺，每座弧形閘門寬 6.25 公尺、高 7.6 公尺。平日關閉；取水口前淤積了砂和雜物時打開，把砂沖走，讓取水口可以順利取水。</p>
-        <p>按左邊「排砂道排砂」，看看取水口前的淤砂怎麼被沖走。</p>${src('law', 'works')}` },
+        <p>按左邊「排砂道排砂」，看看取水口前的淤砂怎麼被沖走。</p>
+        <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：取水口前面就是排砂道。取水口前的砂堆高了，取進來的水就會變濁，這時就把排砂閘門拉開，讓水把砂沖走。檢修的時候也靠排砂道：南岸檢修就把水排到北岸，北岸檢修就引到南岸。</p>
+        ${phset('jjsl')}${phset('jjdeck', '攔河路上的門型吊車')}${PHCREDIT}${src('law', 'works', 'field23')}` },
   fish: { t: '魚道', s: '讓魚可以游過攔河堰',
     b: `<p>法規寫魚道在「第四號排砂道左側」，有 15 座魚槽閘門。平時依水位只開一座魚槽閘門，讓少量的水流下去，魚可以沿著一階一階的魚槽往上游。</p>
-        <p style="font-size:13.5px;color:#64748b">※「左側」我們推定是面向下游的左手邊（南端），位置與階梯形狀是示意。</p>${src('law')}` },
+        <p>影片說它在<strong>堰堤南端</strong>，是濁水溪上的第一座魚道。</p>
+        <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>管理中心的導覽員說：魚道就在第 4 號排砂道旁邊，是一條<strong>隧道式的通道</strong>，像螺旋梯一樣往上爬，每一階大約 20–30 公分，最後從南岸取水口和排砂門中間的方形通道出來；會依水位高低打開不同高度的閘門。</p>
+        <p>從管理中心往南岸看，<strong>4 號排砂門門號牌的左下角有一個方形孔洞，那就是魚道的出口</strong>（老師現場確認）。</p>
+        ${phset('jjfish')}${PHCREDIT}
+        <p style="font-size:13.5px;color:#64748b">※ 位置在南端已由影片、導覽員和現場照片確認。3D 畫面畫成露天的一階一階魚槽，是示意；實際是隧道式、螺旋往上，從外面只看得到出口。</p>${src('law', 'v2', 'guide23', 'teacher23')}` },
   intakeN: { t: '北岸取水口', s: '送水給彰化（八堡圳等）',
-    b: `<div class="keys"><span>閘門</span><span>上、下兩層各 8 座，共 16 座（每座寬 4.38、高 2.3 公尺）</span>
-        <span>平時</span><span>上層閘門依下游需要的水量打開，下層關閉；淤積或漂流物多時才開下層</span>
+    b: `<div class="keys"><span>閘門</span><span>上、下兩層各 8 座，共 16 座（法規寫每座寬 4.38、高 2.3 公尺；影片說明框寫 4×2 公尺）；另有 1 座緊急閘門（5.6×5.6 公尺，影片）</span>
+        <span>平時</span><span>上層閘門依下游需要的水量打開，下層關閉；淤積或漂流物多時才開下層。導覽員說：一般都開上層，水位比較低時才開到下層，因為<strong>上層的水比較乾淨</strong>（口述）</span>
         <span>計畫取水量</span><span>每秒 70 立方公尺</span>
-        <span>接著</span><span>水進入北岸聯絡渠道（新建段約 23 公里，再接擴建的原有渠道，共約 51 公里），經二水的八堡圳分水工送進八堡圳</span></div>${src('law', 'home', 'pipe')}` },
+        <span>接著</span><span>水進入北岸聯絡渠道（新建段約 23 公里，再接擴建的原有渠道，共約 51 公里），經二水的八堡圳分水工送進八堡圳</span></div>
+        <p>取水口後面是閘門機房，通往取水口工作區的門是管制區，一般人不能進去（老師現場確認）。</p>
+        ${phset('jjintake')}${PHCREDIT}${src('law', 'home', 'pipe', 'guide23', 'teacher23')}` },
   intakeS: { t: '南岸取水口', s: '送水給雲林',
-    b: `<div class="keys"><span>閘門</span><span>上、下兩層各 9 座，共 18 座</span><span>計畫取水量</span><span>每秒 90 立方公尺</span><span>接著</span><span>南岸聯絡渠道共約 38 公里（新建 15＋擴建 23），接斗六堰、林內分水工等</span></div>${src('law', 'home', 'pipe')}` },
+    b: `<div class="keys"><span>閘門</span><span>上、下兩層各 9 座，共 18 座；另有 1 座緊急閘門（6.5×6.5 公尺，影片）</span><span>計畫取水量</span><span>每秒 90 立方公尺</span><span>接著</span><span>南岸聯絡渠道共約 38 公里（新建 15＋擴建 23），接斗六堰、林內分水工等</span></div>
+        <p>南岸取水口緊鄰 4 號排砂道，魚道的出口就在旁邊。</p>
+        <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：南岸取水口取進來的水，另外開了一個小閘門分一小股，接給附近原有的老水圳用。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('longen')" style="color:#0369a1;font-weight:900">附近的古蹟：竹山隆恩圳隧渠 →</a></p>
+        ${phset('jjsintake')}${PHCREDIT}${src('law', 'home', 'pipe', 'guide23', 'teacher23')}` },
   center: { t: '集集攔河堰管理中心', s: '台灣水資源館',
-    b: `<p>攔河堰的閘門都有電動設備，可以在現場操作，也可以在控制室遙控（取水口緊急閘門、沉砂池退水閘門只能在現場操作）。放水前要先響放水警報。</p><p style="font-size:13.5px;color:#64748b">※ 建築外型示意。</p>${src('law')}` },
+    b: `<p>管理中心在攔河堰的右岸（北岸），是濁水溪水資源的調度中心，依操作規定把水分給下游彰化、雲林的農業、生活和工業用水。裡面有濁水溪館、集集共同引水館、台灣水資源館、水利暨能源館（影片）。</p><p>攔河堰的閘門都有電動設備，可以在現場操作，也可以在控制室遙控（取水口緊急閘門、沉砂池退水閘門只能在現場操作）。放水前要先響放水警報。</p><p>開放時間 9:00–17:00，館內可以拍照（2026 年 11 月現場詢問）。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('guide')" style="color:#0369a1;font-weight:900">看管理中心導覽員說的全部重點 →</a></p>${phset('jjcenter')}${phset('jjexhibit', '台灣水資源館的展板')}${PHCREDIT}<p style="font-size:13.5px;color:#64748b">※ 建築外型依照片示意。</p>${src('law', 'plaque', 'field23')}` },
   stilling: { t: '消能池', s: '攔河堰下游',
-    b: `<p>水從溢洪道、排砂道衝下來時速度很快。消能池讓急流在池裡翻滾，再撞上末端一整排 T 形的消能塊，把力量消掉，才不會一路把下游的河床沖壞。</p>
+    b: `<p>水從溢洪道、排砂道衝下來時速度很快。消能池讓急流在池裡翻滾，再撞上下游一整排<strong>拱形的消能塊</strong>，把力量消掉，才不會一路把下游的河床沖壞。池子中間還有一道導流牆。</p>
+        <p>站在下游側的道路（台3丙）上，就看得到這排一個個拱起來的消能塊。</p>
         <p>平時閘門關著，消能池裡只剩一些水窪和砂石；開閘放水時，池裡會翻起白色水花。</p>
-        <p style="font-size:13.5px;color:#64748b">※ 消能塊、閘墩延伸牆、維修橋的外型依照片示意，尺寸、距離沒有官方數字。</p>` },
+        <p>現場數到大約 <strong>44 個</strong>拱形消能塊。</p>
+        <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：水從堰面衝下來，先到<strong>護坦</strong>，最後是一道<strong>尾檻</strong>（也叫尾堰）。尾檻故意做得有高有低：流量小時水從低的地方流過去，流量大時整排一起擋，讓池裡的水穩下來，不要產生太多漩渦。漩渦很厲害，會讓牆面附近變成真空、把混凝土「爆」掉。</p>
+        <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>洪水帶著大石頭撞擊堰面，每年都要花好幾千萬元修補；最深曾經被挖掉兩公尺厚的混凝土，露出底下的岩盤。所以每年小修、三年大修。檢修時故意把部分水道堵住，讓水只從其他道流過去，所以有時看到池裡有的道有水、有的道是乾的。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('guide')" style="color:#0369a1;font-weight:900">看管理中心導覽員說的全部重點 →</a></p>
+        ${phset('jjstill')}${PHCREDIT}
+        <p style="font-size:13.5px;color:#64748b">※ 消能塊列、導流牆、下游側道路的位置依國土測繪中心 2023 年空拍；外型依 Google 街景（2026 年 7 月）與現場照片示意，尺寸沒有官方數字。</p>${src('field23')}` },
   nbasin: { t: '北岸沉砂池', s: '2 座並排・上方架太陽能板',
     b: `<p>北岸取水口的水先經過<strong>北岸引水隧道</strong>穿過山，再由<strong>引水暗渠</strong>送到這裡。濁水溪的水含砂很多，水在沉砂池裡流慢下來，砂就沉到沉砂溝底；上層比較清的水溢流進側槽，再送進北岸聯絡渠道。</p>
         <div class="keys"><span>閘門</span><span>分水閘門 2 座、排砂閘門 12 座、退水閘門 2 座</span>
         <span>沉砂溝</span><span>每兩道沉砂溝一座排砂閘門，可以分開排砂</span>
         <span>排砂</span><span>砂堆多了就打開排砂閘門，用水把砂沖回濁水溪（打開前要響放水警報）</span>
         <span>興建</span><span>約 1995～1998 年（施工照片日期）</span></div>
-        <p style="font-size:13.5px;color:#64748b">※ 位置、方向依正射影像判讀；沉砂溝、閘門的排列與外型是示意；排砂水流回到濁水溪的路線沒有畫出。</p>${src('law', 'big', 'nbp', 'works')}` },
+        <p style="font-size:13.5px;color:#64748b">※ 位置、方向依正射影像判讀；沉砂溝、閘門的排列與外型是示意；排砂水流回到濁水溪的路線沒有畫出。</p><p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：每座 12 道沉砂溝（北岸 2 座、南岸 3 座）。水進池子時先走一段<strong>逆坡</strong>，再像扇子一樣散開，流速就慢下來，粗的砂越不過去，掉進 5–6 公尺深的沉砂溝。溝的後面有擋水，只有上層比較乾淨的水越過去，由後面的收集溝送往二水。砂淤到 5–6 公尺高，就把後面的排砂閘門拉開，靠重力把砂沖回濁水溪，不用人工挖。</p>
+        <p>水從沉砂池<strong>東側（上游）的北岸分水閘門</strong>分進兩座沉砂池，這裡就是入口（老師現場確認）。3D 畫面裡，入口喇叭口前那道藍色閘門就是它。</p>${phset('jjnbasin')}${phset('jjnsplit', '北岸分水閘門（沉砂池入口）')}${PHCREDIT}${src('law', 'big', 'nbp', 'works', 'guide23', 'teacher23')}` },
   sbasin: { t: '南岸沉砂池', s: '3 座並聯・竹山鎮富州里',
     b: `<p>在攔河堰下游約一公里、富州堤防邊的河川新生地上（用開挖攔河堰的礫石回填約 3 公尺）。南岸取水口的水經<strong>南岸引水暗渠</strong>送到這裡沉砂，再進南岸聯絡渠道送往雲林。</p>
         <div class="keys"><span>沉砂池</span><span>3 座並聯，每座運轉水量每秒 36 立方公尺</span>
@@ -1176,10 +1226,37 @@ const INFO = {
         <span>怎麼劃</span><span>設計最高洪水位 EL 215.4 公尺，加上迴水到得了的水域、重要設施的土地和水面</span>
         <span>面積</span><span>蓄水範圍 265 公頃（集集鎮、鹿谷鄉、竹山鎮）；其中調整池約 242 公頃，有效容量約 1,000 萬立方公尺</span>
         <span>限制活動</span><span>重要設施周圍 27.5 公頃</span></div>
-        <p style="font-size:13.5px;color:#64748b">※ 紅線是依公告附圖，沿道路、橋描出的大概位置，不是測量界線。</p>${src('resmap', 'works')}` },
+        <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：最高蓄水量只有約 1,005 萬噸，現在已經淤了 400–500 萬噸，庫容剩一半，所以他們不叫它水庫。這裡是「川流式」取水：上游來多少水，就把需要的水量取進來。冬天水少時清淤，挖出來的砂石暫時運到上游清水溪、北清水溝溪一帶堆放。冬天來水約每秒 100 立方公尺，一小時就是 36 萬噸，十個小時不取水就又滿了；上游來水每秒 1,000 立方公尺時，兩三個小時就會漫過堰。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 紅線是依公告附圖，沿道路、橋描出的大概位置，不是測量界線。</p>${src('resmap', 'works', 'guide23')}` },
+  guide: { t: '管理中心導覽員說的重點', s: '2026 年 11 月 23 日・前中心主任',
+    b: `<p style="font-size:13.5px;color:#64748b">※ 以下是現場錄音的重點，由電腦自動轉成文字後整理，數字是導覽員的口頭說法。</p>
+        <div class="keys"><span>少一孔</span><span>溢洪道原本要做 19 孔，為了保留「開闢鴻荒」石碣，只做 18 孔</span>
+        <span>川流式取水</span><span>取水量全國第一；上游來多少水，就把需要的取進來。最高蓄水約 1,005 萬噸，現在淤了 400–500 萬噸</span>
+        <span>全開</span><span>上游來水超過每秒 1,300 立方公尺，閘門要全部打開；颱風時聽得到石頭撞堰面的聲音</span>
+        <span>消能池</span><span>堰面 → 護坦 → 尾檻（尾堰）。尾檻有高有低，配合大小流量，減少漩渦；漩渦會把混凝土「爆」掉</span>
+        <span>修不完</span><span>大石頭撞壞堰面，每年要花好幾千萬元，最深挖掉兩公尺混凝土。每年小修、三年大修；檢修時兩岸水利會同時修渠道，水從排砂道放掉</span>
+        <span>排砂道</span><span>取水口前面就是排砂道，砂太高、水變濁就開排砂閘門沖</span>
+        <span>沉砂池</span><span>逆坡＋扇形散開讓水變慢，砂沉進 5–6 公尺深的沉砂溝；上層清水越過擋水送走；砂滿了開閘門用重力沖回濁水溪。北岸 2 座、南岸 3 座，每座 12 道溝</span>
+        <span>聯絡渠道</span><span>每一條都做兩條，壞了一條還有另一條，可以輪流修。每年有人走進暗渠，拿手電筒一路檢查到斗六堰。渠道水流快，也拿來做小水力發電</span>
+        <span>隆恩圳隧渠</span><span>清代人工挖的隧道水圳，進水口在堰的上游；堰蓋好後把它的前段灌漿封起來，留下的一段被列為古蹟。現在從南岸進水口另外分一小股水給原來的渠道</span>
+        <span>賀伯颱風</span><span>1996 年堰還在蓋，洪水約每秒 12,000 立方公尺，整個工地被淹過，鋼筋彎斷，停工三個月</span></div>
+        <p><a href="#" onclick="event.preventDefault();window.__jjCard('longen')" style="color:#0369a1;font-weight:900">竹山隆恩圳隧渠是什麼 →</a></p>${src('guide23')}` },
+  longen: { t: '竹山隆恩圳隧渠', s: '清乾隆 59 年（1794）開鑿・縣定古蹟',
+    b: `<p>在攔河堰的<strong>南端</strong>（竹山鎮富州里）。清乾隆 59 年（1794），社寮一帶的墾戶張天球、陳佛照、陳同升、曾石等人開鑿隆恩圳，灌溉社寮附近數百甲農田，全長約一公里。</p>
+        <div class="keys"><span>穿山隧道</span><span>取水的地方用手工鑿了數百公尺的隧道穿過山</span>
+        <span>落差 84 公分</span><span>進水口和出水口的水位只差 84 公分，在沒有精密儀器的年代很不容易</span>
+        <span>水窗</span><span>做了二十多處和大圳相通的「水窗」（又叫橫坑）：大水時分散水勢，枯水時又能依溪水流向把水攔進圳裡</span>
+        <span>被取代</span><span>2001 年集集攔河堰完成後取代了原來的隧渠，但保留了取水口一段隧渠 172 公尺</span>
+        <span>古蹟</span><span>2006 年公告為南投縣縣定古蹟，現在由集集攔河堰管理中心管理</span></div>
+        <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：攔河堰蓋好後，水不能再從隆恩圳的隧道進出，所以進去灌漿，把前段封起來；留下來的部分被竹山列為古蹟，可以從下游那一頭走進去看，裡面又矮又窄。現在原來的渠道沒有斷水，是從南岸進水口另外分一小股水接過去。</p>
+        <p>和八堡圳一樣，隆恩圳也是清代先民自己開的水圳；八堡圳現在也改從攔河堰的北岸取水口取水，原來的圳頭當備用。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 3D 畫面沒有畫出隧渠，因為還沒有它確切的位置資料。</p>${src('longen', 'guide23')}` },
   kaipi: { t: '開闢鴻荒石碣', s: '堰的北端',
-    b: `<p>建攔河堰時，為了避開這塊古碑，溢洪道比原本的規劃少了一孔。</p>${src('works')}` },
+    b: `<p>建攔河堰時，為了避開這塊古碑，溢洪道比原本的規劃少了一孔（管理中心導覽員也這樣說）。</p>
+        <p>石碣在攔河堰右岸（北端）的山壁上，刻著「開闢鴻荒」四個字。現場的說明牌寫：同治十三年（1874）牡丹社事件後，清廷推動「開山撫番」，吳光亮帶兵開闢中路，從林圮埔（竹山）經集集往東；光緒元年（1875）開路完成，在集集的濁水溪畔巨石上題字紀念。</p>
+        ${phset('jjstele')}${PHCREDIT}${src('works', 'v2', 'field23')}` },
 };
+window.__jjCard = k => openPanel(k);
 function openPanel(key) {
   const d = INFO[key]; document.getElementById('pTitle').textContent = d.t; document.getElementById('pSub').textContent = d.s;
   document.getElementById('pBody').innerHTML = d.b; document.getElementById('panel').classList.add('open');
@@ -1191,7 +1268,7 @@ function drawRoute() {
   const X = lo => (lo - LO0) / (LO1 - LO0) * Wd, Y = la => (LA1 - la) / (LA1 - LA0) * Ht;
   const style = { 濁水溪: ['#7fb4d6', 9], 清水溪: ['#7fb4d6', 5], 清水溝溪: ['#7fb4d6', 4], 北岸聯絡渠道: ['#dc2626', 5], 集集共同引水計畫: ['#dc2626', 5], 八堡圳: ['#ea580c', 4], 八堡一圳: ['#f59e0b', 2.5], 八堡二圳: ['#f59e0b', 2.5] };
   let s = `<defs><clipPath id="cp"><rect width="${Wd}" height="${Ht}"/></clipPath></defs><g clip-path="url(#cp)" fill="none" stroke-linecap="round" stroke-linejoin="round">`;
-  for (const k of ['濁水溪', '清水溪', '清水溝溪', '八堡一圳', '八堡二圳', '八堡圳', '集集共同引水計畫', '北岸聯絡渠道'])
+  for (const k of ['濁水溪', '清水溪', '清水溝溪', '八堡一圳', '八堡二圳', '八堡圳', '北岸聯絡渠道'])   // OSM「集集共同引水計畫」只有河道中間孤立的一小段，接不上其他線，不畫
     for (const l of ROUTE.filter(r => r.name === k)) s += `<polyline points="${l.ll.map(([la, lo]) => `${X(lo).toFixed(1)},${Y(la).toFixed(1)}`).join(' ')}" stroke="${style[k][0]}" stroke-width="${style[k][1]}"/>`;
   const sth = [[23.8165, 120.7632], [23.8176, 120.7539], [23.811, 120.730], [23.806, 120.715], [23.797, 120.700], [23.787, 120.685], [23.779, 120.667], [23.774, 120.652], [23.770, 120.638]];
   s += `<polyline points="${sth.map(([la, lo]) => `${X(lo).toFixed(1)},${Y(la).toFixed(1)}`).join(' ')}" stroke="#2563eb" stroke-width="5" stroke-dasharray="12 8"/>`;
@@ -1199,6 +1276,7 @@ function drawRoute() {
   const pt = (la, lo, t, c, dx = 10, dy = -10) => `<circle cx="${X(lo)}" cy="${Y(la)}" r="9" fill="${c}" stroke="#fff" stroke-width="3"/><text x="${X(lo) + dx}" y="${Y(la) + dy}" font-size="22" font-weight="900" fill="#0d2238" stroke="#fff" stroke-width="5" paint-order="stroke">${t}</text>`;
   s += pt(23.8182, 120.7634, '集集攔河堰', '#0369a1', -60, -20);
   s += pt(23.79994, 120.65749, '八堡圳頭（二水）', '#ea580c', -60, 36);
+  s += pt(23.8007016, 120.6593767, '新式分水門（八堡圳／莿仔埤圳分水）', '#0f766e', 14, -18);   // 老師提供的座標；法規名稱「八堡圳分水工」是否就是這座，還沒確認
   s += `<text x="${X(120.71)}" y="${Y(23.845)}" font-size="20" font-weight="800" fill="#b91c1c" stroke="#fff" stroke-width="5" paint-order="stroke">北岸聯絡渠道（新建段約 23 公里）</text>`;
   s += pt(23.81763, 120.75394, '南岸沉砂池', '#a16207', -40, 34) + pt(23.82982, 120.75509, '北岸沉砂池', '#a16207', -40, -16);
   s += `<text x="${X(120.66)}" y="${Y(23.762)}" font-size="20" font-weight="800" fill="#1d4ed8" stroke="#fff" stroke-width="5" paint-order="stroke">南岸聯絡渠道（示意）→ 林內、雲林</text>`;

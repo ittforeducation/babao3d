@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/photo_sets.js"></script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -69,6 +71,9 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 #panel .x:hover{background:rgba(255,255,255,.7)}
 #panel .go{display:none;margin-top:10px;padding:9px 16px;border-radius:12px;background:#0369a1;color:#fff;font-weight:900;font-size:15.5px}
 #panel.stop .go{display:inline-block}
+.dropbtns{display:flex;gap:6px;margin:8px 0}
+.dropbtns button{flex:1;padding:7px;border-radius:10px;background:#f1f5f9;font-size:14px;font-weight:900}
+.dropbtns button.on{background:#0369a1;color:#fff}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:15px;margin-top:10px;line-height:1.6}
 .keys span:nth-child(odd){font-weight:900;color:#0c4a6e;white-space:nowrap}
 .note{font-size:13.5px;color:#64748b;line-height:1.6}
@@ -211,6 +216,7 @@ async function init() {
   const q = new URLSearchParams(location.search);
   if (q.get('ex') === '10') setExag(10, false);
   flyTo(q.get('view') || 'overview', 0);
+  if (q.get('card')) openPanel(q.get('card'), false);   // 直接打開某張說明卡（連結、截圖用）
   const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
   renderer.setAnimationLoop(frame);
   window.__rg = { scene, camera, controls, flyTo, setExag, FLOW, ROUTE, STOPS, gotoKm, LL, hAt, tick: n => { for (let i = 0; i < n; i++) { stepFlow(1 / 30); controls.update(); } updateLabels(); renderer.render(scene, camera); } };   // 除錯用（視窗隱藏時手動跑）
@@ -280,10 +286,11 @@ function buildRoute() {
   S('split', 23.88442, 120.57087, '八堡二圳東西溝分水門', '分水門', '#dc2626');
   S('fuzun', 23.912, 120.561, '浮圳村・圳堤比田高', '浮圳', '#a16207');
   S('school', 23.92579, 120.5667, '永興國小', '永興國小', '#16a34a', { look: LL(23.92579, 120.5667) });
-  S('rename', 23.94023, 120.5412, '灌溉圳變成排水路', '改名處', '#e07a1d');
+  S('rename', 23.923404, 120.549095, '灌溉圳變成排水路', '改名處', '#e07a1d');   // 永靖鄉公所旁（使用者提供；Google 地圖在這裡由八堡二圳東溝改稱東溝排水。OSM 是到 23.94023N 才改名，不採用）
   S('end', 23.980933, 120.509035, '流進員林大排', '員林大排', '#e07a1d');
   STOPS.sort((a, b) => a.s - b.s);
   ROUTE.lin = STOPS.find(s => s.key === 'lin').s;
+  ROUTE.drainKm = STOPS.find(t => t.key === 'rename').s;
 }
 
 /* ---------- 線（Line2，寬度用螢幕像素，遠看也看得到） ---------- */
@@ -301,7 +308,7 @@ function makeLine(pts, color, width, opt = {}) {
   L.update(); scene.add(line); lineObjs.push(L);
   return L;
 }
-let FLOW_LINES = [];
+let FLOW_LINES = [], NEISAN_MID = null;
 function clipRuns(pts) {                  // 只留地形範圍內的部分（OSM 線可能延伸出去）
   const Wd = G.meta.x1 - G.meta.x0, D = G.meta.y1 - G.meta.y0, inside = p => p[0] > 40 && p[0] < Wd - 40 && p[1] > 40 && p[1] < D - 40;
   const runs = []; let cur = [];
@@ -315,8 +322,17 @@ function buildLines() {
     if (l.kind === 'rail') { makeLine(l.pts, 0x52525b, 1.6, { opacity: 0.75, dashed: true, dash: 60, gap: 60, lift: 4, order: 2 }); continue; }
     if (l.kind === 'drain') { makeLine(l.pts, DRAIN, 3.2); continue; }
     const one = l.name === '八堡一圳';
+    if (l.name === '八堡二圳東溝') {                                  // 改名處以下畫成排水路的顏色
+      let run = [], cur = null;
+      for (const p of l.pts) { const d = ROUTE.near(p) >= ROUTE.drainKm - 1; if (cur !== null && d !== cur) { run.push(p); if (run.length > 1) makeLine(run, cur ? DRAIN : IRR, cur ? 3.2 : 3.4); run = []; } cur = d; run.push(p); }
+      if (run.length > 1) makeLine(run, cur ? DRAIN : IRR, cur ? 3.2 : 3.4);
+      continue;
+    }
     makeLine(l.pts, one ? IRR1 : IRR, one ? 3 : 3.4);
   }
+  // 八堡二圳內三排水：OpenStreetMap 沒有這條線。方向依使用者 2026-11-19 在畫面上校正的箭頭：從內三放水門往西、略偏北（每往西 100 m 約往北 9 m），畫約 1.1 公里（位置示意）
+  { const p = LL(23.8259509, 120.6004244); const pts = []; for (let k = 0; k <= 11; k++) pts.push([p[0] - 99.6 * k, p[1] - 8.8 * k]);
+    makeLine(pts, DRAIN, 2.8, { dashed: true, dash: 90, gap: 70, lift: 7, order: 4 }); NEISAN_MID = pts[5]; }
   // 路線上的流動虛線（水往下游流）：灌溉段藍白、排水段橘白
   const cut = ROUTE.pts.findIndex((_, i) => ROUTE.cum[i] >= ROUTE.drainKm);
   const a = makeLine(ROUTE.pts.slice(0, cut + 1), 0xffffff, 3.2, { dashed: true, dash: 70, gap: 160, lift: 9, order: 5 });
@@ -374,6 +390,11 @@ function buildLabels() {
   const P = (n, lat, lon, cls, lift, md, mn) => { const p = LL(lat, lon); addLabel(n, cls, p[0], p[1], lift, md, null, null, mn); };
   // 不在路線上的地點
   const yx = LL(23.924493, 120.5624108); addLabel('<b>宮</b>永興宮', 'pin', yx[0], yx[1], 25, 9000, () => openPanel('temple', false), '#be123c');
+  const ns = LL(23.8259509, 120.6004244); addLabel('<b>放</b>內三放水門', 'pin', ns[0], ns[1], 30, 30000, () => openPanel('neisan', false), '#0369a1');
+  if (NEISAN_MID) addLabel('八堡二圳內三排水（位置示意）', 'geo drain', NEISAN_MID[0], NEISAN_MID[1], 20, 9000);
+  for (const [k, la, lo, ch, nm] of [['siteA', 23.896848, 120.565649, '門', '東溝水門'], ['siteB', 23.901925, 120.564743, '閘', '東溝小閘門'], ['siteC', 23.904579, 120.564305, '橋', '浮圳二號橋'], ['siteD', 23.920175, 120.5598416, '閘', '東溝小閘門']]) {
+    const p = LL(la, lo); addLabel(`<b>${ch}</b>${nm}`, 'pin', p[0], p[1], 22, 7000, () => openPanel(k, false), '#2563eb'); }
+  { const p = LL(23.8007016, 120.6593767); addLabel('<b>新</b>新式分水門', 'pin', p[0], p[1], 30, 9000, () => openPanel('newgate', false), '#0369a1'); }
   const wn = LL(23.9463, 120.5815); addLabel('<b>沙</b>萬年沉砂池', 'pin', wn[0], wn[1], 40, 60000, () => openPanel('wannian', false), '#0f766e');
   // 地名、地形（OSM 村鎮、車站）
   for (const p of OSM.places) {
@@ -421,6 +442,13 @@ const SRC = {
   ershui: '<a href="https://ershuiwaterun.tw/scenein.php?aID=12" target="_blank">二水跑水〈八堡圳1.2分水口〉</a>',
   ycgov: '<a href="https://www.chcg.gov.tw/TSO/yungchin/07other/main.aspx?main_id=24045" target="_blank">永靖鄉公所〈古老的灌溉設備：八堡圳、八堡二圳〉</a>',
   sv: 'Google 街景（2024 年 4 月）',
+  gm: 'Google 地圖名稱（使用者提供截圖）',
+  law: '〈集集攔河堰水庫水門操作規定〉',
+  wiki: '<a href="https://zh.wikipedia.org/zh-tw/%E5%85%AB%E5%A0%A1%E5%9C%B3" target="_blank">維基百科〈八堡圳〉</a>',
+  mit856: '<a href="https://www.youtube.com/watch?v=bNyrykmWKyE" target="_blank">MIT台灣誌第 856 集〈獨特石笱工法引水入圳 百年八堡圳蘊含二水歷史〉</a>',
+  field: '現場觀察與名牌（2026 年 11 月 18 日）',
+  stele89: '現場碑文（彰化農田水利會，民國 89 年 5 月立）',
+  chc: '<a href="https://nchdb.boch.gov.tw/city/CWH/assets/overview/historicalBuilding/20060926000005" target="_blank">國家文化資產網〈八堡圳取水口〉</a>',
   moc: '<a href="https://themefile.culture.tw/file/2019-03-06/780ddbdc-6603-4ecd-b444-76b5fc03da9b/12.%E5%85%AB%E5%A0%A1%E5%9C%B3%E5%8F%96%E5%85%A5%E5%8F%A3%E8%A8%AD%E6%96%BD.pdf" target="_blank">文化部〈八堡圳取入口設施〉</a>',
 };
 const src = (...k) => `<div class="src">資料來源：${k.map(x => SRC[x]).join('；')}</div>`;
@@ -430,29 +458,60 @@ function INFO(key) {
   switch (key) {
     case 'intake': return { t: '八堡圳取入口', s: `二水鄉｜高度約 ${elev('intake')} 公尺`,
       b: `<p>水從上游的集集攔河堰，經北岸聯絡渠道送到這裡，進入八堡圳。</p>
-          <p>旁邊是日治時期（約 1930 年代）建的「取入口制排水門」，現在是歷史建築。</p>
-          <p><a href="era.html?era=now" style="color:#0369a1;font-weight:900">看圳頭的古今變化 →</a></p>${src('moc', 'dem')}` };
+          <p>旁邊是 1932 年建的「取入口制排水門」，現在是歷史建築。它原本的 8 道水閘已經封閉；現在水在上游約 200 公尺的新式分水門就分流，一股往源泉的八堡圳，一股流過 5 道藍色水門往溪州、竹塘方向。</p>
+          ${phset('gate')}
+          <p>取水的地方以前搬過好幾次：最早在鼻仔頭，清代往上游搬到名間濁水村，1907、1932 年回到二水倡和村，2002 年起改從集集攔河堰送水。</p>
+          <p><a href="era.html?era=now&view=intake" style="color:#0369a1;font-weight:900">看圳頭的古今變化 →</a>　<a href="era.html?era=qing&card=move" style="color:#0f766e;font-weight:900">看圳頭搬家 →</a>　<a href="jiji.html" style="color:#0369a1;font-weight:900">到上游看集集攔河堰 →</a></p>${PHCREDIT}${src('moc', 'chc', 'field', 'dem')}` };
+    case 'newgate': return { t: '新式分水門', s: '取入口制排水門上游約 200 公尺・八堡圳公園斜對面',
+      b: `<p>集集攔河堰的水經北岸聯絡渠道送到這裡。現場看到水在這裡就<strong>分成兩股</strong>，中間隔著圳堤：一股往西，是流到源泉的八堡圳；一股往西南，流過舊水門的 5 道藍色水門，往溪州、竹塘方向（莿仔埤圳）。</p>
+          <p>《MIT台灣誌》訪問的水利會人員說，以前八堡圳和莿仔埤圳是在舊水門那裡「分左右水」；集集攔河堰完成後，改由北岸聯絡渠道在這裡就分給八堡圳和莿仔埤圳。</p>
+          ${phset('newgate')}
+          <p>水利法規列出北岸聯絡渠道沿線的設施，裡面有「八堡圳分水工」和「莿仔埤圳分水工」。這座水門現場沒有拍到名牌，正式名稱還沒確認。</p>
+          ${phset('park', '斜對面的八堡圳公園')}${PHCREDIT}${src('field', 'mit856', 'law')}` };
     case 'lin': return { t: '林先生廟：一圳、二圳分家', s: `二水鄉源泉｜高度約 ${elev('lin')} 公尺`,
       b: `<div class="keys"><span>八堡一圳</span><span>往北沿著八卦山腳走，到大村鄉，全長約 28.2 公里</span>
           <span>八堡二圳</span><span>往西北走，到田中的東西溝分水門約 14.3 公里</span>
           <span>灌溉面積</span><span>八堡圳約 18,596 公頃（110 年）</span></div>
           <p>一圳靠著山，下雨時八卦山的野溪也會流進一圳，所以一圳也幫忙<strong>排洪</strong>。</p>
           <p>昭和 7 年（1932），在林先生廟旁的八堡圳蓋了進水閘口，並設<strong>第一、第二圳分水門</strong>，用來調節兩條圳分到的水量、安排輪流灌溉。</p>
-          <p>我們跟著<strong>二圳</strong>的水走，因為它流到永靖。</p>${src('ershui', 'a13', 'a12')}` };
+          <p>現場是兩座各自獨立的取水口，門楣上寫著「八堡一圳取水口」「八堡二圳取水口」。</p>
+          ${phset('split')}
+          ${phset('lin', '林先生廟')}
+          ${phset('gou', '廟旁的籠仔篙（石笱）')}
+          <p><strong>為什麼叫八堡圳？</strong>清代的「堡」是行政區，像現在的鄉鎮。圳水流過八個堡：東螺東堡、東螺西堡、武東堡、武西堡、燕霧上堡、燕霧下堡、線東堡、馬芝堡（馬芝遴堡）。</p>
+          <div class="keys"><span>八堡一圳</span><span>原本叫施厝圳，施世榜開，1709 年開工、1719 年通水</span><span>八堡二圳</span><span>原本叫十五庄圳，黃仕卿等人開，1721 年；1906～1907 年和施厝圳合併管理</span></div>
+          <p style="font-size:13px;color:#64748b">※ 八個堡的範圍沒有找到可靠的清代堡界地圖，這裡只列名稱。</p>
+          <p><a href="#" onclick="event.preventDefault();window.__openCard('drops')" style="color:#0369a1;font-weight:900">圳頭到這裡，圳道為什麼一階一階往下？ →</a></p>
+          <p>我們跟著<strong>二圳</strong>的水走，因為它流到永靖。</p>${PHCREDIT}${src('ershui', 'a13', 'a12', 'stele89', 'field', 'wiki')}` };
+    case 'drops': return { t: '圳道為什麼一階一階往下？', s: '取入口到林先生廟：跌水工',
+      b: `<p>從取入口到林先生廟大約 1.4 公里，高度從約 ${elev('intake')} 公尺降到約 ${elev('lin')} 公尺。如果圳底一路斜斜往下，水會越流越快，把圳底和圳岸沖壞。</p>
+          <p>所以圳道做成<strong>一段平、一段往下跌</strong>：平的地方水流得慢，到了落差才一次跌下去，跌下去的力氣在跌水池裡消掉。</p>
+          <div class="dropbtns"><button id="dpOn" class="on" onclick="__dropT(1)">有跌水工</button><button id="dpOff" onclick="__dropT(0)">一路斜下去</button></div>
+          <div id="dropBox">${dropSVG(1)}</div>
+          <div class="keys"><span>碑文記載</span><span>集集共同引水計畫改善幹線：從進水口到制分水門下游 1,732 公尺改成鋼筋混凝土渠道，做了<strong>傾斜式跌水工 5 處、急流工 1 處</strong>（民國 89 年 5 月立碑）</span></div>
+          <p style="font-size:13px;color:#64748b">※ 圖是示意：落差的位置和高度沒有資料，只依碑文的處數畫；高度用 20 公尺數值地形。</p>${src('stele89', 'dem')}` };
     case 'shifang': return { t: '世芳宮：一圳、二圳最接近的地方', s: `田中鎮大社路三段｜高度約 ${elev('shifang')} 公尺`,
       b: `<p>一圳、二圳分家後，有三個地方靠得很近，世芳宮旁邊是最後一個。依地圖資料，兩條圳在這裡只相距約 <strong>20 公尺</strong>，之後又各走各的：一圳往北到員林，二圳往西北到分水門。</p>
-          <p>看看下方的高度圖：從林先生廟到這裡，水已經往下降了約 <strong>${elev('lin') - elev('shifang')} 公尺</strong>。</p>${src('a12', 'osm', 'dem')}` };
+          <p>看看下方的高度圖：從林先生廟到這裡，水已經往下降了約 <strong>${elev('lin') - elev('shifang')} 公尺</strong>。</p>
+          ${phset('shifang')}
+          <p>世芳宮旁的路口有一座<strong>八堡一圳大社排水門</strong>（民國 89 年 12 月 30 日竣工）。</p>
+          <p><strong>為什麼這裡有一扇門？</strong>因為一圳、二圳在這裡靠得很近。打開這座排水門，可以把<strong>一圳的水排到二圳</strong>，就像兩條圳之間的聯絡道。</p>
+          ${phset('dashe')}
+          ${PHCREDIT}${src('a12', 'osm', 'dem', 'field')}` };
     case 'split': return { t: '八堡二圳東西溝分水門', s: `田中、永靖、社頭三鄉交界｜二圳里程 14K+266｜高度約 ${elev('split')} 公尺`,
       b: `<p>八堡二圳在這裡分成<strong>東溝</strong>和<strong>西溝</strong>。東溝往北流到永靖；西溝往西北，灌溉、排水兩用。</p>
           <div class="keys"><span>東溝取水閘門</span><span>2 間</span><span>西溝取水門</span><span>3 間</span><span>排砂門</span><span>2 間</span><span>北鎮平分線取水門</span><span>1 間</span><span>操作</span><span>油壓＋手動</span></div>
+          <p>往下游看：<strong>左邊</strong>深藍色那一側通往<strong>西溝</strong>，口比較大；<strong>右邊</strong>淺藍色那一側通往<strong>東溝</strong>，口比較小。</p>
+          ${phset('ew')}
           <p>這裡的東溝、西溝是沒有加蓋的明渠，兩邊是混凝土牆，水面比旁邊的路低。</p>
-          <p class="note">※ 依地圖量，從林先生廟沿圳到這裡約 ${kmFromLin('split')} 公里，和水利會里程 14K+266（14.3 公里）相符。</p>${src('a3', 'a13', 'sv', 'osm')}` };
+          <p class="note">※ 依地圖量，從林先生廟沿圳到這裡約 ${kmFromLin('split')} 公里，和水利會里程 14K+266（14.3 公里）相符。閘門的間數依農田水利文物館的資料，還沒有到現場一一核對。</p>${PHCREDIT}${src('a3', 'a13', 'sv', 'osm', 'field')}` };
     case 'fuzun': return { t: '浮圳：圳堤比田高', s: `永靖鄉浮圳村｜高度約 ${elev('fuzun')} 公尺`,
       b: `<p>一般的圳在地面上，「浮圳」的水道卻<strong>比兩旁的田還高</strong>，像浮在田間一樣。做法是在平地上築土堤，讓水沿著土堤走，越過低的地方送到要灌溉的田。</p>
           <p>永靖的浮圳村就是因為這條圳得名：</p>
           <blockquote>「浮圳」乃因圳得名，即浮圳圳溝堤岸較兩旁田野高出甚多，聚落建於沿圳堤旁，為帶狀村落，故又名「竹竿庄」</blockquote>
           <p><strong>量量看</strong>：依內政部 20 公尺地形資料，浮圳村這一段（約 1.6 公里）圳路兩旁的地面，比 150～300 公尺外的田<strong>高約 1.3 公尺</strong>；分水門附近、學校以下只高 0～0.7 公尺。</p>
           <p>以前這裡有「浮圳埤」和「浮分水門」（永靖鄉公所網頁的舊照片說明）。</p>
+          <p>往上游一點有<a href="#" onclick="event.preventDefault();window.__openCard('siteC')" style="color:#0369a1;font-weight:900">浮圳二號橋</a>，可以看那裡拍的照片。</p>
           <p class="note">※ 褐色的圳堤畫在量到地面高起來的範圍，高度 1.3 公尺依地形資料；堤的寬度沒有資料，是示意。20 公尺網格會把窄的堤抹平，實際堤頂可能更高。全台各地也有浮圳，例如台中神岡、臺東池上。</p>${src('a6', 'ycgov', 'dem', 'a10', 'a11')}` };
     case 'school': return { t: '永興國小', s: `永靖鄉東寧村永興路二段｜高度約 ${elev('school')} 公尺`,
       b: `<p>我們的學校在東溝的<strong>東邊約 1 公里</strong>。鄉土教材說東寧村「有八堡二圳東溝與浮圳為鄰」。</p>
@@ -460,16 +519,41 @@ function INFO(key) {
           <span style="color:var(--drain)">陳厝厝排水</span><span>排水路：在學校西南邊斜斜經過，大致由東南往西北流，把田裡多的水、雨水排進員林大排水系（彰化縣管理）</span></div>
           <p>從圳頭流到這裡大約 ${((STOPS.find(t => t.key === 'school').s) / 1000).toFixed(0)} 公里，高度從約 ${elev('intake')} 公尺降到約 ${elev('school')} 公尺。</p>
           <p><a href="school.html" style="display:inline-block;padding:8px 14px;border-radius:12px;background:#16a34a;color:#fff;font-weight:900;text-decoration:none">走進校園周邊 →</a></p>${src('a6', 'osm', 'dem')}` };
-    case 'rename': return { t: '灌溉圳變成排水路', s: `永靖鄉｜高度約 ${elev('rename')} 公尺`,
-      b: `<p>地圖上，<strong>八堡二圳東溝</strong>到了這裡就改叫<strong>東溝排水支線</strong>。名字很像，但是不同的水路：</p>
+    case 'rename': return { t: '灌溉圳變成排水路', s: `永靖鄉公所旁｜高度約 ${elev('rename')} 公尺`,
+      b: `<p>這是同一條連續的溝。地圖上，上游叫<strong>八堡二圳東溝</strong>（灌溉圳），到了永靖鄉公所旁，下游改叫<strong>東溝排水</strong>（排水路）。名字很像，但工作不同：</p>
           <div class="keys"><span style="color:var(--irr)">灌溉圳</span><span>把水<strong>送到</strong>田裡</span><span style="color:var(--drain)">排水路</span><span>把田裡用過、多出來的水和雨水<strong>帶走</strong></span></div>
-          <p>畫面上線的顏色也從藍色變成橘色。</p>${src('osm')}` };
+          <p>畫面上線的顏色也從藍色變成橘色。</p>
+          <p class="note">※ 改名的位置依 Google 地圖名稱，和「永興周邊水渠系統」那一頁相同。</p>${src('gm', 'osm')}` };
     case 'end': return { t: '流進員林大排', s: `埔鹽系統交流道下｜高度約 ${elev('end')} 公尺`,
       b: `<p>東溝排水支線在這裡接進<strong>員林大排</strong>，水繼續往西流出畫面。</p>
           <p>這滴水從二水圳頭出發，一共走了約 <strong>${(ROUTE.len / 1000).toFixed(0)} 公里</strong>，高度下降約 <strong>${elev('intake') - elev('end')} 公尺</strong>。一路上都是往低處流，<strong>不用抽水機</strong>。</p>
           <p class="note">※ 畫面加快播放，真實的水流得比較慢。</p>${src('osm', 'dem')}` };
     case 'temple': return { t: '永興宮', s: '永靖鄉東寧村永興路二段 162 號',
-      b: `<p>在永興國小西邊、永興路二段上，主祀三山國王。陳厝厝排水在它的南側流過。</p>${src('a6')}` };
+      b: `<p>在永興國小西邊、永興路二段上，主祀三山國王。陳厝厝排水在它的南側流過。</p>
+          ${phset('temple')}${PHCREDIT}${src('a6')}` };
+    case 'neisan': return { t: '內三放水門', s: '二水鄉｜八堡二圳接內三排水的地方',
+      b: `<p>八堡二圳流到這裡，旁邊接著<strong>八堡二圳內三排水</strong>（地圖上的橘色虛線），相接的地方設了一座「放水門」。</p>
+          <p>牆上的牌子寫著「內三放水門改善工程」，民國 98 年 3 月完工。</p>
+          ${phset('neisan')}
+          <p class="note">※ 依水利會的里程，二圳從林先生廟到內三排水是 6K+354（約 6.4 公里）。內三排水的橘色虛線依老師在地圖上畫的方向，只畫出靠近放水門的一段；完整的路線還沒有地圖資料。</p>
+          ${PHCREDIT}${src('field', 'a13')}` };
+    case 'siteA': return { t: '東溝上的水門', s: '八堡二圳東溝｜東西溝分水門下游',
+      b: `<p>東溝上的一座水門：圳道中間有一座閘墩，上面是兩台電動啟閉機。對岸的圳牆上還有一座手輪小閘門，後面接著路邊的小溝。</p>
+          ${phset('siteA')}
+          <p class="note">※ 位置依老師提供的座標（23.896848, 120.565649）。這座水門的名稱和用途還沒有資料。</p>${PHCREDIT}${src('field')}` };
+    case 'siteB': return { t: '東溝邊的小閘門', s: '八堡二圳東溝',
+      b: `<p>圳邊的小閘門，上面有手輪。旁邊的田邊有混凝土小溝。</p>
+          ${phset('siteB')}
+          <p class="note">※ 位置依老師提供的座標（23.901925, 120.564743）。</p>${PHCREDIT}${src('field')}` };
+    case 'siteC': return { t: '浮圳二號橋', s: '跨八堡二圳東溝',
+      b: `<p>這座橋跨過東溝，橋名牌寫著「浮圳二號橋」。橋邊有藍色的閘門，從橋上看得到筆直的混凝土圳道。</p>
+          ${phset('siteC')}
+          <p class="note">※ 位置依老師提供的座標（23.904579, 120.564305）。</p>${PHCREDIT}${src('field')}` };
+    case 'siteD': return { t: '東溝邊的小閘門', s: '八堡二圳東溝｜永興國小西南邊',
+      b: `<p>東溝邊的小閘門和旁邊的小溝，在永興國小西南邊。</p>
+          ${phset('siteD')}
+          <p><a href="school.html?view=dong" style="color:#0369a1;font-weight:900">到「永興周邊水渠系統」看這一帶 →</a></p>
+          <p class="note">※ 位置依老師提供的座標（23.9201750, 120.5598416）。</p>${PHCREDIT}${src('field')}` };
     case 'wannian': return { t: '萬年沉砂池', s: '員林市萬年一帶｜八堡一圳上',
       b: `<div class="keys"><span>1963 年 3 月</span><span>竣工，附設在八堡圳上</span>
           <span>做什麼</span><span>從社頭往北流進員林的圳水先匯到這裡，讓砂沉下來，再分流三個制水門，流向<strong>石笱埤圳、萬年埤圳、隆恩埤圳</strong></span>
@@ -477,6 +561,23 @@ function INFO(key) {
           <p class="note">※ 它在<strong>一圳</strong>上，不在我們跟著走的二圳路線上。位置依地圖影像判讀。</p>${src('a7', 'a8')}` };
   }
 }
+window.__openCard = k => openPanel(k, false);
+/* 跌水工示意：取入口 → 林先生廟，5 處跌水工（碑文）；水流越快的地方顏色越紅（示意） */
+function dropSVG(on) {
+  const H0 = 20, H1 = 92, N = 5, W = 340, x0 = 14;
+  let path = `M${x0} ${H0}`, marks = '';
+  if (on) { const seg = W / (N + 1), dh = (H1 - H0) / N; let y = H0;
+    for (let i = 1; i <= N + 1; i++) { const xe = x0 + seg * i; path += ` L${(xe - 6).toFixed(1)} ${(y + 1.2).toFixed(1)}`; y += 1.2;
+      if (i <= N) { path += ` L${xe.toFixed(1)} ${(y + dh - 1.2).toFixed(1)}`; y += dh - 1.2; marks += `<text x="${xe - 3}" y="${y + 10}" font-size="9" fill="#b45309" font-weight="900">跌水</text>`; } } }
+  else path += ` L${x0 + W} ${H1}`;
+  const col = on ? '#38bdf8' : '#ef4444';
+  return `<svg viewBox="0 0 370 118" style="width:100%;height:auto;background:#eef3f6;border-radius:12px;margin:6px 0" role="img" aria-label="圳底剖面">
+    <path d="${path} L${x0 + W} 112 L${x0} 112 Z" fill="#c9c2b2"/><path d="${path}" fill="none" stroke="${col}" stroke-width="4"/>${marks}
+    <text x="${x0}" y="12" font-size="10" font-weight="900" fill="#0d2238">取入口 約 ${elev('intake')} m</text>
+    <text x="${x0 + W}" y="${H1 + 14}" font-size="10" font-weight="900" fill="#0d2238" text-anchor="end">林先生廟 約 ${elev('lin')} m</text>
+    <text x="${x0 + W / 2}" y="108" font-size="10.5" font-weight="900" fill="${on ? '#0369a1' : '#b91c1c'}" text-anchor="middle">${on ? '平的地方水流得慢，落差處一次跌下去' : '一路斜下去：水越流越快，沖壞圳底'}</text></svg>`;
+}
+window.__dropT = on => { const b = document.getElementById('dropBox'); if (b) b.innerHTML = dropSVG(on); document.getElementById('dpOn')?.classList.toggle('on', !!on); document.getElementById('dpOff')?.classList.toggle('on', !on); };
 function openPanel(key, asStop) {
   const d = INFO(key); document.getElementById('pTitle').textContent = d.t; document.getElementById('pSub').textContent = d.s;
   document.getElementById('pBody').innerHTML = d.b;

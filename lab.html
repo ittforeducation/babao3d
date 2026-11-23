@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/photo_sets.js"></script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -107,6 +109,16 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 #cfg h3 small{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:7px;background:#f59e0b;color:#fff}
 .lbl2{font-weight:900;font-size:13.5px;margin:8px 0 4px;display:flex;justify-content:space-between}
 .lbl2 a{color:#0369a1;font-size:13px}
+.lnkrow{display:flex;gap:6px;margin:-2px 0 8px}
+.lnkrow a{flex:1;text-align:center;font-size:12.5px;font-weight:900;padding:5px 6px;border-radius:9px;background:#e0f2fe;color:#075985;text-decoration:none}
+.angBox{display:flex;align-items:center;gap:8px;margin:6px 0 2px;font-size:13px;font-weight:700}
+.angBox input{flex:1}
+.angBox[hidden]{display:none}
+.stepbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0}
+.stepbtns button{padding:7px 4px;border-radius:10px;background:#f1f5f9;font-size:13px;font-weight:900}
+.stepbtns button.on{background:#a16207;color:#fff}
+.dobtn{display:inline-block;margin:4px 6px 4px 0;padding:6px 12px;border-radius:10px;background:#0369a1;color:#fff;font-size:13.5px;font-weight:900}
+.oral{display:inline-block;margin-right:6px;padding:0 7px;border-radius:7px;background:#fde68a;color:#78350f;font-size:12px;font-weight:900;vertical-align:1px}
 .wbtn{margin-left:auto;font-size:12.5px;font-weight:900;padding:3px 9px;border-radius:9px;background:#a16207;color:#fff;text-decoration:none}
 #panel h4{margin:14px 0 4px;font-size:16.5px;font-weight:900;color:#7c4a12}
 #cfg .seg{margin-bottom:4px}
@@ -135,7 +147,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 
 <div id="titleCard" class="glass">
   <div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 18c3-2 6-2 9 0s6 2 9 0"/><path d="M6 13l4-8 4 8"/><path d="M8 9h4"/></svg></div>
-  <div><h1>石笱運作原理</h1><p>二水鄉 源泉・濁水溪北岸｜真實地形＋簡化水流模擬</p></div>
+  <div><h1>石笱運作原理</h1><p>二水鼻仔頭圳頭（依 1913 年實測圖）｜真實地形＋簡化水流模擬</p></div>
 </div>
 
 <div id="era" class="glass">
@@ -154,19 +166,24 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 
 <div id="cfg" class="glass">
   <h3>實驗設定 <small>簡化模擬</small><a href="#" id="wisdomBtn" class="wbtn">石笱的智慧</a></h3>
+  <div class="lnkrow"><a href="#" id="whyBtn">為什麼水引不進來？</a><a href="#" id="buildBtn">石笱怎麼做、怎麼放？</a></div>
   <div class="lbl2">水量</div>
   <div class="seg" id="flowSeg"><button data-f="0">平水</button><button data-f="1">大水</button><button data-f="2">洪水</button></div>
   <div class="lbl2">陣形</div>
   <div class="seg grid3" id="formSeg">
-    <button data-k="row">成排堆疊</button><button data-k="diag">斜線導流</button><button data-k="arc">弧線導流</button>
-    <button data-k="free">自由擺放</button><button data-k="none">空河道</button>
+    <button data-k="arc">弧線（史實）</button><button data-k="diag">斜線導流</button><button data-k="row">成排堆疊</button>
+    <button data-k="angle">自訂角度</button><button data-k="free">自由擺放</button><button data-k="none">空河道</button>
   </div>
+  <div id="angBox" class="angBox" hidden><span>和水流的夾角</span><input type="range" id="angIn" min="10" max="90" step="5" value="45"><b id="angTxt">45°</b></div>
   <div class="small desc" id="formDesc"></div>
   <div class="lbl2">竹籠形狀 <a href="#" id="shapeInfo">比一比</a></div>
   <div class="seg" id="shapeSeg"><button data-k="cone">筍形</button><button data-k="cyl">圓柱形</button><button data-k="box">方盒形</button></div>
   <div class="small" id="shapeStat"></div>
   <div class="opts">
-    <span>層數</span><div class="seg mini" id="layerSeg"><button data-k="1">一層</button><button data-k="2">兩層</button></div>
+    <span>疊法</span><div class="seg mini" id="layerSeg"><button data-k="auto">依水深</button><button data-k="1">一層</button><button data-k="2">兩層</button></div>
+    <span>看水下</span><div class="seg mini" id="clearSeg"><button data-k="0">混濁</button><button data-k="1">水變透明</button></div>
+    <span>收頭</span><div class="seg mini" id="tieSeg"><button data-k="lock">頂端卡榫</button><button data-k="wrap">外面綁一圈</button></div>
+    <span>固堤</span><div class="seg mini" id="bankSeg"><button data-k="right">大口朝水</button><button data-k="wrong">放反了</button><button data-k="none">不放</button></div>
     <span>裝石</span><div class="seg mini" id="fillSeg"><button data-k="0.5">半籠</button><button data-k="1">裝滿</button></div>
     <span>補石</span><div class="seg mini" id="rockSeg"><button data-k="0">不補</button><button data-k="1">補石</button></div>
     <span>串聯</span><div class="seg mini" id="ropeSeg"><button data-k="0">不綁</button><button data-k="1">藤繩綁緊</button></div>
@@ -209,6 +226,14 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 <div id="credit">地形：內政部20公尺網格DEM｜影像：國土測繪中心正射影像｜圖資：© OpenStreetMap 貢獻者｜材質與天空：Poly Haven (CC0)｜水流為簡化模擬，數值僅供比較</div>
 <div id="loading"><div>正在準備石笱實驗…</div></div>
 
+<script>/* 除錯：網址加 ?dbgerr=1 時把錯誤印在畫面上（無視窗截圖檢查用） */
+if (/dbgerr=1/.test(location.search)) { const show = m => { let d = document.getElementById('__err'); if (!d) { d = document.createElement('pre'); d.id = '__err'; d.style.cssText = 'position:fixed;left:320px;top:140px;right:300px;z-index:99999;background:#fee;color:#900;font:12px/1.4 monospace;padding:8px;white-space:pre-wrap'; document.body.appendChild(d); } d.textContent += m + String.fromCharCode(10); };
+  addEventListener('error', e => show('ERR ' + e.message + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno));
+  addEventListener('unhandledrejection', e => show('REJ ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason)));
+  for (const k of ['log', 'warn', 'error']) { const o = console[k].bind(console); console[k] = (...a) => { o(...a); const t = a.map(String).join(' '); if (/THREE|WebGL|context|Error/i.test(t)) show(k.toUpperCase() + ' ' + t.slice(0, 300)); }; }
+  let last = -1; setInterval(() => { const f = window.__fno; let d = document.getElementById('__fps'); if (!d) { d = document.createElement('div'); d.id = '__fps'; d.style.cssText = 'position:fixed;left:320px;top:110px;z-index:99999;background:#ff0;color:#000;font:13px monospace;padding:2px 6px'; document.body.appendChild(d); }
+    d.textContent = '畫面格數 ' + f + '（每秒 ' + (last < 0 || f === undefined ? '?' : f - last) + '）'; last = f; }, 1000); }
+</script>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -284,8 +309,8 @@ function resample(pts, step) {
 const LAB = {
   S0: -60, S1: 60, B1: 55, CELL: 0.7,          // 流場模擬範圍：順流 s、離岸 b（公尺）
   PS0: -66, PS1: 66, PB0: -45, PB1: 62,        // 地形修整範圍
-  INTAKE: [2, 8],                              // 圳口位置（s 範圍，示意）
-  CANAL: [[5, 1.5], [6.5, -10], [10, -21], [15, -32]],   // 土圳路線（示意）
+  INTAKE: [-3, 3],                             // 圳口位置（s 範圍）＝1913 年實測圖的圳頭
+  CANAL: [[0, 1.5], [3, -3], [15, -7.5], [31, -14.5], [45, -21.5]],   // 土圳：圳頭往西（依 1913 年圖）；只畫到地形過渡區之前
   FLOW: [
     { name: '平水', U: 1.2, off: 0.0 },     // U = 上游來水流速（m/s），off = 水位上升（m）
     { name: '大水', U: 3.5, off: 1.3 },
@@ -303,36 +328,67 @@ function arcOf(n, p0, p1, p2) {
   return out;
 }
 /* 標準陣形（依使用者說明）：每個石笱都順著水流平躺，笱口朝上游；pts = 各石笱笱口的位置 [s, b] */
+/* 排列（依文獻與導覽員）：每個石笱順著水流躺著、笱口朝上游，一個挨一個，左右碰在一起不留縫。
+   靠圳頭 14 m 內用十二尺（開挖的圳口，水較深），外側用十尺。沿著排列線走的間距＝口徑 ÷ sin(排列線和水流的夾角)，
+   夾角很小時（快要和水流平行）就頭尾相接。三種陣形底層石笱一樣多（以弧線那一道為準），才能公平比較 */
+const sizeAt = (s, b) => Math.hypot(s, b) < 14 ? SIZE[12] : SIZE[10];          // 開挖的圳口（14 m 內）用十二尺
+function chainAlong(path, N) {
+  const D0 = SHAPES[EXP.shape].top0, out = [];
+  let seg = 0, cur = path[0].slice();
+  while (out.length < N && seg < path.length - 1) {
+    const k = sizeAt(cur[0], cur[1]); out.push([cur[0], cur[1], k]);
+    const a = path[seg], b = path[seg + 1], ang = Math.abs(Math.atan2(b[1] - a[1], b[0] - a[0])), sn = Math.abs(Math.sin(ang));
+    let step = clamp(D0 * k * 0.98 / Math.max(sn, 1e-3), D0 * k * 0.98, GOU_L * k * 0.95);
+    while (step > 0 && seg < path.length - 1) {
+      const nx = path[seg + 1], d = Math.hypot(nx[0] - cur[0], nx[1] - cur[1]);
+      if (d >= step) { const t = step / d; cur = [cur[0] + (nx[0] - cur[0]) * t, cur[1] + (nx[1] - cur[1]) * t]; step = 0; }
+      else { step -= d; cur = nx.slice(); seg++; }
+    }
+  }
+  return out;
+}
+const bez = (p0, c, p1, n = 200) => Array.from({ length: n + 1 }, (_, i) => { const t = i / n; return [(1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * c[0] + t * t * p1[0], (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * c[1] + t * t * p1[1]]; });
+/* 弧線：照 1913 年圖上那道堤——從圳頭下游側斜斜伸進溪裡（約 45°），越往上游越彎、最後和水流平行；凹的一面朝著被圍住、流向圳頭的水 */
+const ARC_PATH = bez([6.5, 0.45], [-19, 26.5], [-43, 26.5]);          // 起點在圳口下游約 3.5 m（圳口 s −3〜3），不要蓋住圳口
+let N_BASE = 0;
+const baseCount = () => N_BASE || (N_BASE = chainAlong(ARC_PATH, 999).length);
 const FORMS = {
-  row: { name: '成排堆疊', desc: '「成排堆疊」：石笱一個緊挨一個排成一排（這裡和水流垂直），像一道低矮的攔水壩；水深時用下面的「層數」再疊一層。',
-    pts: () => lineOf(17, 10, 1, 10, 28.2) },
-  diag: { name: '斜線導流', desc: '「斜線導流」：整排石笱和水流斜斜相交，像喇叭一樣把溪水「滑」進圳口。',
-    pts: () => lineOf(17, -36, 28, 12, 1) },
+  row: { name: '成排堆疊', desc: '「成排堆疊」：石笱一個緊挨一個排成一排（這裡和水流垂直），像一道低矮的攔水壩。石笱數量和弧線一樣多。',
+    pts: () => chainAlong([[6.5, 0.45], [6.5, LAB.B1 - 1]], baseCount()) },
+  diag: { name: '斜線導流', desc: '「斜線導流」：從圳頭拉一條和水流成 45° 的直線排（導覽員說的角度），不彎。石笱數量和弧線一樣多，可以和弧線比比看。',
+    pts: () => chainAlong([[6.5, 0.45], [-53.5, 60.95]], baseCount()) },   // 壩根貼著岸，不留縫
   /* 弧線導流（文化部〈八堡圳取入口設施〉：「依水深呈弧線型推疊並排」「溪水自然順著弧線形水壩引入圳路」）
-     和斜線導流同樣 17 個、起點終點相同，只有形狀不同：上游端順著水流、越往下游越彎向岸邊（彎的方向是教具的示意） */
-  arc: { name: '弧線導流', desc: '「弧線導流」：石笱陣排成弧線，上游一端順著水流，越往下游越彎向岸邊，溪水順著弧線轉進圳口。和斜線導流一樣 17 個、起點終點相同。',
-    pts: () => arcOf(17, [-36, 28], [-6, 28], [12, 1]) },
+     （舊註解作廢：現在的弧線依 1913 年圖，見 ARC_PATH） */
+  arc: { name: '弧線（1913 年的堤）', desc: '「弧線」：照 1913 年實測圖上圳頭那道堤排：從圳頭斜斜伸進溪裡，越往上游越彎、最後順著水流，凹的一面朝著被圍住的水。靠圳頭用十二尺、外側用十尺，依水深疊一到三層，上層交錯放在下層兩個中間。這是預設的史實排法。',
+    pts: () => chainAlong(ARC_PATH, baseCount()) },
+  angle: { name: '自訂角度', desc: '「自訂角度」：用下面的拉桿改變石笱陣和水流的夾角（從圳頭拉一條直線）。90° 就是成排堆疊，45° 是導覽員說的角度，角度很小時整排快要貼著岸。石笱數量和弧線一樣多。',
+    pts: () => { const a = EXP.angle * Math.PI / 180; return chainAlong([[6.5, 0.45], [6.5 - 90 * Math.cos(a), 0.45 + 90 * Math.sin(a)]], baseCount()); } },
   free: { name: '自由擺放', desc: '自由擺放：點水面放一個石笱，拖曳可以移動（石笱會自動笱口朝上游）。', pts: null },
   none: { name: '空河道', desc: '空河道：把石笱全部拿走，看看沒有石笱時圳口能進多少水。', pts: () => [] },
 };
 /* 竹籠形狀：三種「長度相同、體積相同（裝的卵石一樣多）」，只有形狀不同
-   基準＝筍形：長 6 m、口徑 1.7 m、尾徑 0.12 m；圓柱、方盒依同體積反算斷面 */
+   基準模型長 6 m，實際的十二尺、十尺、八尺用等比例縮放（SIZE）。
+   筍形口徑＝長度的 1/4：量自老師拍的籠仔篙照片（p140440、p134036：整支高度約為底部口徑的 3.8–4.9 倍，由下往上拍會壓短上半部，取 4 倍）。
+   尖端：竹條穿過頂圈（waist，約全長 78% 處）後兩兩交錯、往外岔開（導覽員：頂端竹條交叉卡住；智富食代：竹子穿過頂圈、兩兩左右交叉）。
+   圓柱、方盒依同體積反算斷面 */
+const SIZE = { 12: 3.6 / 6, 10: 3.0 / 6, 8: 2.4 / 6 };          // 十二尺、十尺、八尺（一台尺約 30 公分）
+const sizeName = k => k > 0.55 ? '十二尺' : k > 0.45 ? '十尺' : '八尺';
 const GOU_L = 6.0;
 const EVEN_HOOPS = [0.015, 0.155, 0.295, 0.435, 0.575, 0.715, 0.855, 0.985];
 const SHAPES = {
-  cone: { name: '筍形', drop: 0.15, R0: 0.85, R1: 0.06, square: false, hoops: [0.015, 0.13, 0.245, 0.36, 0.475, 0.59, 0.705], ends: [0], tail: true },
+  cone: { name: '筍形', drop: 0.15, R0: 0.75, R1: 0.1, waist: 0.78, square: false, hoops: [0.015, 0.13, 0.245, 0.36, 0.475, 0.59, 0.705], ends: [0], tail: true },
   cyl: { name: '圓柱形', drop: 1.0, square: false, hoops: EVEN_HOOPS, ends: [0, 1] },
   box: { name: '方盒形', drop: 1.0, square: true, hoops: EVEN_HOOPS, ends: [0, 1] },
 };
 {
-  const c = SHAPES.cone, V = Math.PI / 3 * GOU_L * (c.R0 * c.R0 + c.R0 * c.R1 + c.R1 * c.R1);
+  const c = SHAPES.cone, V = Math.PI / 3 * GOU_L * c.waist * (c.R0 * c.R0 + c.R0 * c.R1 + c.R1 * c.R1);   // 筍形裝石的部分只到頂圈
   SHAPES.cyl.R0 = SHAPES.cyl.R1 = Math.sqrt(V / (Math.PI * GOU_L));
   SHAPES.box.R0 = SHAPES.box.R1 = Math.sqrt(V / GOU_L) / 2;           // R0＝邊長的一半
 }
-const shapeRad = (sh, s) => sh.R1 + (sh.R0 - sh.R1) * (1 - s);
+const shapeRad = (sh, s) => sh.waist ? (s < sh.waist ? sh.R1 + (sh.R0 - sh.R1) * (1 - s / sh.waist) : sh.R1) : sh.R1 + (sh.R0 - sh.R1) * (1 - s);
 for (const sh of Object.values(SHAPES)) {
   const R = sh.R0, r = sh.R1, L = GOU_L;
-  sh.vol = sh.square ? 4 * R * R * L : sh.tail ? Math.PI / 3 * L * (R * R + R * r + r * r) : Math.PI * R * R * L;
+  sh.vol = sh.square ? 4 * R * R * L : sh.tail ? Math.PI / 3 * L * sh.waist * (R * R + R * r + r * r) : Math.PI * R * R * L;
   sh.area = sh.square ? 8 * R * L + 8 * R * R : sh.tail ? Math.PI * (R + r) * Math.hypot(L, R - r) + Math.PI * R * R : 2 * Math.PI * R * L + 2 * Math.PI * R * R;
   sh.top0 = 2 * R; sh.top1 = 2 * r;                       // 籠頂高度（笱口、尾端）
 }
@@ -352,8 +408,9 @@ let heightAt;
 const labels = [], waterTex = [];
 let walk = { on: false, yaw: 0, pitch: 0, vx: 0, vz: 0, keys: {} };
 let sim, flowIdx = 0, cur = { U: LAB.FLOW[0].U, off: 0 };
-const EXP = { form: 'diag', shape: 'cone', layers: 1, rocks: false, fill: 1, rope: true };
-const MAXU = 30;                         // 最多 30 組石笱（兩層時每組 2 個）
+const EXP = { form: 'arc', shape: 'cone', layers: 'auto', rocks: false, fill: 1, rope: true, bank: 'right', tie: 'lock', angle: 45 };
+let bankErosion = 0, bankWrong = null, burstRocks = null, burstN = 0, buildDemo = null;
+const MAXU = 60;                         // 最多 60 組石笱（每組底層 1 個＋上面最多疊 2 個；史實排法用 36 組）
 let units = [], selected = -1, records = [];
 let labWaterMat, canalWater, speedTex, cageMeshes = {}, stoneMeshes = [], rockMesh;
 let particles, splash, dots;
@@ -385,6 +442,10 @@ async function init() {
   buildLabels(osm);
   setupUI();
   flyTo(new URLSearchParams(location.search).get('view') || 'lab', 0);
+  { const q = new URLSearchParams(location.search); if (q.get('clear') === '1') document.querySelector('#clearSeg button[data-k="1"]').click();   // 除錯／截圖用
+    if (q.get('bank')) { EXP.bank = q.get('bank'); applyBankVis(); layoutChanged(); } if (q.get('tie')) setOpt('tie', q.get('tie')); if (q.get('flow')) setFlow(+q.get('flow'));
+    if (q.get('form')) setForm(q.get('form')); if (q.get('step')) { openPanel('build'); setBuildStep(+q.get('step')); camera.position.copy(camera.position); }
+    const c = q.get('cam'); if (c) { const [cs, cb, dx, dy, dz] = c.split(',').map(Number), [x, z] = toWorld(cs, cb); controls.target.set(x, LAB.L0, z); camera.position.set(x + LAB.t[0] * dx + LAB.bn[0] * dz, LAB.L0 + dy, z + LAB.t[1] * dx + LAB.bn[1] * dz); controls.update(); placeSunShadow(controls.target, 40); } }   // cam=s,b,往下游,高度,往河心
   const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
   frame();
   renderer.setAnimationLoop(frame);
@@ -475,16 +536,14 @@ function buildTerrainB(g, river) {
    實驗區：河道座標、地形修整（平整河床、北岸、圳口與土圳）
    ===================================================================== */
 function defineLab(river) {
-  const target = [2330, 3235];       // 沿用樣張：濁水溪主流靠北岸（林先生廟南方）
-  let k = 0, bd = 1e9; river.pts.forEach((p, i) => { const d = Math.hypot(p[0] - target[0], p[1] - target[1]); if (d < bd) { bd = d; k = i; } });
-  const c = river.pts[k], t = river.tan[k], nr = river.nor[k], half = river.width[k] * 0.5;
-  const north = (nr[1] < 0) ? nr : [-nr[0], -nr[1]];
-  Object.assign(LAB, {
-    k, half, t, bn: [-north[0], -north[1]],
-    A: [c[0] + north[0] * half - CX, c[1] + north[1] * half - CZ],   // 北岸基準點（world xz）
-    L0: river.level[k] - BASE_H,                                     // 平水水面高度（world y）
-    flowAng: Math.atan2(t[1], t[0]),
-  });
+  /* 2026-11-22 使用者決定：實驗區搬到真正的圳頭（1932 取入口制排水門的位置），照 1913 年〈濁水溪河川地形圖〉的配置：
+     水從東北沿山腳流來 → 北岸（b＝0）畫成直線，從上游的北岸 (3445,1262) 連到圳頭 (3323,1350)；圳口在圳頭；
+     南側是 1913 年那道堤的位置。實際的北岸在圳頭西北角往北凸出約 20 m，模擬只能用直線（限制）。
+     圳頭以下（s＞3）在 1913 年是往南的水路與主河床，模擬裡當作「沒被攔下的水繼續往下游流」 */
+  const t = [-0.807, 0.590], bn = [t[1], -t[0]], A = [3326 - CX, 1349 - CZ];
+  const hs = []; for (let s = -55; s <= 55; s += 5) for (let b = 5; b <= 50; b += 5) hs.push(heightAt(A[0] + t[0] * s + bn[0] * b, A[1] + t[1] * s + bn[1] * b));
+  hs.sort((a, b) => a - b);
+  Object.assign(LAB, { k: 0, half: 30, t, bn, A, L0: hs[Math.floor(hs.length * 0.3)] - 0.6, flowAng: Math.atan2(t[1], t[0]) });
 }
 const toWorld = (s, b) => [LAB.A[0] + LAB.t[0] * s + LAB.bn[0] * b, LAB.A[1] + LAB.t[1] * s + LAB.bn[1] * b];
 const toLab = (x, z) => { const dx = x - LAB.A[0], dz = z - LAB.A[1]; return [dx * LAB.t[0] + dz * LAB.t[1], dx * LAB.bn[0] + dz * LAB.bn[1]]; };
@@ -502,20 +561,20 @@ function applyLabTerrain(terr) {
   const NS = LAB.PS1 - LAB.PS0 + 1, NB = LAB.PB1 - LAB.PB0 + 1, H = new Float32Array(NS * NB);
   for (let jb = 0; jb < NB; jb++) for (let is = 0; is < NS; is++) {
     const s = LAB.PS0 + is, b = LAB.PB0 + jb, [x, z] = toWorld(s, b), hb = base(x, z);
-    const bed = L0 - 0.55 + 0.06 * Math.sin(s * 0.9 + b * 0.4) * Math.cos(b * 0.7 - s * 0.3);
-    const land = Math.max(hb, L0 + 1.0 + 0.16 * Math.max(0, -b));   // 岸邊要比洪水位（+2.0 m）高
+    const bed = L0 - depthAt(s, Math.max(b, 0)) + 0.06 * Math.sin(s * 0.9 + b * 0.4) * Math.cos(b * 0.7 - s * 0.3);   // 平水水深依 depthAt（越靠近圳頭越深，示意）
+    // 北岸：只有靠水的 14 m 內墊到平水 +1 m 以上（擋得住大水），再往岸上照真實地形（不再整片抬成平台）
+    const land = Math.max(hb, lerp(hb, L0 + 1.7 + 0.05 * Math.max(0, -b), smooth(-12, -5, b)));   // 北岸頂高出平水約 1.7 m（大水 +1.3 m 時還在岸內）
     let h = b >= 2 ? bed : lerp(bed, land, smooth(2, -6, b));
-    if (b < 3) { const d = distPoly(s, b, LAB.CANAL); h = Math.min(h, L0 - 0.45 + Math.max(0, d - 2.5) * 1.1); }
+    if (b < -0.5) {                                // 土圳斷面只做在岸上（b < −0.5）；溪裡維持原本的河床，不做圳岸、平台、土堤（使用者 2026-11-23 指出圳口凸出一塊，那是我誤把斷面套進溪裡，史料沒有圳口突堤）
+      const d = distPoly(s, b, LAB.CANAL), cb = L0 - 0.7, ct = L0 + 1.6;   // 圳岸頂高出平水 1.6 m
+      if (d < 2.4) h = cb; else if (d < 4.0) h = lerp(cb, ct, (d - 2.4) / 1.6); else if (d < 6.2) h = ct;   // 圳岸頂：2.2 m 寬的平台（固堤石笱放這裡）
+      else { if (d < 16) h = Math.min(h, ct + (d - 6.2) * 0.7); if (d < 9.5) h = Math.max(h, ct - (d - 6.2) * 0.45); }   // 靠山那側切成斜坡（不留陡壁）；地面低那側補土堤
+    }
     const w = smooth(LAB.PS1, LAB.PS1 - 12, Math.abs(s)) * smooth(LAB.PB0, LAB.PB0 + 12, b) * smooth(LAB.PB1, LAB.PB1 - 12, b);
-    H[jb * NS + is] = lerp(hb - 0.25, h, w);
+    H[jb * NS + is] = lerp(hb, h, w);
   }
   LAB.patch = { NS, NB, H };
-  // 主地形在修整範圍內壓低，由修整後的高解析地形覆蓋
-  const { NX, NZ, STEP, Y } = terr;
-  for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
-    const [s, b] = toLab(i * STEP - CX, j * STEP - CZ);
-    if (Math.abs(s) < LAB.PS1 - 12 && b > LAB.PB0 + 12 && b < LAB.PB1 - 12) Y[j * NX + i] -= 3;
-  }
+  // 主地形不再壓低：改成在主地形的著色器裡把實驗區範圍挖掉（discard），修整地形的邊緣又剛好等於主地形，交界不會有折痕或縫（使用者 2026-11-23 回報交界破圖）
   heightAt = (x, z) => {
     const [s, b] = toLab(x, z);
     if (s <= LAB.PS0 || s >= LAB.PS1 - 0.001 || b <= LAB.PB0 || b >= LAB.PB1 - 0.001) return base(x, z);
@@ -582,7 +641,16 @@ async function buildMaterialsAndTerrain(t) {
     pp[k * 3] = x; pp[k * 3 + 1] = H[k]; pp[k * 3 + 2] = z;
     pu[k * 2] = (x + CX) / W; pu[k * 2 + 1] = 1 - (z + CZ) / D;
   }
-  const patchMat = terrainMat.clone(); patchMat.onBeforeCompile = terrainMat.onBeforeCompile; patchMat.vertexColors = true;
+  const baseOBC = terrainMat.onBeforeCompile;
+  const patchMat = terrainMat.clone(); patchMat.onBeforeCompile = baseOBC; patchMat.vertexColors = true;
+  terrainMat.onBeforeCompile = sh => {                    // 主地形：實驗區範圍內不畫（由修整地形取代）
+    baseOBC(sh);
+    Object.assign(sh.uniforms, { uLA: { value: new THREE.Vector2(...LAB.A) }, uLT: { value: new THREE.Vector2(...LAB.t) }, uLBn: { value: new THREE.Vector2(...LAB.bn) },
+      uLR: { value: new THREE.Vector4(LAB.PS0 + 0.5, LAB.PS1 - 0.5, LAB.PB0 + 0.5, LAB.PB1 - 0.5) } });
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec2 uLA, uLT, uLBn; uniform vec4 uLR;')
+      .replace('#include <clipping_planes_fragment>', '{ vec2 dd = vW.xz - uLA; float ls = dot(dd, uLT), lb = dot(dd, uLBn); if (ls > uLR.x && ls < uLR.y && lb > uLR.z && lb < uLR.w) discard; }\n#include <clipping_planes_fragment>');
+  };
+  terrainMat.needsUpdate = true;
   const pgeo = gridGeometry(pp, pu, NS, NB, true); pgeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(NS * NB * 3).fill(1), 3));
   const pm = new THREE.Mesh(pgeo, patchMat); pm.receiveShadow = true;
   LAB.patchMesh = pm; LAB.patchY0 = Float32Array.from({ length: NS * NB }, (_, k) => pp[k * 3 + 1]);
@@ -667,8 +735,14 @@ async function buildWater(river) {
 /* ---------- 現有圳道（OSM） ---------- */
 function buildCanals(osm) {
   const geos = [], banks = [];
+  const inLab = q => { const [ss, bb] = toLab(q[0] - CX, q[1] - CZ); return ss > LAB.PS0 - 150 && ss < LAB.PS1 + 150 && bb > LAB.PB0 - 150 && bb < LAB.PB1 + 150; };   // 圳頭附近 150 m 內都不畫（清代沒有這些混凝土圳）
+  const runs = [];
   osm.lines.filter(l => l.kind === 'canal' && /^八堡/.test(l.name)).forEach(l => {
-    const pts = resample(l.pts, 4); if (pts.length < 2) return;
+    let cur = []; for (const q of resample(l.pts, 4)) { if (inLab(q)) { if (cur.length > 1) runs.push({ name: l.name, pts: cur }); cur = []; } else cur.push(q); }
+    if (cur.length > 1) runs.push({ name: l.name, pts: cur });      // 實驗區（清代圳頭）裡不畫現代圳道，碰到就切斷
+  });
+  runs.forEach(l => {
+    const pts = l.pts;
     const w = l.name === '八堡圳' ? 9 : 6.5;
     const P = [], I = [], B = [], BI = [];
     for (let i = 0; i < pts.length; i++) {
@@ -709,10 +783,10 @@ const waterY = (s, b) => LAB.L0 + cur.off * ramp(s, b);
    - 圳口底（進水的門檻）設在平水水面；進圳水量 ∝ 圳口前水面高出門檻的高度
    - 以「平水＋斜線導流」（圳口前約抬高 22 公分）當作「平時」＝ 1 倍 */
 const HK = () => (1 / 3) / (0.06 * 0.06) / 9.8 * cur.U * cur.U;
-const H_NORMAL = 0.22;
+const H_NORMAL = 0.30;                   // 「平時」＝平水＋弧線（史實）的圳口水位抬高（2026-11-22 用同一套流場在 Node 跑 4000 步：弧線 0.30、斜線 0.25、成排 0.25、空河道 0.01 m）
 function damBlock() {                    // 石笱陣擋住的水深比例
   const a = units.filter(u => !u.wash); if (!a.length) return 1;
-  return clamp(a.reduce((t, u) => t + u.top, 0) / a.length / (0.55 + cur.off), 0, 1);
+  return clamp(a.reduce((t, u) => t + Math.min(1, u.top / (depthAt(u.s, u.b) + cur.off)), 0) / a.length, 0, 1);
 }
 let qRel = 1, intakeRise = 0, blockNow = 1;
 function updateIntake(dt) {
@@ -728,12 +802,13 @@ function riseAt(s, b) {
   const rho = (R[c] * (1 - tx) + R[c + 1] * tx) * (1 - ty) + (R[c + sim.nx] * (1 - tx) + R[c + sim.nx + 1] * tx) * ty;
   return clamp((rho - 1) * HK() * blockNow, -0.6, 3) * ramp(s, b);
 }
-const canalWaterY = () => LAB.L0 - 0.1 + Math.min(1.7, 0.16 * Math.pow(qRel, 0.6));
+const canalWaterY = () => Math.min(LAB.L0 + 1.45, waterY(0, 2) + (sim ? riseAt(0, 2) : 0) - 0.03);   // 圳口的水位＝圳口前的溪水；不高過圳岸頂（平水 +1.6 m）
 function buildLabWater() {
-  const NS = 121, NB = 64, pos = [], uv = [], uv1 = [], rp = [], idx = [];
+  const NS = 121, NB = 64, pos = [], uv = [], uv1 = [], rp = [], idx = [], gd = [], ed = [];
   for (let j = 0; j < NB; j++) for (let i = 0; i < NS; i++) {
     const s = lerp(LAB.S0, LAB.S1, i / (NS - 1)), b = lerp(-8, LAB.B1, j / (NB - 1)), [x, z] = toWorld(s, b);
     pos.push(x, LAB.L0, z); uv.push((s - LAB.S0) / (LAB.S1 - LAB.S0), clamp(b / LAB.B1, 0, 1)); uv1.push(s / 30, b / 30); rp.push(ramp(s, b));
+    gd.push(heightAt(x, z) - 0.35); ed.push(smooth(0, 9, Math.min(LAB.S1 - Math.abs(s), LAB.B1 - b, b + 8)));   // 邊緣：往下彎進地面、變透明（不會像一塊布浮在空中）
     if (i < NS - 1 && j < NB - 1) { const a = j * NS + i; idx.push(a, a + NS, a + 1, a + 1, a + NS, a + NS + 1); }
   }
   const geo = new THREE.BufferGeometry();
@@ -741,6 +816,7 @@ function buildLabWater() {
   geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   geo.setAttribute('uv1', new THREE.Float32BufferAttribute(uv1, 2));
   geo.setAttribute('ramp', new THREE.Float32BufferAttribute(rp, 1));
+  geo.setAttribute('gnd', new THREE.Float32BufferAttribute(gd, 1)); geo.setAttribute('edge', new THREE.Float32BufferAttribute(ed, 1));
   geo.setIndex(idx); geo.computeVertexNormals();
   const nTex = waterTex[0].clone(); nTex.channel = 1; nTex.needsUpdate = true; waterTex.push(nTex);
   speedTex = new THREE.DataTexture(new Uint8Array(sim0().nx * sim0().ny * 4), sim0().nx, sim0().ny);
@@ -752,23 +828,23 @@ function buildLabWater() {
   labWaterMat.userData.uOff = { value: 0 };
   labWaterMat.onBeforeCompile = sh => {
     sh.uniforms.uOff = labWaterMat.userData.uOff; sh.uniforms.tSpeed = { value: speedTex };
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float ramp; uniform float uOff; uniform sampler2D tSpeed; varying vec2 vSp;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed.y += (uOff + (texture2D(tSpeed, uv).b * 255.0 - 128.0) / 40.0) * ramp; vSp = uv;');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D tSpeed; varying vec2 vSp;')
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float ramp; attribute float gnd; attribute float edge; uniform float uOff; uniform sampler2D tSpeed; varying vec2 vSp; varying float vEdge;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed.y += (uOff + (texture2D(tSpeed, uv).b * 255.0 - 128.0) / 40.0) * ramp; transformed.y = mix(min(gnd, transformed.y), transformed.y, edge); vSp = uv; vEdge = edge;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D tSpeed; varying vec2 vSp; varying float vEdge;')
       .replace('#include <map_fragment>', `#include <map_fragment>
         vec4 sp = texture2D(tSpeed, vSp);
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.47, 0.44, 0.39), sp.r * 0.3);
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.93, 0.92, 0.88), sp.g * 0.85);
-        diffuseColor.a = mix(diffuseColor.a, 0.96, sp.g);`);
+        diffuseColor.a = mix(diffuseColor.a, 0.96, sp.g) * mix(0.15, 1.0, vEdge);`);
   };
   const mesh = new THREE.Mesh(geo, labWaterMat); mesh.receiveShadow = true; mesh.renderOrder = 3;
   scene.add(mesh);
   // 土圳水面（示意）
-  const cp = resample(LAB.CANAL, 1), P = [], I = [], UV = [];
+  const cp = resample(LAB.CANAL, 1).filter(q => q[1] < 0.3), P = [], I = [], UV = [];   // 圳水從岸邊開始（溪裡已經有溪水，不要疊兩層）
   cp.forEach((p, i) => {
     const a = cp[Math.max(0, i - 1)], b = cp[Math.min(cp.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
     const ns = -dy / L, nb = dx / L, w = 2.9;
-    for (const sg of [-1, 1]) { const [x, z] = toWorld(p[0] + ns * w * sg, p[1] + nb * w * sg); P.push(x, 0, z); UV.push(i / 6, sg * 0.5); }
+    for (const sg of [-1, 1]) { const [x, z] = toWorld(p[0] + ns * w * sg, p[1] + nb * w * sg); P.push(x, -0.008 * i, z); UV.push(i / 6, sg * 0.5); }   // 往下游每公尺低 0.8 公分
     if (i) { const q = (i - 1) * 2; I.push(q, q + 2, q + 1, q + 1, q + 2, q + 3); }
   });
   const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); cg.setAttribute('uv', new THREE.Float32BufferAttribute(UV, 2)); cg.setIndex(I); cg.computeVertexNormals();
@@ -812,11 +888,24 @@ function buildCageGeometry(sh) {
   const parts = [], L = GOU_L, RIBS = 28;
   const pt = (s, th, dr = 0) => { const r0 = shapeRad(sh, s), r = r0 + dr, [c, si] = xsec(sh, th); return new THREE.Vector3(s * L, r0 + r * c, r * si); };
   const nrm = (s, th) => { const [c, si] = xsec(sh, th); return new THREE.Vector3(sh.tail ? 0.14 : 0, c, si).normalize(); };
-  // 縱向竹骨
+  // 縱向竹骨（筍形：到頂圈為止是籠身，過了頂圈竹條交錯、往外岔開）
   for (let k = 0; k < RIBS; k++) {
     const th = (k + 0.5) / RIBS * Math.PI * 2, P = [], N = [];
-    for (let i = 0; i <= 24; i++) { const s = i / 24; P.push(pt(s, th)); N.push(nrm(s, th)); }
+    if (!sh.waist) { for (let i = 0; i <= 24; i++) { const s = i / 24; P.push(pt(s, th)); N.push(nrm(s, th)); } }
+    else {
+      const w = sh.waist, tipR = 0.4 + 0.08 * ((k * 7) % 3), end = 1 - 0.03 * ((k * 5) % 4);
+      for (let i = 0; i <= 20; i++) { const s = i / 20 * w; P.push(pt(s, th)); N.push(nrm(s, th)); }
+      for (let i = 1; i <= 8; i++) {
+        const t = i / 8, s = w + (end - w) * t, rho = lerp(sh.R1, -tipR, t), cy = lerp(sh.R1, tipR * 0.8, t);
+        P.push(new THREE.Vector3(s * L, cy + rho * Math.cos(th), rho * Math.sin(th))); N.push(new THREE.Vector3(0.3, Math.cos(th), Math.sin(th)).normalize());
+      }
+    }
     strip(P, N, 0.05, parts, k * 0.37);
+  }
+  if (sh.waist) {   // 頂圈：竹條從這裡穿過去、交叉卡住
+    const P = [], N = [];
+    for (let i = 0; i <= 48; i++) { const th = i / 48 * Math.PI * 2; P.push(pt(sh.waist, th, 0.03)); N.push(nrm(sh.waist, th)); }
+    strip(P, N, 0.12, parts, 9);
   }
   // 橫向箍圈
   sh.hoops.forEach((s, h) => {
@@ -841,11 +930,6 @@ function buildCageGeometry(sh) {
       }
     }
   }
-  if (sh.tail) {   // 尾端綁束
-    const tail = new THREE.CylinderGeometry(0.07, 0.05, 0.45, 10, 1, true); tail.rotateZ(Math.PI / 2); tail.translate(L + 0.15, sh.R1, 0);
-    const tuv = tail.attributes.uv; for (let i = 0; i < tuv.count; i++) tuv.setXY(i, tuv.getX(i) * 0.5, tuv.getY(i) * 0.12);
-    parts.push(tail);
-  }
   return mergeGeometries(parts);
 }
 function rockGeometry(seed, detail = 1) {
@@ -862,7 +946,7 @@ function rockGeometry(seed, detail = 1) {
   return g;
 }
 let stoneMat;
-const STONES_PER = 160, STONE_GEOS = 2, PER_G = STONES_PER / STONE_GEOS, MAXI = MAXU * 2;
+const STONES_PER = 110, STONE_GEOS = 2, PER_G = STONES_PER / STONE_GEOS, MAXI = MAXU * 3;
 const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
 const UPPER = {};                        // 第二層石笱相對於下層的擺放（壓在下層籠頂上）
 async function buildCages() {
@@ -891,8 +975,101 @@ async function buildCages() {
   for (let k = 0; k < MAXU * 44; k++) { const v = 0.3 + rc() * 0.3; col.setRGB(v * 0.95, v, v * 1.04); rockMesh.setColorAt(k, col); }
   rockMesh.count = 0; scene.add(rockMesh);
   regenStones();
-  units = FORMS[EXP.form].pts().map(p => makeUnit(p[0], p[1]));
+  units = FORMS[EXP.form].pts().map(p => makeUnit(p[0], p[1], p[2]));
   layoutChanged(false);
+  buildBankCages(cageMat);
+}
+/* 岸邊的八尺固堤（導覽員：八尺護圳岸，擺法和導水的相反——垂直岸邊、大口朝水道、尖端朝外）。
+   放在岸頂：平常水碰不到，水漲高時擋住、不讓水漫出岸外（使用者 2026-11-23 指正：原本放在水邊、太低）。
+   圳頭上游的北岸 s −45〜−4，以及圳頭往下游的土圳兩岸約 25 m。只是畫面，沒有放進流場計算 */
+let bankMesh = null;
+function buildBankCages(cageMat) { bankMesh = buildBankSet(cageMat, false); bankWrong = buildBankSet(cageMat, true); applyBankVis();
+  burstRocks = new THREE.InstancedMesh(rockGeometry(57), stoneMat, MAXU * 40); burstRocks.castShadow = true; burstRocks.frustumCulled = false;
+  for (let k = 0; k < MAXU * 40; k++) burstRocks.setMatrixAt(k, ZERO); scene.add(burstRocks); }
+function applyBankVis() { bankMesh.forEach(m => m.visible = EXP.bank === 'right'); bankWrong.forEach(m => m.visible = EXP.bank === 'wrong'); }
+function buildBankSet(cageMat, wrong) {
+  const sh = SHAPES.cone, k = SIZE[8], D = sh.top0 * k, len = GOU_L * k * sh.waist, list = [];
+  const add = (s, b, os, ob) => {                       // (os, ob)＝尖端朝的方向（實驗區座標）；放反了＝笱口在岸上、尖端朝水
+    if (wrong) { const [cs, cb] = [s + os * len, b + ob * len]; s = cs; b = cb; os = -os; ob = -ob; }
+    const [x, z] = toWorld(s, b), dx = LAB.t[0] * os + LAB.bn[0] * ob, dz = LAB.t[1] * os + LAB.bn[1] * ob;
+    const y0 = heightAt(x, z) - 0.06, y1 = heightAt(x + dx * len, z + dz * len) - 0.06;
+    _q.setFromEuler(_e.set(0, Math.atan2(-dz, dx), clamp(Math.atan2(y1 - y0, len), -0.1, 0.52), 'YXZ'));   // 順著岸坡躺，最多斜 30°
+    list.push(new THREE.Matrix4().compose(new THREE.Vector3(x, y0, z), _q, new THREE.Vector3(k, k, k)));
+  };
+  /* 沿著「岸頂線」本身等距排（轉彎、岸頂線彎來彎去時也一樣緊密）；out(s, b) 回傳 true 的那一側是尖端要朝的方向 */
+  const along = (line, out) => {
+    const rs = resample(line, D * 0.98);
+    for (let i = 0; i < rs.length; i++) {
+      const a = rs[Math.max(0, i - 1)], c = rs[Math.min(rs.length - 1, i + 1)], L = Math.hypot(c[0] - a[0], c[1] - a[1]) || 1;
+      let os = -(c[1] - a[1]) / L, ob = (c[0] - a[0]) / L;
+      if (!out(rs[i][0] + os * 0.6, rs[i][1] + ob * 0.6, rs[i])) { os = -os; ob = -ob; }
+      add(rs[i][0], rs[i][1], os, ob);
+    }
+  };
+  // 北岸：每 0.5 m 找岸頂邊緣（地面高出平水 1.45 m），再平滑一下，沿這條線排；尖端朝岸裡（b 變小的那側）
+  const crest = [];
+  for (let s = -46; s <= -3; s += 0.5) { let b = 2; while (b > -14) { const [x, z] = toWorld(s, b); if (heightAt(x, z) > LAB.L0 + 1.45) break; b -= 0.1; } crest.push([s, b]); }
+  const sm = crest.map((q, i) => { let t = 0, n = 0; for (let j = Math.max(0, i - 4); j <= Math.min(crest.length - 1, i + 4); j++) { t += crest[j][1]; n++; } return [q[0], t / n]; });
+  along(sm, (ps, pb, q) => pb < q[1]);
+  // 土圳兩岸：圳岸頂內緣（離圳中心 4 m）的線，只取在岸上的部分（b ≤ −2.5，不伸進溪裡）、避開石笱壩的壩根，各排約 25 m；尖端朝外（離圳越遠的那側）
+  const cp = resample(LAB.CANAL, 0.5);
+  for (const sg of [-1, 1]) {
+    const line = []; let run = 0;
+    for (let i = 1; i < cp.length - 1; i++) {
+      const a = cp[i - 1], c = cp[i + 1], L = Math.hypot(c[0] - a[0], c[1] - a[1]) || 1, q = [cp[i][0] - (c[1] - a[1]) / L * sg * 4.0, cp[i][1] + (c[0] - a[0]) / L * sg * 4.0];
+      const ok = q[1] <= -2.5 && Math.hypot(q[0] - 6.5, q[1] - 0.45) > 6;
+      if (ok) { if (line.length) run += Math.hypot(q[0] - line[line.length - 1][0], q[1] - line[line.length - 1][1]); line.push(q); if (run > 25) break; }
+      else if (line.length) break;
+    }
+    if (line.length > 1) along(line, (ps, pb) => distPoly(ps, pb, LAB.CANAL) > 4.0);
+  }
+  const cages = new THREE.InstancedMesh(buildCageGeometry(sh), cageMat, list.length); cages.castShadow = cages.receiveShadow = true;
+  list.forEach((m, i) => cages.setMatrixAt(i, m));
+  const rr = rng(77), per = 26, rocks = new THREE.InstancedMesh(rockGeometry(66), stoneMat, list.length * per), col = new THREE.Color(); let n = 0;
+  list.forEach(m => { for (let j = 0; j < per; j++) {
+    const sv = 0.03 + rr() * sh.waist * 0.95, r = shapeRad(sh, sv), a = rr() * 6.283, rad = Math.sqrt(rr()) * r * 0.75, sz = (0.12 + rr() * 0.1) * clamp(r / 0.5, 0.4, 1.1);
+    rocks.setMatrixAt(n, m.clone().multiply(new THREE.Matrix4().compose(new THREE.Vector3(sv * GOU_L, r + Math.cos(a) * rad, Math.sin(a) * rad), new THREE.Quaternion().setFromEuler(new THREE.Euler(rr() * 6, rr() * 6, rr() * 6)), new THREE.Vector3(sz, sz, sz))));
+    const v = 0.3 + rr() * 0.28; col.setRGB(v * 0.93, v * 0.97, v * 1.04); rocks.setColorAt(n++, col); } });
+  rocks.castShadow = true; scene.add(cages, rocks); cages.userData.base = list; return [cages, rocks];
+}
+/* 建造流程示範（說明卡「石笱怎麼做、怎麼放？」）：在上游北岸邊，一步一步出現 */
+function buildBuildDemo() {
+  const sh = SHAPES.cone, k = SIZE[10], g = new THREE.Group(), geo = buildCageGeometry(sh), mat = cageMeshes.cone.material;
+  const at = (s, b, lift = 0) => { const [x, z] = toWorld(s, b); return new THREE.Vector3(x, Math.max(heightAt(x, z), LAB.L0 - depthAt(s, b)) - 0.06 + lift, z); };
+  const yaw = -LAB.flowAng, cage = () => { const m = new THREE.Mesh(geo, mat); m.scale.setScalar(k); m.castShadow = true; g.add(m); return m; };
+  const D = sh.top0 * k, spots = [[-54, 4], [-54, 4 + D * 0.98], [-54, 4 + D * 1.96]];
+  // 1 岸邊直立的竹籠
+  const stand = cage(); const sp = at(-58, -4); stand.position.copy(sp); stand.rotation.set(0, yaw, Math.PI / 2);
+  // 2 躺好的空籠（從岸邊扛過去）、5 旁邊再一個、上層交錯
+  const lie = [cage(), cage(), cage()]; lie.forEach((c, i) => { c.position.copy(at(...spots[i])); c.rotation.set(0, yaw, 0); });
+  const up = cage(); const pu = at(-54, 4 + D * 0.49); up.position.set(pu.x, pu.y + 0.866 * D, pu.z); up.rotation.set(0, yaw, Math.atan2((sh.top1 - sh.top0) * 0.6, GOU_L * sh.waist));
+  // 3 平台、牛車（示意方塊）
+  const wood = new THREE.MeshStandardMaterial({ color: 0x8b6b45, roughness: 0.9 }), plat = new THREE.Group(); g.add(plat);
+  const deck = new THREE.Mesh(new THREE.BoxGeometry(4, 0.15, 2.4), wood); deck.position.copy(at(-52, 2, 1.4)); deck.rotation.y = yaw; plat.add(deck);
+  for (const [ds, db] of [[-1.8, -1], [1.8, -1], [-1.8, 1], [1.8, 1]]) { const l = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.6, 0.15), wood); l.position.copy(at(-52 + ds, 2 + db, 0.7)); plat.add(l); }
+  const cart = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.7, 1.4), wood); cart.position.copy(at(-50, -5, 0.7)); cart.rotation.y = yaw; plat.add(cart);
+  // 4 籠裡的卵石
+  const rr = rng(31), per = 46, rocks = new THREE.InstancedMesh(rockGeometry(71), stoneMat, per * 4); let n = 0;
+  [...lie, up].forEach(c => { c.updateMatrix(); for (let j = 0; j < per; j++) { const sv = 0.03 + rr() * sh.waist * 0.9, r = shapeRad(sh, sv), a = rr() * 6.283, rad = Math.sqrt(rr()) * r * 0.75, sz = (0.12 + rr() * 0.1) * clamp(r / 0.5, 0.4, 1.1) / k;
+    rocks.setMatrixAt(n++, c.matrix.clone().multiply(new THREE.Matrix4().compose(new THREE.Vector3(sv * GOU_L, r + Math.cos(a) * rad, Math.sin(a) * rad), new THREE.Quaternion().setFromEuler(new THREE.Euler(rr() * 6, rr() * 6, rr() * 6)), new THREE.Vector3(sz, sz, sz)))); } });
+  g.add(rocks);
+  // 6 麻布袋
+  const sackM = new THREE.MeshStandardMaterial({ color: 0xb59a6a, roughness: 1 }), sacks = new THREE.Group(); g.add(sacks);
+  for (let i = 0; i < 2; i++) { const sk = new THREE.Mesh(new THREE.SphereGeometry(0.32, 10, 8), sackM); sk.scale.set(1.3, 0.6, 0.8); const q = at(-54 + 1.6, 4 + D * (0.49 + i * 0.98), 0.25); sk.position.copy(q); sacks.add(sk); }
+  g.visible = false; scene.add(g);
+  buildDemo = { g, stand, lie, up, plat, rocks, sacks, from: sp, to: lie[0].position.clone() };
+}
+function setBuildStep(i) {
+  if (!buildDemo) buildBuildDemo();
+  const B = buildDemo; B.g.visible = true;
+  B.stand.visible = i === 0; B.lie[0].visible = i >= 1; B.lie[1].visible = B.lie[2].visible = B.up.visible = i >= 4;
+  B.plat.visible = i === 2 || i === 3; B.rocks.visible = i >= 3; B.rocks.count = i >= 4 ? B.rocks.instanceMatrix.count : 46; B.sacks.visible = i >= 5;
+  if (i === 1) { B.lie[0].position.copy(B.from); gsap.to(B.lie[0].position, { x: B.to.x, y: B.to.y, z: B.to.z, duration: 2, ease: 'power2.inOut' }); }
+  else B.lie[0].position.copy(B.to);
+  document.querySelectorAll('.stepbtns button').forEach((b, k) => b.classList.toggle('on', k === i));
+  const t = document.getElementById('bsTxt'); if (t) t.innerHTML = `<strong>${i + 1}. ${BUILD_STEPS[i][0]}</strong><br>${BUILD_STEPS[i][1]}` + (i === 2 || i === 4 || i === 5 ? '<br><span class="oral">口述</span>' : '');
+  const [x, z] = toWorld(-54, 3), tg = new THREE.Vector3(x, LAB.L0, z), cp = tg.clone().add(new THREE.Vector3(LAB.t[0] * 9 + LAB.bn[0] * 9, 5, LAB.t[1] * 9 + LAB.bn[1] * 9));
+  placeSunShadow(tg, 30); gsap.to(camera.position, { x: cp.x, y: cp.y, z: cp.z, duration: 1.4 }); gsap.to(controls.target, { x: tg.x, y: tg.y, z: tg.z, duration: 1.4, onUpdate: () => controls.update() });
 }
 /* 籠內卵石：依形狀與裝石量重新排列 */
 function regenStones() {
@@ -902,49 +1079,53 @@ function regenStones() {
     for (let slot = 0; slot < MAXI; slot++) for (let j = 0; j < PER_G; j++) {
       let s, r, y, z, tries = 0;
       do {
-        s = 0.02 + rr() * 0.95; r = shapeRad(sh, s);
+        s = 0.02 + rr() * 0.95 * (sh.waist || 1); r = shapeRad(sh, s);
         if (sh.square) { y = (rr() * 2 - 1) * r * 0.8; z = (rr() * 2 - 1) * r * 0.8; }
         else { const a = rr() * Math.PI * 2, rad = Math.sqrt(rr()) * r * 0.78; y = Math.cos(a) * rad; z = Math.sin(a) * rad; }
       } while (y > r * (2 * f - 1) && ++tries < 30);
-      const size = (0.11 + rr() * 0.09) * clamp(r / 0.6, 0.4, 1.1) * big;
+      const size = (0.11 + rr() * 0.09) * clamp(r / 0.6, 0.4, 1.1) * big / SIZE[10];   // 卵石不因籠子短就變小：除以縮放倍數，畫出來還是真實大小
       loc.push(new THREE.Matrix4().compose(new THREE.Vector3(s * GOU_L, r + y, z),
         new THREE.Quaternion().setFromEuler(new THREE.Euler(rr() * 6, rr() * 6, rr() * 6)), new THREE.Vector3(size, size, size)));
     }
   }
 }
-function makeUnit(s, b) {
-  return { s, b, uE: 0, ratio: 0, gr: 0, redT: 0, state: 'ok', wash: 0, washDir: R() < 0.5 ? -1 : 1, push: 0, grip: 0, gp: 0, gg: 0,
-    scour: 0, cause: '', nb: [], upper: null, upH: 0, top: 0, jit: [(R() - 0.5) * 0.04, (R() - 0.5) * 0.05], base: new THREE.Matrix4(), bedY: 0 };
+function makeUnit(s, b, k = SIZE[10]) {
+  return { s, b, k, n: 1, uE: 0, ratio: 0, gr: 0, redT: 0, state: 'ok', wash: 0, washDir: R() < 0.5 ? -1 : 1, push: 0, grip: 0, gp: 0, gg: 0,
+    scour: 0, cause: '', nb: [], uppers: [], top: 0, jit: [(R() - 0.5) * 0.04, (R() - 0.5) * 0.05], base: new THREE.Matrix4(), bedY: 0 };
 }
-const _m = new THREE.Matrix4(), _m2 = new THREE.Matrix4(), _m3 = new THREE.Matrix4();
+const _m = new THREE.Matrix4(), _m2 = new THREE.Matrix4(), _m3 = new THREE.Matrix4(), _mS = new THREE.Matrix4();
 const _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _sc = new THREE.Vector3(1, 1, 1), _e = new THREE.Euler();
-const LINK = 3.8;                                    // 笱口距離小於此值視為相鄰（可綁串聯）
-const sideBySide = (u, v) => !!(u && v) && Math.abs(u.s - v.s) < 1 && Math.abs(u.b - v.b) < 2 * SHAPES[EXP.shape].R0 + 1.2;
-function linkUnits() {
-  units.forEach((u, i) => { u.nb = []; units.forEach((v, j) => { if (i !== j && Math.hypot(u.s - v.s, u.b - v.b) < LINK) u.nb.push(j); }); });
+/* 平水時的水深（示意）：越靠近圳頭越深（導覽員：十二尺放在開挖的圳口，水比較深）。河床地形、層數、受力都用它 */
+/* 圳頭 14 m 內是開挖的圳口（約 1.7–1.9 m），往外由 1.4 m 漸淺到 0.7 m，34 m 以外約 0.6 m。數字是示意，依這個分出「圳頭三層、中段兩層、外側一層」 */
+const depthAt = (s, b) => { if (b < 0) return 0; const r = Math.hypot(s, b);
+  return r <= 14 ? lerp(1.9, 1.7, clamp((r - 8) / 6, 0, 1)) : r <= 34 ? lerp(1.38, 0.7, (r - 14) / 20) : 0.6; };
+const cageD = u => SHAPES[EXP.shape].top0 * u.k;                     // 石笱躺著的高度（約等於口徑）
+const layerRise = u => (SHAPES[EXP.shape].square ? 1 : 0.866) * cageD(u);   // 上層放在下層兩個中間：每多一層高 0.866 倍口徑（方盒只能直接疊）
+const stackTop = (u, n) => cageD(u) + (n - 1) * layerRise(u);
+/* 層數：「依水深」＝疊到石笱頂比平水水面高為止（最多 3 層）；也可以固定一層、兩層來比較 */
+function layerCount(u) {
+  if (EXP.layers !== 'auto') return EXP.layers;
+  const d = depthAt(u.s, u.b); let n = 1; while (n < 3 && stackTop(u, n) < d) n++; return n;
 }
-function placeUnit(i) {                  // 依 s、b 算出靜止位置與上層石笱
+const near = (u, v) => !!(u && v) && Math.hypot(u.s - v.s, u.b - v.b) < 0.8 * (cageD(u) + cageD(v)) + 0.3;
+function linkUnits() {                                                // 藤繩串聯：碰在一起的才算相鄰
+  units.forEach((u, i) => { u.nb = []; units.forEach((v, j) => { if (i !== j && near(u, v)) u.nb.push(j); }); });
+}
+function placeUnit(i) {                  // 依 s、b 算出靜止位置；上層石笱交錯疊在下層兩個的中間
   const u = units[i], sh = SHAPES[EXP.shape], [x, z] = toWorld(u.s, u.b);
   u.bedY = heightAt(x, z) - 0.08;
   _q.setFromEuler(_e.set(u.jit[0], -LAB.flowAng + u.jit[1], 0, 'YXZ'));
   u.base.compose(_p.set(x, u.bedY, z), _q, _sc);
-  u.upper = null; u.upH = 0; u.top = sh.top0;
-  if (EXP.layers === 2) {
-    const v = units[i + 1], prev = units[i - 1];
-    if (!sh.square && sideBySide(u, v)) {
-      // 並排時，上層卡在兩個下層石笱之間的 V 形溝槽（依工程圖「上層叉篊」交錯）
-      const d = Math.abs(u.b - v.b), Rr = sh.R0, hb = Math.sqrt(Math.max(0, 4 * Rr * Rr - d * d / 4));
-      const [mx, mz] = toWorld((u.s + v.s) / 2, (u.b + v.b) / 2);
-      const loc = new THREE.Vector3(mx, u.bedY, mz).applyMatrix4(u.base.clone().invert());
-      const pitch = Math.atan2((sh.top1 - sh.top0) * (hb / (2 * Rr) || 0.5), GOU_L);
-      u.upper = new THREE.Matrix4().makeTranslation(loc.x, hb - 0.03, loc.z).multiply(new THREE.Matrix4().makeRotationZ(pitch));
-      u.upH = hb;
-    } else if (sh.square || !sideBySide(prev, u)) {
-      // 不是並排（或方盒）：直接疊在正上方
-      u.upper = UPPER[EXP.shape]; u.upH = sh.top0;
-    }
-    if (u.upper) u.top = u.upH + sh.top0;
-    else if (prev && prev.upper) u.top = prev.top;
+  u.uppers = []; u.top = stackTop(u, u.n);
+  const inv = u.base.clone().invert(), pitch = sh.tail ? Math.atan2((sh.top1 - sh.top0) * 0.6, GOU_L * sh.waist) : 0;
+  for (let l = 1; l < u.n; l++) {
+    const chain = units.slice(i, i + l + 1);
+    if (chain.length < l + 1 || chain.some((v, j) => v.n <= l || (j && !near(chain[j - 1], v)))) break;
+    const wts = l === 1 ? [0.5, 0.5] : [0.25, 0.5, 0.25];             // 第二層在兩個中間；第三層在第二層兩個的中間
+    let px = 0, pz = 0, py = 0, k = 9;
+    chain.forEach((v, j) => { const [vx, vz] = toWorld(v.s, v.b); px += vx * wts[j]; pz += vz * wts[j]; py += v.bedY * wts[j]; k = Math.min(k, v.k); });
+    const W = new THREE.Matrix4().compose(new THREE.Vector3(px, py + l * (sh.square ? 1 : 0.866) * sh.top0 * k - 0.03, pz), _q, _sc).multiply(new THREE.Matrix4().makeRotationZ(pitch));
+    u.uppers.push({ rel: inv.clone().multiply(W), k });
   }
   setUnitMatrix(i, u.base);
 }
@@ -956,19 +1137,34 @@ function writeSlot(im, slot, M) {
     sm.instanceMatrix.needsUpdate = true;
   }
 }
+/* M＝底層石笱的位置與方向（不含縮放）；縮放與上層在這裡套上 */
 function setUnitMatrix(i, M) {
   const im = cageMeshes[EXP.shape], u = units[i];
-  writeSlot(im, i, M);
-  writeSlot(im, MAXU + i, M && u && u.upper ? _m2.multiplyMatrices(M, u.upper) : null);
+  writeSlot(im, i * 3, M && u ? new THREE.Matrix4().multiplyMatrices(M, _mS.makeScale(u.k, u.k, u.k)) : null);
+  for (let j = 0; j < 2; j++) { const up = M && u && u.uppers[j]; let W = null;
+    if (up && u.wash > 0) {              // 底層被沖走／倒下：上層不跟著翻滾，各自掉下來躺在旁邊的河床上（原本會被甩到空中）
+      const e = 1 - Math.pow(1 - Math.min(1, u.wash), 2.2), [s0, b0] = toLab(u.base.elements[12], u.base.elements[14]);
+      const ss = s0 + 2.5 * e * (j + 1), bb = b0 + u.washDir * cageD(u) * (j + 1) * 1.05, [x, z] = toWorld(ss, bb);
+      W = new THREE.Matrix4().compose(_p.set(x, heightAt(x, z) - 0.08, z), _q.setFromEuler(_e.set(0, -LAB.flowAng + 0.4 * e * u.washDir * (j ? -1 : 1), 0, 'YXZ')), _sc).multiply(_mS.makeScale(up.k, up.k, up.k));
+    } else if (up) W = new THREE.Matrix4().multiplyMatrices(M, up.rel).multiply(_mS.makeScale(up.k, up.k, up.k));
+    writeSlot(im, i * 3 + 1 + j, W); }
 }
 /* 只重新擺放（保留受力狀態）：自由擺放新增、拖曳後 */
 function relayout() {
   linkUnits();
+  units.forEach(u => { u.n = layerCount(u); });
   for (let i = 0; i < MAXU; i++) i < units.length ? placeUnit(i) : setUnitMatrix(i, null);
+  const n3 = Math.min(MAXI, units.length * 3);                         // 只畫用到的位置（沒用到的不送去繪圖，畫面才順）
+  for (const im of Object.values(cageMeshes)) im.count = n3;
+  for (const sm of stoneMeshes) sm.count = n3 * PER_G;
   buildRockApron(); refreshHighlight(); updateGouLabel();
 }
 /* 陣形或設定改變：全部重新排好 */
 function layoutChanged(sim_ = true) {
+  bankErosion = 0; burstN = 0; if (burstRocks) { for (let k = 0; k < burstRocks.count; k++) burstRocks.setMatrixAt(k, ZERO); burstRocks.instanceMatrix.needsUpdate = true; }
+  units.forEach(u => { u.looseT = 0; });
+  if (bankWrong) { const [cg, rk] = bankWrong; cg.userData.base.forEach((B, i) => cg.setMatrixAt(i, B)); cg.instanceMatrix.needsUpdate = true; rk.visible = EXP.bank === 'wrong'; }
+  holesDirty = true;
   for (const [k, im] of Object.entries(cageMeshes)) im.visible = k === EXP.shape;
   units.forEach(u => { u.wash = 0; u.state = 'ok'; u.redT = 0; u.uE = 0; u.ratio = 0; u.gr = 0; u.scour = 0; u.cause = ''; });
   if (LAB.patchMesh) applyHoles();      // 重建時把坑填平
@@ -982,8 +1178,8 @@ function buildRockApron() {
   if (EXP.rocks) for (const u of units) {
     for (let k = 0; k < 44; k++) {
       let s, b;
-      if (k < 26) { s = u.s + GOU_L * 0.8 + rr() * 3.4; b = u.b + (rr() * 2 - 1) * 1.4; }
-      else { const t = rr(); s = u.s + t * GOU_L; b = u.b + (rr() < 0.5 ? -1 : 1) * (shapeRad(sh, t) + 0.05 + rr() * 0.4); }
+      if (k < 26) { s = u.s + GOU_L * u.k * 0.8 + rr() * 2.4; b = u.b + (rr() * 2 - 1) * 0.9; }
+      else { const t = rr(); s = u.s + t * GOU_L * u.k; b = u.b + (rr() < 0.5 ? -1 : 1) * (shapeRad(sh, t) * u.k + 0.05 + rr() * 0.3); }
       const [x, z] = toWorld(s, b), sz = 0.12 + rr() * 0.17;
       _m.compose(_p.set(x, heightAt(x, z) + sz * 0.15, z), _q.setFromEuler(_e.set(rr() * 6, rr() * 6, rr() * 6)), new THREE.Vector3(sz, sz * 0.8, sz));
       rockMesh.setMatrixAt(n++, _m);
@@ -1023,14 +1219,17 @@ function setupSim() {
 /* 石笱的透水阻尼：大水漫過一層石笱時，擋水效果變小 */
 /* 石笱的透水阻尼：水漫過石笱頂時，擋水效果變小 */
 // 擋住的比例＝石笱高度 ÷ 水深：水比石笱淺就整個擋住；水漫過頂，越深擋得越少（疊兩層就擋得住深水）
-const unitAlpha = u => 0.5 * Math.pow(clamp(u.top / (LAB.FLOW[flowIdx].off + 0.55), 0.15, 1), 1.5);
+const unitAlpha = u => 0.8 * Math.pow(clamp(u.top / (LAB.FLOW[flowIdx].off + depthAt(u.s, u.b)), 0.15, 1), 1.5);
 function updateObstacles() {
   const C = LAB.CELL, sh = SHAPES[EXP.shape], list = [];
   for (const u of units) {
     if (u.wash) continue;
     const i = (u.s - LAB.S0) / C, j = u.b / C;
-    list.push({ i, j, ang: 0, len: GOU_L / C, r0: sh.R0 / C, r1: Math.max(sh.R1, 0.1) / C, alpha: unitAlpha(u) });
-    if (EXP.rocks) list.push({ i, j, ang: 0, len: (GOU_L + 3.2) / C, r0: (sh.R0 + 0.4) / C, r1: (sh.R0 + 0.4) / C, alpha: 0.3 });
+    const k = u.k, len = GOU_L * k * (sh.waist || 1);
+    // 流場裡的佔地：石笱左右碰在一起、上層交錯補住尾端之間的縫，整道壩是連續的透水帶 → 每個用「口徑寬（略放大才接得起來）× 籠身長」的長方形
+    const half = Math.max(sh.R0 * k * 1.15, C * 0.55);
+    list.push({ i, j, ang: 0, len: len / C, r0: half / C, r1: half / C, alpha: unitAlpha(u) });
+    if (EXP.rocks) list.push({ i, j, ang: 0, len: (len + 3.2) / C, r0: (sh.R0 * k + 0.4) / C, r1: (sh.R0 * k + 0.4) / C, alpha: 0.3 });
   }
   sim.setObstacles(list);
 }
@@ -1044,7 +1243,7 @@ function buildArrows() {
   const sh = new THREE.Shape();
   sh.moveTo(0, 0.55); sh.lineTo(0.6, 0); sh.lineTo(0.25, 0); sh.lineTo(0.25, -0.75); sh.lineTo(-0.25, -0.75); sh.lineTo(-0.25, 0); sh.lineTo(-0.6, 0); sh.closePath();
   const g = new THREE.ShapeGeometry(sh); g.rotateX(-Math.PI / 2);          // 平放，箭頭指向 −z
-  arrowPath = resample([[5, 7], [5, 1.5], ...LAB.CANAL.slice(1)], 0.5); arrowLen = arrowPath.length;
+  arrowPath = resample([[0, 7], [0, 1.5], ...LAB.CANAL.slice(1)], 0.5); arrowLen = arrowPath.length;   // 從圳口（s 0）進土圳
   for (let i = 0; i < ARROW_MAX; i++) {
     const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide }));
     m.renderOrder = 7; m.visible = false; scene.add(m); arrows.push(m);
@@ -1156,7 +1355,7 @@ function updateSplash(dt) {
     const u = c.uE, rate = 14 * Math.pow(Math.max(0, u - 0.6), 1.6);
     let n = rate * dt; while (n > 0) {
       if (Math.random() < n) {
-        const off = (Math.random() * 2 - 1) * sh.R0 * 0.9;
+        const off = (Math.random() * 2 - 1) * sh.R0 * c.k * 0.9;
         emit(c.s - 0.1, c.b + off, waterY(c.s, c.b) + 0.05, -0.15 * u + (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.8, 0.5 + Math.random() * 0.35 * u, 0.4 + Math.random() * 0.5);
       }
       n -= 1;
@@ -1164,7 +1363,7 @@ function updateSplash(dt) {
     if (over) {                          // 水漫過石笱頂，形成白色越流
       let m = 10 * cur.off * dt * Math.max(0, u - 0.8);
       while (m > 0) {
-        if (Math.random() < m) { const ss = Math.random() * 0.8; emit(c.s + ss * GOU_L, c.b + (Math.random() - 0.5) * shapeRad(sh, ss) * 1.6, waterY(c.s, c.b) + 0.03, u * 0.6, (Math.random() - 0.5) * 0.4, 0.25 + Math.random() * 0.3, 0.5 + Math.random() * 0.5); }
+        if (Math.random() < m) { const ss = Math.random() * 0.8; emit(c.s + ss * GOU_L * c.k, c.b + (Math.random() - 0.5) * shapeRad(sh, ss) * c.k * 1.6, waterY(c.s, c.b) + 0.03, u * 0.6, (Math.random() - 0.5) * 0.4, 0.25 + Math.random() * 0.3, 0.5 + Math.random() * 0.5); }
         m -= 1;
       }
     }
@@ -1217,11 +1416,21 @@ function updateHoleRings() {
     m.scale.set(2.2 * (0.5 + 0.5 * k), 1, rb * (0.5 + 0.5 * k)); m.material.opacity = 0.35 + 0.6 * k;
   });
 }
-function holeCenter(u) { const sh = SHAPES[EXP.shape]; return [u.s + GOU_L * (sh.tail ? 0.9 : 1) + (sh.tail ? 0.4 : 0.9), u.b, sh.tail ? 1.3 : sh.R0 + 0.9]; }
+function holeCenter(u) { const sh = SHAPES[EXP.shape], k = u.k; return [u.s + GOU_L * k * (sh.waist || 1) + (sh.tail ? 0.4 : 0.9), u.b, Math.max(0.8, (sh.tail ? 1.3 : sh.R0 + 0.9) * k * 1.6)]; }
 function applyHoles() {
   const pm = LAB.patchMesh, Y0 = LAB.patchY0, pos = pm.geometry.attributes.position, { NS } = LAB.patch;
   const col = pm.geometry.attributes.color;
   for (let k = 0; k < Y0.length; k++) { pos.setY(k, Y0[k]); col.setXYZ(k, 1, 1, 1); }
+  if (bankErosion > 0) {                               // 北岸 s −46〜−3：水邊往岸上 6 m 被掏掉，最多 1.2 m
+    const { NB } = LAB.patch;
+    for (let jb = 0; jb < NB; jb++) { const b = LAB.PB0 + jb; if (b < -12 || b > 2) continue;
+      for (let is = 0; is < NS; is++) { const sv = LAB.PS0 + is; if (sv < -46 || sv > -3) continue;
+        const k = jb * NS + is, w = smooth(-12, -4, b) * smooth(-46, -40, sv) * smooth(-3, -8, sv), dep = bankErosion * 1.4 * w;
+        if (dep > 0.01) { pos.setY(k, Math.min(pos.getY(k), Math.max(LAB.L0 - 0.6, Y0[k] - dep))); const c = 1 - 0.35 * w * bankErosion; col.setXYZ(k, c, c * 0.93, c * 0.85); } } }
+    if (bankWrong && EXP.bank === 'wrong') { const [cg, rk] = bankWrong, base = cg.userData.base, m = new THREE.Matrix4(), sl = new THREE.Vector3(LAB.bn[0], 0, LAB.bn[1]);
+      base.forEach((B, i) => { const f = clamp(bankErosion * 1.6 - (i % 5) * 0.12, 0, 1); m.makeTranslation(sl.x * 1.8 * f, -0.9 * f, sl.z * 1.8 * f).multiply(B); cg.setMatrixAt(i, m); });
+      cg.instanceMatrix.needsUpdate = true; rk.visible = bankErosion < 0.3; }
+  }
   for (const u of units) {
     if (u.scour < 0.01) continue;
     const [cs, cb, rb] = holeCenter(u), rs = 2.2;
@@ -1236,10 +1445,10 @@ function applyHoles() {
   updateHoleRings();
 }
 function unitForces(u) {
-  const sh = SHAPES[EXP.shape], h = waterY(u.s, u.b) - (u.bedY + 0.08);
-  const M = massOf(sh, EXP.fill), wf = hh => 1 - PHYS.rhoW / PHYS.rhoS * clamp(hh / sh.top0, 0, 1);
-  let A = frontArea(sh, h), W = M * PHYS.g * wf(h);
-  if (u.upper) { A += frontArea(sh, h - u.upH); W += M * PHYS.g * wf(h - u.upH); }
+  const sh = SHAPES[EXP.shape], k = u.k, D = cageD(u), rs = layerRise(u), h = waterY(u.s, u.b) - (u.bedY + 0.08);
+  const M = massOf(sh, EXP.fill) * k * k * k, wf = hh => 1 - PHYS.rhoW / PHYS.rhoS * clamp(hh / D, 0, 1);
+  let A = 0, W = 0;
+  for (let l = 0; l < u.n; l++) { const hl = h - l * rs; A += frontArea(sh, hl / k) * k * k; W += M * PHYS.g * wf(hl); }   // 疊幾層就算幾個的推力與重量
   u.push = 0.5 * PHYS.rhoW * PHYS.cd * A * u.uE * u.uE;
   u.grip = PHYS.mu * W * (EXP.rocks ? PHYS.rockGrip : 1) * (1 - 0.6 * clamp(u.scour / SCOUR_MAX, 0, 1));
   u.ratio = u.push / u.grip;
@@ -1252,7 +1461,16 @@ function scourRate(u) {
   return over <= 0 ? 0 : 0.01 * over * (0.5 + u.uE) * SHAPES[EXP.shape].drop * (EXP.rocks ? 0.25 : 1);
 }
 let simTime = 0;
-function failUnit(i, cause) { const u = units[i]; u.wash = 0.0001; u.state = 'gone'; u.cause = cause; if (selected === i) selected = -1; }
+function failUnit(i, cause) { const u = units[i]; u.wash = 0.0001; u.state = 'gone'; u.cause = cause; if (selected === i) selected = -1; if (cause === 'burst') spillRocks(u); }
+/* 外面只綁一圈的石笱被大水一直沖，藤圈鬆開、竹條散掉，裡面的卵石倒在河床上（導覽員：頂端竹條交叉卡住，越沖越緊；只在外面綁，沖久了會爆開） */
+function spillRocks(u) {
+  if (!burstRocks) return; const rr = rng(burstN * 7 + 3), n0 = burstN * 40;
+  for (let k = 0; k < 40 && n0 + k < burstRocks.count; k++) {
+    const s = u.s + rr() * GOU_L * u.k + rr() * 2.5, b = u.b + (rr() - 0.5) * 2.2, [x, z] = toWorld(s, b), sz = 0.1 + rr() * 0.1;
+    _m.compose(_p.set(x, heightAt(x, z) + sz * 0.3, z), _q.setFromEuler(_e.set(rr() * 6, rr() * 6, rr() * 6)), new THREE.Vector3(sz, sz * 0.8, sz)); burstRocks.setMatrixAt(n0 + k, _m);
+  }
+  burstN++; burstRocks.instanceMatrix.needsUpdate = true;
+}
 function updateUnits(dt) {
   simTime += dt;
   const dpos = dots.geometry.attributes.position.array, dcol = dots.geometry.attributes.color.array;
@@ -1279,7 +1497,10 @@ function updateUnits(dt) {
       if (u.wash < 1) {
         u.wash = Math.min(1, u.wash + dt / 3.2);
         const e = 1 - Math.pow(1 - u.wash, 2.2);
-        if (u.cause === 'scour') {           // 後方被掏空：尾端栽進坑裡、往後倒
+        if (u.cause === 'burst') {           // 爆開：竹籠攤平、散掉，留在原地
+          _m.makeScale(1 + 0.5 * e, Math.max(0.08, 1 - 0.9 * e), 1 + 0.9 * e); _m2.makeTranslation(0.6 * e, -0.05 * e, 0);
+          setUnitMatrix(i, new THREE.Matrix4().multiplyMatrices(u.base, _m2).multiply(_m));
+        } else if (u.cause === 'scour') {           // 後方被掏空：尾端栽進坑裡、往後倒
           _m.makeRotationFromEuler(_e.set(0.12 * e * u.washDir, 0, -0.14 - 0.36 * e));
           _m2.makeTranslation(1.1 * e, -0.25 * e, 0);
           setUnitMatrix(i, new THREE.Matrix4().multiplyMatrices(u.base, _m2).multiply(_m));
@@ -1294,6 +1515,9 @@ function updateUnits(dt) {
     }
     const st = u.gr < 0.6 ? 'ok' : u.gr < 1 ? 'shake' : 'danger';
     u.redT = st === 'danger' ? u.redT + dt : 0;
+    // 外面綁一圈：一直被大力沖（自己的推力超過抓地力的四成）就會慢慢鬆開，累積 5 秒爆開（教學設定值）
+    u.looseT = EXP.tie === 'wrap' && u.ratio > 0.4 ? (u.looseT || 0) + dt * u.ratio : Math.max(0, (u.looseT || 0) - dt);
+    if (u.looseT > 5) { failUnit(i, 'burst'); changed = true; continue; }
     if (u.redT > 1.8) { failUnit(i, 'push'); changed = true; continue; }
     if (u.scour >= SCOUR_MAX - 1e-6) { failUnit(i, 'scour'); changed = true; continue; }
     const tilt = -0.14 * u.scour / SCOUR_MAX;              // 後方河床被掏空：尾端稍微往坑裡傾
@@ -1342,12 +1566,12 @@ function updatePanel() {
   $('riseBar').style.width = clamp(intakeRise / 3 * 100, 0, 100) + '%';
   const crestLow = units.some(u => !u.wash) && blockNow < 0.97;
   $('riseNote').textContent = !units.length ? '沒有石笱擋水，水位幾乎沒有抬高'
-    : crestLow ? `水比石笱陣高，約 ${Math.round((1 - blockNow) * 100)}% 的水深從上面流過去，擋不住（試試疊兩層）` : '石笱把水擋住，圳口前的水變高，水才流得進圳裡';
+    : crestLow ? `水比石笱陣高，約 ${Math.round((1 - blockNow) * 100)}% 的水深從上面流過去，擋不住（試試「依水深」疊高一點）` : '石笱把水擋住，圳口前的水變高，水才流得進圳裡';
   const alive = units.filter(c => c.wash === 0), n = units.length;
   $('alive').textContent = n ? `${alive.length} / ${n}` : '—';
-  const gs = units.filter(u => u.cause === 'scour').length, gp = units.filter(u => u.cause === 'push').length;
+  const gs = units.filter(u => u.cause === 'scour').length, gp = units.filter(u => u.cause === 'push').length, gb = units.filter(u => u.cause === 'burst').length;
   $('divQ').textContent = qRel < 0.05 ? '幾乎沒有' : `平時的 ${qRel < 2 ? qRel.toFixed(1) : Math.round(qRel)} 倍`;
-  $('divNote').textContent = alive.length < n ? `被水推走 ${gp} 個、後方掏空倒塌 ${gs} 個` : '';
+  $('divNote').textContent = [alive.length < n ? `被水推走 ${gp} 個、後方掏空倒塌 ${gs} 個` + (gb ? `、綁繩鬆開爆掉 ${gb} 個` : '') : '', bankErosion > 0.02 ? `北岸被水掏掉 ${Math.round(bankErosion * 100)}%` : ''].filter(Boolean).join('｜');
   let ci = selected;
   if (ci < 0 || !units[ci] || units[ci].wash) { let m = -1; ci = -1; units.forEach((c, i) => { if (!c.wash && c.ratio > m) { m = c.ratio; ci = i; } }); }
   const nm = $('cName'), chip = $('cChip');
@@ -1379,11 +1603,12 @@ function buildLabels(osm) {
   const L = (s, b, lift) => { const [x, z] = toWorld(s, b); return new THREE.Vector3(x, Math.max(heightAt(x, z), LAB.L0) + lift, z); };
   const pt = n => osm.points.find(p => p.name === n);
   const lin = pt('林先生廟'); addLabel('<b>廟</b>林先生廟', 'pin', P(lin.x, lin.z, 6), 3000, () => openPanel('lin')).style.setProperty('--c', '#b45309');
-  addLabel('<b>圳</b>圳口（示意）', 'pin', L(5, -4, 3.5), 900, () => openPanel('intake')).style.setProperty('--c', '#dc2626');
+  addLabel('<b>圳</b>圳頭（1913 年圖的位置）', 'pin', L(0, -4, 3.5), 900, () => openPanel('intake')).style.setProperty('--c', '#dc2626');
   addLabel('<b>笱</b>石笱陣', 'pin', new THREE.Vector3(), 900, () => openPanel('gou')).style.setProperty('--c', '#a16207');
   gouLabel = labels[labels.length - 1]; updateGouLabel();
-  addLabel('土圳（示意）', 'geo canal', L(12, -26, 2), 600);
-  addLabel('濁水溪 水流方向 →', 'geo water', L(-50, 46, 1.5), 700);
+  addLabel('土圳 → 林先生廟', 'geo canal', L(24, -12, 2), 600);
+  addLabel('溪水沿著山腳流來 →', 'geo water', L(-50, 30, 1.5), 700);
+  addLabel('沒被攔下的水往下游 →', 'geo water', L(40, 40, 1.5), 700);
   addLabel('濁水溪', 'geo water', P(...(() => { const [x, z] = toWorld(-600, 40); return [x + CX, z + CZ]; })(), 4), 9000);
   addLabel('八卦山（南端）', 'geo', P(2700, 150, 30), 9000);
   addLabel('八堡圳（今日導水路）', 'geo canal', P(2900, 1330, 4), 2600);
@@ -1401,7 +1626,37 @@ function updateLabels() {
 }
 
 /* ---------- 知識面板 ---------- */
+window.__labDo = k => {                    // 說明卡裡的「試試看」按鈕
+  if (k === 'none0') { setForm('none'); setFlow(0); }
+  if (k === 'none1') { setForm('none'); setFlow(1); }
+  if (k === 'arc0') { setForm('arc'); setFlow(0); }
+  if (k === 'arc1') { setForm('arc'); setFlow(1); }
+  flyTo('lab');
+};
+window.__buildStep = i => setBuildStep(i);
+const BUILD_STEPS = [
+  ['在岸邊編竹籠', '先把竹子剖成長條、去掉竹節，用竹條繞成頂圈；竹條穿過頂圈、兩兩交叉卡住，再用藤條綁在底圈上，立起來一圈一圈圍好。一座大約要做 3 小時。'],
+  ['空籠扛到位置躺好', '編好的空竹籠扛到溪裡要放的地方，橫躺下來，大口朝上游。竹籠很輕，空的才扛得動。'],
+  ['搭平台、運石頭', '在旁邊搭起平台，用牛車把卵石載過來。大石頭撐住體積，小石頭用來塞縫。'],
+  ['撐開竹條丟石頭', '把頂端的竹條撐開，石頭一顆一顆丟進去，裝滿以後再把竹條收回、卡緊。'],
+  ['填滿再疊下一層', '一個挨一個排好，水深的地方再往上疊。上層放在下層兩個的中間，交錯疊起來，縫隙比較小。'],
+  ['縫隙塞麻布袋', '石笱和石笱之間的縫，塞進麻布袋把水堵住。'],
+];
 const INFO = {
+  why: () => ({ t: '為什麼水引不進來？', s: '施世榜試了大約十年',
+    b: `<p><span class="oral">口述</span>源泉社區的導覽員說，施世榜請了很多師傅，試了大約十年都引不到水，原因有兩個：</p>
+        <div class="keys"><span>水太多<br>溝太小</span><span>濁水溪又寬、水又多，挖出來的土溝小很多，大水擠不進去</span>
+        <span>水太急</span><span>二水是濁水溪從山區衝進平原的地方，水直直「衝過去」，不肯「轉進來」</span></div>
+        <p><strong>自己試試看：</strong></p>
+        <p><button class="dobtn" onclick="__labDo('none0')">① 沒有石笱、平水</button>只挖了圳口，看看進圳水量有多少</p>
+        <p><button class="dobtn" onclick="__labDo('none1')">② 沒有石笱、大水</button>水變急了，是流進圳裡，還是衝過去？</p>
+        <p><button class="dobtn" onclick="__labDo('arc0')">③ 排上石笱（弧線）</button>水被擋高、轉進圳口，進圳水量變多了</p>
+        <p>石笱解決的就是這兩件事：<strong>先讓水慢下來、變高，再讓水轉彎</strong>。</p>
+        <p style="font-size:13px;color:#64748b">※ 簡化模擬，數字用來比較，不是實際測量。導覽內容是 2026 年 11 月 18 日源泉社區現場導覽的口述。</p>` }),
+  build: () => ({ t: '石笱怎麼做、怎麼放？', s: '畫面會飛到岸邊示範',
+    b: `<div class="stepbtns">${BUILD_STEPS.map((x, i) => `<button id="bs${i}" onclick="__buildStep(${i})">${i + 1}. ${x[0]}</button>`).join('')}</div>
+        <p id="bsTxt" style="min-height:70px"></p>
+        <p style="font-size:13px;color:#64748b">※ 做法依三立〈智富食代〉（2024 年 7 月 5 日）拍到的步驟、〈石笱工法推廣實作工作坊〉的步驟列，以及源泉社區導覽員的口述（扛空籠、牛車載石、丟石頭、塞麻布袋）。平台和牛車只用方塊示意。</p>` }),
   gou: () => ({ t: '石笱陣', s: '倒笱・成排堆疊・斜線導流・下游補石',
     b: `<p>每個石笱都<strong>橫躺（倒笱）</strong>在溪床上，<strong>大口朝上游、尖尾朝下游</strong>。裝滿卵石後，大口用粗竹交叉綁成格網封住，卵石就不會掉出來。</p>
         <p>很多個石笱一個挨一個排成一長排，用藤條或麻繩互相<strong>綁緊串聯</strong>，底部打竹樁固定；整排和水流<strong>斜斜相交</strong>，把溪水「撥」向岸邊的圳口；最後在縫隙和下游<strong>補石</strong>。</p>
@@ -1413,29 +1668,32 @@ const INFO = {
   lin: () => ({ t: '林先生廟', s: '二水鄉源泉｜八堡圳頭',
     b: `<p>相傳清康熙年間施世榜開鑿八堡圳屢屢失敗，一位自稱「林先生」的老人傳授了竹編籠仔笱工法，才成功引濁水溪水入圳。</p>
         <p>二水鄉每年舉辦跑水節，在圳頭重現放水、迎水，感念先民引水的恩澤。</p>` }),
-  shapes: () => ({ t: '竹籠形狀比一比', s: '三種竹籠一樣長 6 公尺、體積一樣，裝的卵石一樣多',
+  shapes: () => ({ t: '竹籠形狀比一比', s: '三種竹籠一樣長、體積一樣，裝的卵石一樣多',
     b: `<table class="tbl"><tr><th></th>${Object.values(SHAPES).map(s => `<th>${s.name}</th>`).join('')}</tr>
         <tr><td>裝滿卵石</td>${Object.values(SHAPES).map(s => `<td>${(massOf(s, 1) / 1000).toFixed(1)} 公噸</td>`).join('')}</tr>
         <tr><td>迎水口<br><small>寬 × 高</small></td>${Object.values(SHAPES).map(s => `<td>${(2 * s.R0).toFixed(1)} × ${(2 * s.R0).toFixed(1)} m</td>`).join('')}</tr>
         <tr><td>擋水<br><small>同樣的石頭</small></td><td>口最大、最高，<br>擋住的寬度最多</td><td colspan="2">口比較小、比較矮，<br>大水時容易漫過去</td></tr>
         <tr><td>水漫過頂<br><small>下游河床</small></td><td>尾巴收尖像斜坡，<br>水順坡滑下</td><td colspan="2">後端是直的，水像瀑布落下，<br>容易把後面的河床掏空</td></tr>
         <tr><td>竹子做得出來嗎</td><td>可以<br><small>竹片從尾端束起往外編</small></td><td>可以<br><small>竹箍彎成圓圈</small></td><td>很難<br><small>竹子折不出直角，裝石後四面會鼓起、角落易裂</small></td></tr>
-        <tr><td>疊兩層</td><td>並排時尾端之間有 V 形溝，上層剛好卡進去</td><td>上層容易往兩旁滾</td><td>平底要放在平整的地上，河床凹凸不平會懸空</td></tr></table>
+        <tr><td>交錯疊放</td><td>上層放在下層兩個中間的 V 形溝，剛好卡住、縫隙也變小</td><td>上層容易往兩旁滾</td><td>平底要放在平整的地上，河床凹凸不平會懸空</td></tr></table>
         <p><strong>模擬裡怎麼算：</strong>水的推力看「迎水面積 × 流速」；抓地力看卵石重量；「後方掏空」看水漫過頂的高度和尾端形狀；「藤繩綁緊」時相鄰石笱一起出力。</p>
         <p>延伸：臺北瑠公圳的竹籠壩，前排用<strong>直立的圓柱竹籠（豎籠）</strong>擋水，後面再平躺<strong>筍形的「魚尾叉籠」</strong>（工程圖寫作「叉篊」），大口頂住圓柱、尖尾貼地往下游延伸，像斜撐一樣撐住，也讓越過壩頂的水順坡流下。</p>
         <p style="font-size:13px;color:#64748b">※ 重量、尺寸由形狀計算（卵石約佔籠內 55%）；掏空速度、串聯效果是簡化的教學設定。資料參考：農田水利署瑠公管理處〈瑠公圳的文化瑰寶－竹蛇籠〉；自由時報 2019-10-21〈彰化「籠仔篙」引水〉；瑠公圳竹籠壩工程圖。</p>` }),
   wisdom: () => ({ t: '石笱的智慧', s: '為什麼清代用石笱引水？先民怎麼設計它？',
     b: `<h4>一、就地取材</h4>
         <p>清代沒有水泥和鋼筋。濁水溪河床寬、水勢變化大、泥沙多，先民用溪邊的<strong>竹子、藤條</strong>和河床上的<strong>卵石</strong>，就能做出攔水、引水的設施。</p>
+        ${ph('140440', '真的石笱長這樣：二水林先生廟旁展示的「籠仔篙」，還沒裝石頭，直立著放。')}
+        <p>石笱在二水叫「籠仔篙」（籠仔笱）。一座大約 1.2 到 3.3 公尺，近代也有人改用鉛絲來編。</p>
         <h4>二、竹籠的設計</h4>
         <div class="keys"><span>筍形</span><span>竹片從尾端束起往外編，口大尾尖；竹箍彎成圓圈最牢固，裝滿卵石也不會撐裂</span>
         <span>大口封格網</span><span>裝滿卵石後，大口用粗竹交叉綁成格網封住</span>
         <span>大口朝上游</span><span>橫躺在溪床（倒笱），大口迎水；尾端收尖像斜坡，水漫過頂時順坡滑下，不會把後面的河床掏空</span>
         <span>會透水</span><span>卵石之間有縫隙，水穿過時被減速、消能，不像水泥牆硬碰硬</span>
         <span>越沖越穩</span><span>濁水溪的泥沙填進石縫，石笱變得越來越密實</span></div>
+        ${phg(PHOTOS.gou.slice(1), '更多籠仔篙的照片')}
         <h4>三、排列的方法</h4>
         <div class="keys"><span>斜線導流</span><span>整排斜斜擋水，把溪水「撥」向圳口</span>
-        <span>弧線導流</span><span>依水深排成弧線，溪水順著弧線轉進圳口（文化部〈八堡圳取入口設施〉記載的林先生工法）</span>
+        <span>1913 年的堤</span><span>照 1913 年實測圖上圳頭那道堤排：從圳頭斜斜伸進溪裡、微微彎曲，把南邊的水引到北岸的圳頭（文化部寫「依水深呈弧線型推疊並排」）</span>
         <span>成排堆疊</span><span>一個挨一個排成一道低矮的攔水壩，抬高水位；水深時疊第二層，上層卡在下層之間的溝裡</span>
         <span>串聯＋竹樁</span><span>用藤條或麻繩綁在一起、打竹樁固定，大家一起出力</span>
         <span>下游補石</span><span>縫隙和後方補卵石，承接越過的水，保護河床不被掏空</span></div>
@@ -1443,7 +1701,7 @@ const INFO = {
         <p>圳頭好像應該最堅固，但先民沒有硬築一座推不倒的大壩。<strong>大洪水來時，石笱比較容易被沖開</strong>，主河道就打開了，多餘的洪水順著濁水溪流走，<strong>不會把大量濁水和泥沙灌進圳裡、淹到田裡</strong>。</p>
         <p>水退以後，竹子、藤條、卵石就在旁邊，農民很快就能重新編籠、投石，恢復引水，讓整季的灌溉繼續下去。</p>
         <div class="keys"><span>試試看</span><span>切到「洪水」讓石笱被沖開，再按「水退後重建」把石笱陣排回去</span></div>
-        <p style="font-size:13px;color:#64748b">※ 教具中的水流、受力、掏空是簡化模擬，用來比較，不是實際測量。「以退為進、可修可棄」的說法參考：國立彰化師範大學撰稿〈03 瑠公圳石笱圳頭〉，步佈台灣・新店溪畔數位走讀（原文談的是瑠公圳的石笱壩）。</p>` }),
+        <p style="font-size:13px;color:#64748b">※ 教具中的水流、受力、掏空是簡化模擬，用來比較，不是實際測量。「以退為進、可修可棄」的說法參考：國立彰化師範大學撰稿〈03 瑠公圳石笱圳頭〉，步佈台灣・新店溪畔數位走讀（原文談的是瑠公圳的石笱壩）。籠仔篙的名稱、尺寸參考：<a href="https://www.wra.gov.tw/epaper/Article_Detail.aspx?s=4574&n=30177" target="_blank" style="color:#0369a1">水利署電子報第280期〈林先生的「笱」傳奇〉</a>。</p>${PHCREDIT}` }),
   records: () => ({ t: '實驗紀錄表', s: records.length ? `共 ${records.length} 筆` : '還沒有紀錄',
     b: records.length ? `<table class="tbl rec"><tr><th>#</th><th>陣形</th><th>形狀</th><th>層</th><th>裝石</th><th>補石</th><th>串聯</th><th>水量</th><th>水位抬高</th><th>進圳水量</th><th>還在</th></tr>
         ${records.map((r, i) => `<tr><td>${i + 1}</td><td>${r.form}</td><td>${r.shape}</td><td>${r.layers}</td><td>${r.fill}</td><td>${r.rocks}</td><td>${r.rope}</td><td>${r.flow}</td><td><b>${r.rise} 公分</b></td><td>${r.q} 倍</td><td>${r.alive}</td></tr>`).join('')}</table>
@@ -1461,10 +1719,10 @@ function viewDef(v) {
   const P = (lx, lz) => new THREE.Vector3(lx - CX, heightAt(lx - CX, lz - CZ), lz - CZ);
   const L = (s, b) => { const [x, z] = toWorld(s, b); return new THREE.Vector3(x, LAB.L0, z); };
   const dir = (ds, db, dy) => new THREE.Vector3(LAB.t[0] * ds + LAB.bn[0] * db, dy, LAB.t[1] * ds + LAB.bn[1] * db);
-  if (v === 'overview') { const t = P(2150, 2050); return { t, p: t.clone().add(new THREE.Vector3(1500, 1250, 2300)), sh: 1800 }; }
+  if (v === 'overview') { const t = L(-5, 15); return { t, p: t.clone().add(new THREE.Vector3(260, 420, 520)), sh: 600 }; }   // 圳頭全景
   if (v === 'lab') { const t = L(-10, 20); return { t, p: t.clone().add(dir(-38, -30, 27)), sh: 70 }; }
   if (v === 'gou') { const u = units[Math.floor(units.length / 2)], t = u ? L(u.s, u.b) : L(-21, 20); return { t, p: t.clone().add(dir(-11, -9, 5.5)), sh: 30 }; }
-  if (v === 'intake') { const t = L(7, -8); return { t, p: t.clone().add(dir(-17, 24, 22)), sh: 45 }; }
+  if (v === 'intake') { const t = L(2, -8); return { t, p: t.clone().add(dir(-17, 24, 22)), sh: 45 }; }
 }
 function flyTo(v, dur = 1.8) {
   document.querySelectorAll('.vw').forEach(b => b.classList.toggle('active', b.dataset.v === v));
@@ -1509,13 +1767,18 @@ function syncUI() {
   on('#flowSeg button', d => +d.f === flowIdx);
   on('#formSeg button', d => d.k === EXP.form);
   on('#shapeSeg button', d => d.k === EXP.shape);
-  on('#layerSeg button', d => +d.k === EXP.layers);
+  on('#layerSeg button', d => d.k === String(EXP.layers));
+  on('#bankSeg button', d => d.k === EXP.bank);
+  on('#tieSeg button', d => d.k === EXP.tie);
+  $('angBox').hidden = EXP.form !== 'angle'; $('angTxt').textContent = EXP.angle + '°';
+  on('#clearSeg button', d => !!+d.k === !!EXP.clear);
   on('#fillSeg button', d => +d.k === EXP.fill);
   on('#rockSeg button', d => !!+d.k === EXP.rocks);
   on('#ropeSeg button', d => !!+d.k === EXP.rope);
   $('formDesc').textContent = FORMS[EXP.form].desc;
   const sh = SHAPES[EXP.shape];
-  $('shapeStat').textContent = `每個裝石約 ${(massOf(sh, EXP.fill) / 1000).toFixed(1)} 公噸｜竹片約 ${sh.area.toFixed(0)} m²`;
+  const nC = units.reduce((t, u) => t + 1 + u.uppers.length, 0), tons = units.reduce((t, u) => t + (1 + u.uppers.length) * massOf(sh, EXP.fill) * u.k ** 3, 0) / 1000;
+  $('shapeStat').textContent = `一個十二尺裝石約 ${(massOf(sh, EXP.fill) * SIZE[12] ** 3 / 1000).toFixed(1)} 公噸、十尺約 ${(massOf(sh, EXP.fill) * SIZE[10] ** 3 / 1000).toFixed(1)} 公噸｜這道壩共 ${nC} 個、約 ${tons.toFixed(0)} 公噸`;
   $('freeBox').hidden = EXP.form !== 'free';
 }
 function setFlow(idx) {
@@ -1526,18 +1789,19 @@ function setFlow(idx) {
 }
 function setForm(k) {
   EXP.form = k; const F = FORMS[k];
-  if (F.pts) units = F.pts().map(p => makeUnit(p[0], p[1]));      // 只換排法，其他設定不動，方便比較
+  if (F.pts) units = F.pts().map(p => makeUnit(p[0], p[1], p[2]));      // 只換排法，其他設定不動，方便比較
   selected = -1; layoutChanged(); syncUI();
 }
 function setOpt(key, val) {
   EXP[key] = val;
   if (key === 'shape' || key === 'fill') regenStones();
-  if (key === 'shape') for (const im of Object.values(cageMeshes)) for (let i = 0; i < MAXI; i++) im.setMatrixAt(i, ZERO);
+  if (key === 'shape') { for (const im of Object.values(cageMeshes)) for (let i = 0; i < MAXI; i++) im.setMatrixAt(i, ZERO);
+    if (FORMS[EXP.form].pts) units = FORMS[EXP.form].pts().map(p => makeUnit(p[0], p[1], p[2])); }   // 換形狀時口徑不同，重新排緊密
   layoutChanged(); syncUI();
 }
 function refreshHighlight() {
   const im = cageMeshes[EXP.shape], hi = new THREE.Color(1.5, 1.25, 0.75), wh = new THREE.Color(1, 1, 1);
-  for (let i = 0; i < MAXU; i++) { const c = i === selected ? hi : wh; im.setColorAt(i, c); im.setColorAt(MAXU + i, c); }
+  for (let i = 0; i < MAXU; i++) { const c = i === selected ? hi : wh; for (let j = 0; j < 3; j++) im.setColorAt(i * 3 + j, c); }
   im.instanceColor.needsUpdate = true;
 }
 let gouLabel;
@@ -1549,19 +1813,26 @@ function updateGouLabel() {
 }
 function record() {
   const alive = units.filter(u => !u.wash).length;
-  records.push({ form: FORMS[EXP.form].name, shape: SHAPES[EXP.shape].name, layers: EXP.layers === 2 ? '兩層' : '一層', fill: EXP.fill === 1 ? '裝滿' : '半籠',
+  records.push({ form: FORMS[EXP.form].name, shape: SHAPES[EXP.shape].name, layers: (EXP.layers === 'auto' ? '依水深' : EXP.layers === 2 ? '兩層' : '一層') + (EXP.tie === 'wrap' ? '・外綁' : ''), fill: EXP.fill === 1 ? '裝滿' : '半籠',
     rocks: EXP.rocks ? '有' : '—', rope: EXP.rope ? '綁' : '—', flow: LAB.FLOW[flowIdx].name, rise: Math.round(intakeRise * 100), q: qRel < 2 ? qRel.toFixed(1) : Math.round(qRel), alive: units.length ? `${alive}/${units.length}` : '—' });
   const b = $('btnRec'); b.textContent = `已記錄第 ${records.length} 筆`; setTimeout(() => b.textContent = '記錄結果', 1500);
   if ($('panel').classList.contains('open') && $('panel').dataset.key === 'records') openPanel('records');
 }
 function setupUI() {
   document.querySelectorAll('.vw').forEach(b => b.addEventListener('click', () => flyTo(b.dataset.v)));
-  document.querySelector('#panel .x').addEventListener('click', () => $('panel').classList.remove('open'));
+  document.querySelector('#panel .x').addEventListener('click', () => { $('panel').classList.remove('open'); if (buildDemo) buildDemo.g.visible = false; });
   $('exitWalk').addEventListener('click', () => flyTo('lab'));
   document.querySelectorAll('#flowSeg button').forEach(b => b.addEventListener('click', () => setFlow(+b.dataset.f)));
   document.querySelectorAll('#formSeg button').forEach(b => b.addEventListener('click', () => setForm(b.dataset.k)));
   document.querySelectorAll('#shapeSeg button').forEach(b => b.addEventListener('click', () => setOpt('shape', b.dataset.k)));
-  document.querySelectorAll('#layerSeg button').forEach(b => b.addEventListener('click', () => setOpt('layers', +b.dataset.k)));
+  document.querySelectorAll('#layerSeg button').forEach(b => b.addEventListener('click', () => setOpt('layers', b.dataset.k === 'auto' ? 'auto' : +b.dataset.k)));
+  document.querySelectorAll('#clearSeg button').forEach(b => b.addEventListener('click', () => { EXP.clear = !!+b.dataset.k; labWaterMat.opacity = EXP.clear ? 0.18 : 0.68; labWaterMat.depthWrite = !EXP.clear; syncUI(); }));   // 看清楚水面下怎麼疊
+  document.querySelectorAll('#bankSeg button').forEach(b => b.addEventListener('click', () => { EXP.bank = b.dataset.k; applyBankVis(); layoutChanged(); syncUI(); }));
+  document.querySelectorAll('#tieSeg button').forEach(b => b.addEventListener('click', () => setOpt('tie', b.dataset.k)));
+  $('angIn').addEventListener('input', e => { EXP.angle = +e.target.value; $('angTxt').textContent = EXP.angle + '°'; });
+  $('angIn').addEventListener('change', () => setForm('angle'));
+  $('whyBtn').addEventListener('click', e => { e.preventDefault(); openPanel('why'); });
+  $('buildBtn').addEventListener('click', e => { e.preventDefault(); openPanel('build'); setBuildStep(0); });
   document.querySelectorAll('#fillSeg button').forEach(b => b.addEventListener('click', () => setOpt('fill', +b.dataset.k)));
   document.querySelectorAll('#rockSeg button').forEach(b => b.addEventListener('click', () => setOpt('rocks', !!+b.dataset.k)));
   document.querySelectorAll('#ropeSeg button').forEach(b => b.addEventListener('click', () => setOpt('rope', !!+b.dataset.k)));
@@ -1579,7 +1850,7 @@ function setupUI() {
   const cvs = renderer.domElement, ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hp = new THREE.Vector3();
   let down = null, drag = -1;
   const pick = e => { ndc.set(e.clientX / innerWidth * 2 - 1, -e.clientY / innerHeight * 2 + 1); ray.setFromCamera(ndc, camera); };
-  const hitUnit = () => { cageMeshes[EXP.shape].boundingSphere = null; const h = ray.intersectObject(cageMeshes[EXP.shape])[0]; if (!h) return -1; const i = h.instanceId % MAXU; return units[i] && !units[i].wash ? i : -1; };
+  const hitUnit = () => { cageMeshes[EXP.shape].boundingSphere = null; const h = ray.intersectObject(cageMeshes[EXP.shape])[0]; if (!h) return -1; const i = Math.floor(h.instanceId / 3); return units[i] && !units[i].wash ? i : -1; };
   const hitWater = () => { plane.constant = -(LAB.L0 + cur.off); return ray.ray.intersectPlane(plane, hp) ? toLab(hp.x, hp.z) : null; };
   const clampSB = p => [clamp(p[0], LAB.S0 + 3, LAB.S1 - 8), clamp(p[1], 1, LAB.B1 - 2)];
   cvs.addEventListener('pointerdown', e => {
@@ -1600,7 +1871,7 @@ function setupUI() {
     else if (EXP.form === 'free') {
       const p = hitWater();
       if (p && p[0] > LAB.S0 && p[0] < LAB.S1 && p[1] > 0 && p[1] < LAB.B1 && units.length < MAXU) {
-        const [s, b] = clampSB(p); units.push(makeUnit(s, b)); selected = units.length - 1;
+        const [s, b] = clampSB(p); units.push(makeUnit(s, b, sizeAt(s, b))); selected = units.length - 1;
         relayout(); updateObstacles();
       }
     } else selected = -1;
@@ -1630,6 +1901,7 @@ function setupUI() {
 /* ---------- 每幀 ---------- */
 let fno = 0;
 function frame() {
+  window.__fno = (window.__fno || 0) + 1;
   const dt = Math.min(clock.getDelta(), 0.05);
   for (const t of waterTex) t.offset.x -= dt * 0.045;
   sim.step(dt > 0.03 ? 1 : 2);
@@ -1638,6 +1910,7 @@ function frame() {
   updateSplash(dt);
   updateIntake(dt);
   canalWater.position.y = canalWaterY(); updateArrows(dt);
+  if (EXP.bank !== 'right' && flowIdx > 0 && bankErosion < 1) { bankErosion = Math.min(1, bankErosion + dt * (flowIdx === 2 ? 0.06 : 0.03)); holesDirty = true; }   // 教學設定值
   if (holesDirty && (holesT += dt) > 0.4) { holesT = 0; applyHoles(); }
   if (fno % 10 === 0) updateHoleRings();
   if (fno++ % 4 === 0) { updateSpeedTex(); updatePanel(); }

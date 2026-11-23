@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/photo_sets.js"></script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -76,6 +78,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 .keys{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:15px;margin-top:10px;line-height:1.6}
 .keys span:nth-child(odd){font-weight:900;color:#0c4a6e;white-space:nowrap}
 .note{font-size:13.5px;color:#64748b;line-height:1.6}
+blockquote{margin:8px 0;padding:6px 12px;border-left:4px solid #94a3b8;background:rgba(255,255,255,.5);border-radius:6px;font-size:14.5px;line-height:1.7}
 .src{font-size:12.5px;color:#64748b;line-height:1.6;margin-top:12px;border-top:1px solid rgba(100,116,139,.25);padding-top:8px}
 .src a{color:#0369a1}
 
@@ -179,7 +182,8 @@ const PLACES = {
   temple: [23.9245582, 120.5622434], station: [23.928127, 120.571675],
   yishan: [23.926743, 120.556761], dongning: [23.921791, 120.561343],
   b5: [23.9185115, 120.56024], ruyi: [23.916351, 120.5616055],
-  g1: [23.909413, 120.563562], g2: [23.914805, 120.5620779], g3: [23.9202093, 120.5598053],
+  siteC: [23.904579, 120.564305],   // 浮圳二號橋（使用者座標；2026-11-19 地圖往南擴大後才包進來）
+  fuzun: [23.912, 120.561],   // 和 region.html 的「浮圳」停靠點同一個座標
   dEnd: [23.9234163, 120.5490893], dDrain: [23.9246474, 120.5481894],
 };
 const P = {};
@@ -224,7 +228,7 @@ function clipRuns(pts, m = 2) {              // 只留範圍內的部分
 init();
 async function init() {
   const [meta, buf, osm, bld] = await Promise.all([
-    fetch(DATA + 'meta_s.json').then(r => r.json()), fetch(DATA + 'dem_s.f32').then(r => r.arrayBuffer()), fetch(DATA + 'osm_s.json', { cache: 'no-cache' }).then(r => r.json()), fetch(DATA + 'bld_si.json', { cache: 'no-cache' }).then(r => r.json())]);
+    fetch(DATA + 'meta_s.json?v=20261119b', { cache: 'no-cache' }).then(r => r.json()), fetch(DATA + 'dem_s.f32?v=20261119b', { cache: 'no-cache' }).then(r => r.arrayBuffer()), fetch(DATA + 'osm_s.json', { cache: 'no-cache' }).then(r => r.json()), fetch(DATA + 'bld_si.json', { cache: 'no-cache' }).then(r => r.json())]);
   G = { meta, H: new Float32Array(buf), W: meta.x1 - meta.x0, Hh: meta.y1 - meta.y0 }; OSM = osm; BLD = bld; IB = bld.box;
   // 永崙路在學校東南角的彎道：OSM 線穿過路旁房子 → 改用臺灣通用電子地圖的道路中心線（黃線）與路面（2026-11-12）
   // 正射影像在這裡不能用：路旁 3 樓透天的屋頂因拍攝角度倒向路面，蓋住了一部分路；電子地圖是地面的向量圖，房子輪廓與路面互相吻合（路寬約 8 m）
@@ -259,6 +263,7 @@ async function init() {
   for (const k in PLACES) P[k] = LL(...PLACES[k]);
   // 永興宮：依臺灣通用電子地圖的廟體輪廓（主殿兩塊＋左右翼＋前方樓梯台），整片街廓與永興路同向、轉約 14°（正面朝南偏東）
   // TEMPLE.o＝模型原點（主殿中央）、a＝轉角（rad，group 用）、d＝正面方向；廟寬約 13 m、深約 26 m（z 693–719）；前方巷口廣場在兩側樓房之間（電子地圖）
+  P.gD = [1300.8, 1227.2];   // 東溝邊的小閘門：使用者 2026-11-19 在畫面上標的位置（東溝南岸、小橋東邊約 10 m；使用者座標 23.9201750, 120.5598416 落在東邊約 90 m 的路口，以標示為準）
   P.templeM = [1659.9, 706.3];
   P.templeA = -0.2443;
   P.templeD = [Math.sin(-P.templeA), Math.cos(-P.templeA)];
@@ -299,7 +304,7 @@ async function init() {
   flyTo(q.get('view') || 'overview', 0);
   const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
   renderer.setAnimationLoop(() => frame());
-  window.__sc = { FS, enterField, scene, camera, controls, flyTo, P, hB, hC, OSM, step: n => { for (let i = 0; i < n; i++) frame(1 / 30); } };   // 除錯用
+  window.__sc = { get renderer() { return renderer; }, FS, enterField, scene, camera, controls, flyTo, P, hB, hC, OSM, step: n => { for (let i = 0; i < n; i++) frame(1 / 30); } };   // 除錯用
 }
 
 function setupRenderer() {
@@ -396,7 +401,7 @@ async function buildTerrain() {
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   geo.setIndex(new THREE.BufferAttribute(idx, 1)); geo.computeVertexNormals();
-  const tex = await new Promise(res => new THREE.TextureLoader().load(DATA + 'ortho_s.jpg', t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; res(t); }));
+  const tex = await new Promise(res => new THREE.TextureLoader().load(DATA + 'ortho_s.jpg?v=20261119b', t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; res(t); }));
   // 水道遮罩：1 公尺一像素，水道的範圍在地形上挖空，露出底下的牆、溝底與水面
   const cv = document.createElement('canvas'); cv.width = Math.round(G.W); cv.height = Math.round(G.Hh);
   const x = cv.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, cv.width, cv.height);
@@ -1062,14 +1067,26 @@ function balustrade(parent, x0, z0, x1, z1, y, h = 0.9) {            // 白色�
   for (let k = 0; k < n * 3; k++) mesh(new THREE.CylinderGeometry(0.06, 0.06, h - 0.2, 6), m, B, -L / 2 + L * (k + 0.5) / (n * 3), 0.2 + (h - 0.2) / 2, 0);
 }
 
-/* ---------- 永興宮（位置：使用者提供；朝南；外型依街景照片：高台基、中央大樓梯、重簷正殿、兩側樓塔、金爐） ---------- */
+/* ---------- 永興宮（位置：使用者提供；朝南；外型依街景與 2026-11-18 實地照片：一樓是暗紅磚的基座、中央大樓梯上到二樓正殿、重簷之間有白欄杆陽台、兩側樓塔有深色花窗、樓梯兩旁拱形棚、金爐） ---------- */
 function buildTemple() {
   const [x, z] = P.templeM, T = group(x, z, P.templeA); T.scale.set(0.52, 0.7, 0.75);   // 寬、深依電子地圖輪廓（示意比例）
-  const red = std(0xb3261e), col = std(0xc0281f, { roughness: 0.6 }), stone = std(0xe4dfd4), PH = 2.4;
-  // 台基與大樓梯
-  mesh(new THREE.BoxGeometry(26, PH, 30), stone, T, 0, PH / 2, -3);
-  const NS = 8; for (let k = 0; k < NS; k++) mesh(new THREE.BoxGeometry(9, PH - k * PH / NS, 0.65), stone, T, 0, (PH - k * PH / NS) / 2, 12 + k * 0.65 + 0.32);
-  for (const s of [-1, 1]) { balustrade(T, s * 13, -18, s * 13, 12, PH); balustrade(T, s * 4.7, 12, s * 13, 12, PH); }
+  const red = std(0xb3261e), col = std(0xc0281f, { roughness: 0.6 }), stone = std(0xe4dfd4), PH = 4.4;
+  const baseM = std(0x7c2f2a), stairM = std(0xb27a72), darkM = std(0x2a2422), lattice = std(0x33291f);
+  // 一樓基座（暗紅色磁磚）與大樓梯（照片約 18 階，粉紅色石階）
+  mesh(new THREE.BoxGeometry(26, PH, 30), baseM, T, 0, PH / 2, -3);
+  mesh(new THREE.BoxGeometry(26.4, 0.3, 30.4), stone, T, 0, PH - 0.15, -3);
+  for (const s of [-1, 1]) mesh(new THREE.PlaneGeometry(6.2, 2.6), darkM, T, s * 8.6, 1.5, 12.02);          // 一樓兩側的開口
+  const NS = 18, SD = 0.5; for (let k = 0; k < NS; k++) mesh(new THREE.BoxGeometry(8.4, PH - k * PH / NS, SD), stairM, T, 0, (PH - k * PH / NS) / 2, 12 + k * SD + SD / 2);
+  for (const s of [-1, 1]) {
+    balustrade(T, s * 13, -18, s * 13, 12, PH); balustrade(T, s * 4.5, 12, s * 13, 12, PH);
+    const L = Math.hypot(NS * SD, PH), a = Math.atan2(PH, NS * SD);                                         // 樓梯兩側的白色石欄杆（斜的）
+    for (const dy of [0.35, 1.0]) { const r = mesh(new THREE.BoxGeometry(0.24, 0.16, L), stone, T, s * 4.35, PH / 2 + dy, 12 + NS * SD / 2); r.rotation.x = a; }
+    for (let k = 0; k <= 6; k++) mesh(new THREE.BoxGeometry(0.28, 1.2, 0.28), stone, T, s * 4.35, PH - PH * k / 6 + 0.5, 12 + NS * SD * k / 6);
+    // 樓梯兩旁的拱形棚（紅柱、深色拱頂）
+    const cx = s * 9.2, cz = 15.4, roof = new THREE.CylinderGeometry(3.6, 3.6, 6.4, 18, 1, true, -Math.PI / 2, Math.PI); roof.rotateX(-Math.PI / 2);
+    const rm = mesh(roof, std(0x4a403c, { side: THREE.DoubleSide }), T, cx, 3.0, cz); rm.scale.y = 0.3;
+    for (const px of [-3.4, 3.4]) for (const pz of [-3.0, 3.0]) mesh(new THREE.CylinderGeometry(0.16, 0.16, 3.0, 8), col, T, cx + px, 1.5, cz + pz);
+  }
   // 正殿：前廊四根紅柱、彩繪樑、三川門
   const y0 = PH, CH = 5.6;
   mesh(new THREE.BoxGeometry(15, CH, 11), red, T, 0, y0 + CH / 2, -2.5);
@@ -1081,6 +1098,9 @@ function buildTemple() {
   const R1 = new THREE.Group(); R1.position.z = 0.4; T.add(R1);
   cnRoof(R1, 18.5, 16, 2.0, y0 + CH, { lift: 1.0, noRidge: false, pearl: false, tail: 0.4 });
   mesh(new THREE.BoxGeometry(11, 2.6, 8.5), red, T, 0, y0 + CH + 2.2, -1.6);
+  balustrade(T, -6.2, 3.4, 6.2, 3.4, y0 + CH + 1.2, 0.9);                                                    // 上下簷之間的陽台欄杆（照片）
+  mesh(new THREE.BoxGeometry(6.4, 0.55, 0.2), darkM, T, 0, y0 + CH - 1.25, 6.65);                             // 門上的跑馬燈
+  mesh(new THREE.PlaneGeometry(5.8, 0.3), new THREE.MeshBasicMaterial({ color: 0xff3b30 }), T, 0, y0 + CH - 1.25, 6.76);
   mesh(scaleUV(new THREE.BoxGeometry(11.2, 0.6, 8.7), 3, 1), std(0xffffff, { map: texBeam() }), T, 0, y0 + CH + 3.3, -1.6);
   const R2 = new THREE.Group(); R2.position.z = -1.6; T.add(R2);
   cnRoof(R2, 15, 11.5, 3.0, y0 + CH + 3.6, { lift: 1.5, tail: 1.6 });
@@ -1092,7 +1112,9 @@ function buildTemple() {
   for (const s of [-1, 1]) {
     const B = new THREE.Group(); B.position.set(s * 9.8, y0, 8.5); T.add(B);
     mesh(new THREE.BoxGeometry(4.6, 5.2, 4.6), red, B, 0, 2.6, 0);
-    mesh(new THREE.PlaneGeometry(1.4, 2.2), std(0x7a1610), B, 0, 1.1, 2.32);
+    mesh(new THREE.BoxGeometry(4.8, PH, 4.8), baseM, B, 0, -PH / 2, 0);                                       // 樓塔下面的一樓（暗紅磁磚）
+    mesh(new THREE.PlaneGeometry(2.8, 1.9), lattice, B, 0, 3.4, 2.32); mesh(new THREE.PlaneGeometry(2.8, 1.9), lattice, B, s * 2.32, 3.4, 0, s * Math.PI / 2);   // 深色花窗
+    mesh(new THREE.PlaneGeometry(2.2, 1.5), lattice, B, 0, 5.9 + 1.7, 1.82);
     cnRoof(B, 6.6, 6.6, 1.3, 5.2, { lift: 0.8, noRidge: true });
     mesh(new THREE.BoxGeometry(3.6, 3.4, 3.6), red, B, 0, 5.9 + 1.7, 0);
     for (const cx of [-1.6, 1.6]) for (const cz of [-1.6, 1.6]) mesh(new THREE.CylinderGeometry(0.16, 0.16, 3.4, 8), col, B, cx * 1.08, 5.9 + 1.7, cz * 1.08);
@@ -1105,23 +1127,24 @@ function buildTemple() {
   const F = group(1661.2, 731);
   mesh(new THREE.CylinderGeometry(2.0, 2.1, 0.7, 6), std(0x4a7fb0), F, 0, 0.35, 0);
   mesh(new THREE.CylinderGeometry(1.3, 1.4, 2.6, 6), std(0x9e1f1a), F, 0, 2.0, 0);
-  const roof6 = (r, h, y) => { const g = new THREE.ConeGeometry(r, h, 6, 1, true); mesh(g, std(0xe08a1e, { side: THREE.DoubleSide }), F, 0, y, 0); mesh(new THREE.CylinderGeometry(r, r, 0.15, 6), std(0x8f1d16), F, 0, y - h / 2, 0); };
+  const roof6 = (r, h, y) => { const g = new THREE.ConeGeometry(r, h, 6, 1, true); mesh(g, std(0x8a3b2c, { side: THREE.DoubleSide }), F, 0, y, 0); mesh(new THREE.CylinderGeometry(r, r, 0.15, 6), std(0x8f1d16), F, 0, y - h / 2, 0); };
   roof6(2.2, 1.1, 3.85);
-  mesh(new THREE.CylinderGeometry(0.9, 1.0, 1.7, 6), std(0x9e1f1a), F, 0, 4.9, 0);
+  mesh(new THREE.CylinderGeometry(0.9, 1.0, 1.7, 6), std(0x4f8c90), F, 0, 4.9, 0);                            // 中層：彩繪（藍綠底）
   roof6(1.6, 0.9, 6.2);
-  mesh(new THREE.CylinderGeometry(0.25, 0.35, 2.2, 8), std(0x6b6b6b, { metalness: 0.4 }), F, 0, 7.6, 0);
+  mesh(new THREE.CylinderGeometry(0.22, 0.26, 7.0, 10), std(0x6b6258, { metalness: 0.5, roughness: 0.5 }), F, 0, 10.0, 0);   // 高高的金屬煙囪（照片）
+  mesh(new THREE.CylinderGeometry(0.42, 0.24, 0.5, 10), std(0x5a5048, { metalness: 0.5 }), F, 0, 13.6, 0);
 }
 
 /* ---------- 閘門（東溝浮圳段 3 座，位置：使用者；外型依街景，示意）、使用者標的橋 ---------- */
 function buildSmall() {
   const blue = new THREE.MeshStandardMaterial({ color: 0x3b82c4, roughness: 0.5, metalness: 0.3 });
-  for (const k of ['g1', 'g2', 'g3']) {
-    // 使用者經緯度若落在路面上（閘門 1 在彰81 浮圳路東側路邊），往東移到路緣外（使用者確認閘門在路的東側）
-    if (onRoad(P[k][0], P[k][1], -0.3)) { const f = freeSpot(P[k][0], P[k][1], 1, 0, 10, 0); if (f) P[k] = [f[0] + 0.6, f[1]]; }
-    const [x, z] = P[k], g = hB(x, z); OBST.push(['閘門' + k.slice(1), x, z]);
-    for (const s of [-0.5, 0.5]) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.6, 0.12), blue); p.position.copy(V(x + s, g + 0.5, z)); scene.add(p); }
-    const top = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.12, 0.15), blue); top.position.copy(V(x, g + 1.3, z)); scene.add(top);
-    const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.04, 6, 16), blue); wheel.rotation.x = Math.PI / 2; wheel.position.copy(V(x, g + 1.5, z)); scene.add(wheel);
+  { const [x, z] = P.gD, g = hB(x, z), G = group(x, z, Math.atan2(26.8, -85));   // 順著東溝的方向擺
+    OBST.push(['東溝小閘門', x, z]);
+    for (const sx of [-0.5, 0.5]) mesh(new THREE.BoxGeometry(0.12, 1.7, 0.12), blue, G, sx, 0.75, 0);
+    mesh(new THREE.BoxGeometry(1.15, 0.12, 0.15), blue, G, 0, 1.6, 0);
+    mesh(new THREE.BoxGeometry(0.9, 0.7, 0.06), blue, G, 0, 0.1, 0);                 // 門板
+    mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.5, 6), std(0x7a5a3a), G, 0, 1.1, 0);   // 螺桿
+    const wheel = mesh(new THREE.TorusGeometry(0.3, 0.04, 6, 16), blue, G, 0, 1.85, 0); wheel.rotation.x = Math.PI / 2;
   }
 }
 
@@ -1620,7 +1643,9 @@ function buildLabels() {
   pin('dongning', '東寧橋', '橋', '#e07a1d', 10, 1500);
   pin('b5', '東溝五號橋', '橋', '#1d8fe0', 10, 1500);
   pin('ruyi', '如意橋', '橋', '#1d8fe0', 10, 1500);
-  for (const [k, n] of [['g1', 1], ['g2', 2], ['g3', 3]]) pin(k, `閘門 ${n}`, '閘', '#2563eb', 8, 1200);
+  pin('gD', '東溝小閘門', '閘', '#2563eb', 8, 1500);
+  pin('fuzun', '浮圳：圳堤比田高', '浮', '#a16207', 12, 3000);
+  pin('siteC', '浮圳二號橋', '橋', '#1d8fe0', 10, 2500);
   if (P.starBridge) pin('starBridge', '高鐵星光大橋', '橋', '#64748b', 30, 4000);
   const mid = [(P.dEnd[0] + P.dDrain[0]) / 2, (P.dEnd[1] + P.dDrain[1]) / 2];
   P.rename = mid; addLabel('東溝 → 東溝排水', 'geo mix', mid[0], mid[1], 14, 3000, () => openPanel('rename'));
@@ -1654,6 +1679,7 @@ const SRC = {
   sv: 'Google 街景（2021–2024，只作建模參考）',
   dem: '內政部 20 公尺網格 DEM',
   user: '使用者提供（經緯度、現場名稱）',
+  field: '現場觀察（2026 年 11 月 18 日）',
 };
 const src = (...k) => `<div class="src">資料來源：${k.map(x => SRC[x]).join('；')}</div>`;
 const H_ = k => Math.round(hB(...P[k]));
@@ -1667,7 +1693,8 @@ function INFO(key) {
           <p class="note">※ 校舍位置依正射影像和校園平面圖，外型是示意。</p>${src('a6', 'osm')}` };
     case 'temple': return { t: '永興宮', s: '永靖鄉東寧村永興路二段 162 號',
       b: `<p>在永興國小西邊、永興路二段北側的巷子裡，主祀<strong>三山國王</strong>。陳厝厝排水在它的南側流過。</p>
-          <p class="note">※ 廟的外型依街景照片簡化，是示意。</p>${src('a6', 'user', 'sv')}` };
+          ${phset('temple')}
+          <p class="note">※ 3D 畫面裡廟的外型依街景和這張照片簡化：一樓基座、大樓梯、兩側樓塔、金爐的樣子有照著做，大小和細部裝飾是示意。</p>${PHCREDIT}${src('a6', 'user', 'sv')}` };
     case 'station': return { t: '永靖車站', s: '臺鐵縱貫線',
       b: `<p>縱貫線上的車站，往北是員林、往南是社頭。月台位置依地圖資料。</p>
           <p class="note">※ 雨棚、天橋是示意。</p>${src('osm', 'sv')}` };
@@ -1679,14 +1706,28 @@ function INFO(key) {
           <p class="note">※ 寬度、水面高低依 Google 街景（2021、2024）目測，下雨後水位會改變。</p>${src('user', 'osm', 'sv')}` };
     case 'b5': case 'ruyi': return { t: key === 'b5' ? '東溝五號橋' : '如意橋', s: '跨八堡二圳東溝',
       b: `<p>這座橋跨過<strong style="color:var(--irr)">八堡二圳東溝</strong>，這一段在浮圳村附近。</p>${src('user', 'osm', 'sv')}` };
-    case 'g1': case 'g2': case 'g3': return { t: '東溝旁的小閘門', s: '浮圳段（彰81 鄉道旁）',
-      b: `<p>東溝旁邊有幾座藍色的小閘門，上面有轉輪。</p>
-          <p class="note">※ 這幾座閘門的用途還在查，所以先不說明。位置依使用者提供，外型依街景照片，是示意。</p>${src('user', 'sv')}` };
+    case 'gD': return { t: '東溝邊的小閘門', s: '八堡二圳東溝｜學校西南邊',
+      b: `<p>東溝邊有一座藍色的小閘門，上面有轉輪。轉動轉輪，門板就會升起來或降下去。閘門旁邊接著一條小溝。</p>
+          ${phset('siteD')}
+          <p class="note">※ 位置依老師在畫面上標的地方（東溝南岸的小橋旁）。這座閘門管哪一塊田，還沒有資料。3D 畫面裡的閘門外型是示意。</p>${PHCREDIT}${src('user', 'field')}` };
+    case 'siteC': return { t: '浮圳二號橋', s: '跨八堡二圳東溝',
+      b: `<p>這座橋跨過<strong style="color:var(--irr)">八堡二圳東溝</strong>，橋名牌寫著「浮圳二號橋」。橋邊有藍色的閘門，從橋上看得到筆直的混凝土圳道。</p>
+          ${phset('siteC')}
+          <p class="note">※ 位置依老師提供的座標（23.904579, 120.564305）。這一帶是地圖往南加大的部分，房子和樹沒有做模型，只有空照圖。</p>${PHCREDIT}${src('user', 'field')}` };
+    case 'fuzun': return { t: '浮圳：圳堤比田高', s: `永靖鄉浮圳村｜八堡二圳東溝`,
+      b: `<p>一般的圳在地面上，「浮圳」的水道卻<strong>比兩旁的田還高</strong>，像浮在田間一樣。做法是在平地上築土堤，讓水沿著土堤走，越過低的地方送到要灌溉的田。</p>
+          <p>永靖的浮圳村就是因為這條圳得名：</p>
+          <blockquote>「浮圳」乃因圳得名，即浮圳圳溝堤岸較兩旁田野高出甚多，聚落建於沿圳堤旁，為帶狀村落，故又名「竹竿庄」</blockquote>
+          <p><strong>量量看</strong>：依內政部 20 公尺地形資料，浮圳村這一段（約 1.6 公里）圳路兩旁的地面，比 150～300 公尺外的田<strong>高約 1.3 公尺</strong>。</p>
+          ${phset('siteC', '上游的浮圳二號橋（地圖南邊）')}
+          <p><a href="region.html?view=yong" style="color:#0369a1;font-weight:900">到「八堡圳流域探索」看整條東溝 →</a></p>
+          <p class="note">※ 這個點和「八堡圳流域探索」的「浮圳」是同一個地方。</p>${PHCREDIT}${src('a6', 'dem', 'field')}` };
     case 'dong': return { t: '八堡二圳東溝', s: '灌溉圳｜由南往北流',
       b: `<p>從二水引進來的濁水溪水，經過田中的<strong>東西溝分水門</strong>分出東溝，往北流到永靖。</p>
           <p>永靖工作站的灌溉水，以引灌八堡二圳東溝的濁水為主（東溝直灌、湳港舊圳、浮圳、大溝尾）。</p>
           <p>浮圳村這一段的圳路，地面比兩旁的田高（地形資料量到約 1.3 公尺）。</p>
-          <p class="note">※ 溝的寬度、深度沒有官方資料，畫面是示意。</p>${src('a2', 'osm', 'dem')}` };
+          ${phset('siteC', '上游的浮圳二號橋（地圖南邊）')}
+          <p class="note">※ 溝的寬度、深度沒有官方資料，畫面是示意。</p>${PHCREDIT}${src('a2', 'osm', 'dem', 'field')}` };
     case 'chen': return { t: '陳厝厝排水支線', s: '排水路｜彰化縣管區域排水',
       b: `<p>大致由東南往西北流，是<strong>員林大排水幹線</strong>的支線，流經田中、社頭、永靖、埔心。</p>
           <p>東寧橋一帶的樣子（剖面）：兩邊是直立的混凝土牆，水面比路面低不少。</p>${sectionSVG({ w: 7, water: 2, color: '#5d6a58' })}
@@ -1709,7 +1750,8 @@ const GUIDE = [
     b: `<p>灌溉圳的水經過小水路<strong>送進田裡</strong>；田裡多出來的水和下雨的水，再經過小水路<strong>排到排水路</strong>。</p>
         <p>永靖工作站也會把灌溉後的餘水再利用（制水迴歸）。</p>
         <p class="note">※ 地圖上的箭頭只表示方向；田間的小水路太小，這張地圖沒有畫。</p>
-        <p><button onclick="enterField()" style="padding:9px 16px;border-radius:12px;background:#16a34a;color:#fff;font-weight:900;font-size:15.5px">走到這塊田看看：水怎麼進出 ▶</button></p>${src('a2')}` },
+        ${phset('fieldgate', '真實的田邊水路長這樣')}
+        <p><button onclick="enterField()" style="padding:9px 16px;border-radius:12px;background:#16a34a;color:#fff;font-weight:900;font-size:15.5px">走到這塊田看看：水怎麼進出 ▶</button></p>${PHCREDIT}${src('a2', 'field')}` },
   { v: 'chen', hl: ['陳厝厝排水支線'], t: '3. 用過的水去哪裡？', s: '陳厝厝排水支線（排水路）',
     b: `<p>橘色的是<strong style="color:var(--drain)">陳厝厝排水支線</strong>，在學校西南邊斜斜經過，大致<strong>由東南往西北</strong>流。</p>
         <p>灌溉圳把水<strong>送來</strong>，排水路把水<strong>帶走</strong>，兩種水路的工作不一樣，管理的單位也不一樣。</p>${src('a1', 'a2')}` },
