@@ -710,13 +710,17 @@ function buildWeir() {
       C.profile(MAT.con, cap, uc - 2.6, 5.2); } }                                           // 帽蓋
 
   for (const gu of [104, 244]) C.box(MAT.conD, gu - 0.6, gu + 0.6, TEACH.apron, TEACH.apron + 3.5, 29, 79);   // 導流牆：2023 空拍上兩道細長的牆
+  const h2 = (x, y) => { const t = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return t - Math.floor(t); };   // 不規則雜訊（避免排得太整齊）
+  const vn2 = (x, y) => { const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+    return lerp(lerp(h2(i, j), h2(i + 1, j), sx), lerp(h2(i, j + 1), h2(i + 1, j + 1), sx), sy); };
+  const fbm2 = (x, y) => vn2(x, y) * 0.5 + vn2(x * 2.1 + 5.3, y * 2.1 + 1.7) * 0.27 + vn2(x * 4.3 + 9.1, y * 4.3 + 3.3) * 0.15 + vn2(x * 8.7 + 2.2, y * 8.7 + 7.7) * 0.08;
   { const heap = (u0, u1, v0, v1, base, fn) => {                                            // 淤砂堆（高度用雜訊做，示意）
       const nu = Math.round(u1 - u0), nv = Math.round(v1 - v0), g = new THREE.PlaneGeometry(u1 - u0, v1 - v0, nu, nv); g.rotateX(-Math.PI / 2); g.translate((u0 + u1) / 2, 0, (v0 + v1) / 2);
       const P = g.attributes.position;
-      for (let i = 0; i < P.count; i++) { const u = P.getX(i), v = P.getZ(i), n = 0.5 + 0.3 * Math.sin(u * 0.11 + Math.sin(v * 0.13) * 2) + 0.2 * Math.sin(u * 0.37 - v * 0.29) * Math.cos(v * 0.21 + u * 0.05) + 0.06 * Math.sin(u * 1.7 + v * 1.1) * Math.sin(v * 2.3 - u * 0.9); P.setY(i, E(base) + fn(u, v, n)); }
+      for (let i = 0; i < P.count; i++) { const u = P.getX(i), v = P.getZ(i), n = fbm2(u * 0.035, v * 0.05); P.setY(i, E(base) + fn(u, v, n)); }
       g.computeVertexNormals(); const m = new THREE.Mesh(g, MAT.mudD); m.receiveShadow = m.castShadow = true; WG.add(m); };
-    heap(-6, END + 7, 87, 140, 190.6, (u, v, n) => Math.max(0, n - 0.3) * 6 * smooth(88, 93, v) * (1 - smooth(125, 140, v)));                 // 消能塊後面一大片
-    heap(-6, END + 7, 50, 79, TEACH.apron, (u, v, n) => Math.max(0, n - 0.6) * 6 * smooth(50, 60, v) - 0.3);                                // 池裡露出水面的泥灘
+    heap(-6, END + 7, 87, 140, 190.6, (u, v, n) => { const far = 100 + 22 * fbm2(u * 0.012 + 3.1, 0.5); return Math.max(0, n - 0.32 + 0.25 * smooth(0, 120, END - u)) * 9 * smooth(88, 92, v) * (1 - smooth(far - 6, far + 6, v)); });   // 消能塊後面：南側（靠山）堆得高又連成一大片、北側零散（照片 506314、老師照片）                 // 消能塊後面一大片
+    heap(-6, END + 7, 50, 79, TEACH.apron, (u, v, n) => Math.max(0, n - 0.6) * 5 * smooth(50, 62, v) - 0.3);                                // 池裡露出水面的泥灘
     const rock = new THREE.MeshStandardMaterial({ color: 0x3a3936, roughness: 0.9, flatShading: true });
     for (const [u, v, r] of [[62, 55, 1.4], [150, 44, 1.1], [205, 63, 1.5], [298, 52, 1.2], [333, 70, 1.0]]) { const m = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 0), rock); m.position.set(u, E(TEACH.apron + r * 0.55), v); m.rotation.set(u, v, 0); m.scale.y = 0.75; m.castShadow = true; WG.add(m); } }   // 池裡的大石頭（照片）
   // 下游側道路＝原集集大橋（斷面圖標「原集集大橋」，橋面約 EL 206.5）；寬約 9 m，堰墩和大橋橋墩結合在一起（影片）
@@ -1263,7 +1267,7 @@ const PLANS = {
   1300: { Q: 3000, label: '1300 以上（例：3000）', open: Array.from({ length: 18 }, (_, i) => i + 1) },
 };
 const RULE = {
-  normal: ['常時操作：水位調節閘門全開，弧形閘門關著把水位撐高，讓取水口取水；取水口上層閘門依下游需要的水量打開，下層平時關閉。不過平時也會放一點水到下游：2026 年 11 月 23 日現場看到第 17、18 號閘門開一點點在放水，消能池裡有水（開度、放水量是示意）。', '第四點（一）、第七點（一）；現場觀察'],
+  normal: ['平時：弧形閘門關著把水位撐高，讓兩岸取水口取水（取水口上層閘門開、下層關）；第 17、18 號開一點點，放少量水到下游。', '第四點（一）、第七點（一）；17、18 號是 2026-11-23 現場觀察，開度示意'],
   warn: ['警告性放水：正式放水前 1 小時，先開 1 座閘門慢慢放水（不超過 50 m³/s），並每 10～20 分鐘響一次放水警報，提醒下游的人離開河床。※ 畫面把 1 小時縮短成 8 秒', '第四點（二）、第十點（一）'],
   400: ['調節性放水：水比取水口能取的多，打開幾座閘門（畫面開第 9～11 號，示意）放掉多的水，讓水位維持。', '第四點（三）'],
   650: ['入流量超過 650 m³/s：把洪水集中在幾座閘門放（畫面開第 7～12 號，示意），順便沖走堰前的淤積、維持主河道。', '第四點（四）1'],

@@ -1711,6 +1711,7 @@ const INFO = {
 function openPanel(key) {
   const d = INFO[key](); $('pTitle').textContent = d.t; $('pSub').textContent = d.s;
   $('pBody').innerHTML = d.b; $('panel').classList.add('open'); $('panel').dataset.key = key;
+  if (key !== 'build' && buildDemo) buildDemo.g.visible = false;   // 建造示範的竹籠只在「石笱怎麼做」卡片打開時出現，不然會擋住實驗區
   const cr = $('clearRec'); if (cr) cr.onclick = () => { records = []; openPanel('records'); };
 }
 
@@ -1724,7 +1725,7 @@ function viewDef(v) {
   if (v === 'gou') { const u = units[Math.floor(units.length / 2)], t = u ? L(u.s, u.b) : L(-21, 20); return { t, p: t.clone().add(dir(-11, -9, 5.5)), sh: 30 }; }
   if (v === 'intake') { const t = L(2, -8); return { t, p: t.clone().add(dir(-17, 24, 22)), sh: 45 }; }
 }
-function flyTo(v, dur = 1.8) {
+function flyTo(v, dur = 1.8) { if (buildDemo) buildDemo.g.visible = false;
   document.querySelectorAll('.vw').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   if (v === 'walk') return startWalk();
   stopWalk();

@@ -103,11 +103,11 @@ blockquote{margin:8px 0;padding:6px 12px;border-left:4px solid #94a3b8;backgroun
 
 <div id="titleCard" class="glass">
   <div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/></svg></div>
-  <div><h1>八堡圳流域探索</h1><p>從二水圳頭到永靖、員林</p></div>
+  <div><h1>八堡圳流域探索</h1><p>從二水新式分水門到永靖、員林</p></div>
 </div>
 
 <div id="ctrl" class="glass">
-  <button id="bFlow">▶ 跟著水走<small>從圳頭放水</small></button>
+  <button id="bFlow">▶ 跟著水走<small>從新式分水門出發</small></button>
   <button id="bExag">地勢放大<small>高度 ×10</small></button>
 </div>
 <div id="exagNote">地勢高度放大 10 倍（不是真實比例）</div>
@@ -216,6 +216,7 @@ async function init() {
   const q = new URLSearchParams(location.search);
   if (q.get('ex') === '10') setExag(10, false);
   flyTo(q.get('view') || 'overview', 0);
+  if (q.get('top')) { const [lx, lz, h] = q.get('top').split(',').map(Number), t = W(lx, lz); controls.target.copy(t); camera.position.set(t.x, t.y + h, t.z + 0.01); controls.update(); }   // 除錯：?top=x,z,高度 正上方往下看（北朝上）
   if (q.get('card')) openPanel(q.get('card'), false);   // 直接打開某張說明卡（連結、截圖用）
   const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
   renderer.setAnimationLoop(frame);
@@ -266,7 +267,9 @@ async function buildTerrain() {
 /* ---------- 跟著水走的路線（OSM 串接）與停靠點 ---------- */
 const STOPS = [];
 function buildRoute() {
-  const pts = OSM.route, cum = [0];
+  // 2002 年起水由集集攔河堰經北岸聯絡渠道送來，在「新式分水門」就分給八堡圳和莿仔埤圳（老師現場、《MIT台灣誌》）→ 跟著水走從新式分水門出發，
+  // 沿 OSM 八堡圳那一段往西，經過舊的取入口制排水門旁，再接原本的路線
+  const pts = [LL(23.8007016, 120.6593767), [16150, 21075], [16131, 21074], [16097, 21076], [16076, 21090], [16070, 21098], [16047, 21119], ...OSM.route], cum = [0];
   for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
   const drainFrom = OSM.routeParts.findIndex(p => p.name === '東溝排水支線');
   const drainIdx = OSM.routeParts[drainFrom - 1].end - 1;          // 路線上「東溝 → 東溝排水支線」改名的點
@@ -280,7 +283,8 @@ function buildRoute() {
   ROUTE.near = ([x, z]) => { let b = 1e18, bi = 0; for (let i = 0; i < pts.length; i++) { const d = (pts[i][0] - x) ** 2 + (pts[i][1] - z) ** 2; if (d < b) { b = d; bi = i; } } return cum[bi]; };
   // 停靠點：經緯度依 階段4_史實清單.md
   const S = (key, lat, lon, name, short, color, opt = {}) => { const p = LL(lat, lon); STOPS.push({ key, p, s: ROUTE.near(p), name, short, color, ...opt }); };
-  S('intake', 23.79994, 120.65749, '八堡圳取入口', '取入口', '#475569');
+  S('newgate', 23.8007016, 120.6593767, '新式分水門・水從這裡出發', '新式分水門', '#0369a1', { lift: 260 });   // 和舊水門只差 200 m，標籤往上抬，遠看才不會疊在一起
+  S('intake', 23.79994, 120.65749, '取入口制排水門（舊水門）', '舊水門', '#475569');
   S('lin', 23.79927534, 120.64521811, '林先生廟・一圳二圳分水', '林先生廟', '#b45309');
   S('shifang', 23.8802, 120.5745, '世芳宮・一圳二圳最接近', '世芳宮', '#7c3aed');
   S('split', 23.88442, 120.57087, '八堡二圳東西溝分水門', '分水門', '#dc2626');
@@ -330,9 +334,10 @@ function buildLines() {
     }
     makeLine(l.pts, one ? IRR1 : IRR, one ? 3 : 3.4);
   }
-  // 八堡二圳內三排水：OpenStreetMap 沒有這條線。方向依使用者 2026-11-19 在畫面上校正的箭頭：從內三放水門往西、略偏北（每往西 100 m 約往北 9 m），畫約 1.1 公里（位置示意）
-  { const p = LL(23.8259509, 120.6004244); const pts = []; for (let k = 0; k <= 11; k++) pts.push([p[0] - 99.6 * k, p[1] - 8.8 * k]);
-    makeLine(pts, DRAIN, 2.8, { dashed: true, dash: 90, gap: 70, lift: 7, order: 4 }); NEISAN_MID = pts[5]; }
+  // 八堡二圳內三排水：OpenStreetMap 沒有這條線。2026-11-24 依 2023 正射影像（z19）描：從內三放水門往西南西，沿一排樹的直溝走（每往西 100 m 約往南 20 m），畫約 1 公里；
+  // 2026-11-19 版「往西略偏北」是我把老師的箭頭看錯方向，已更正
+  { const pts = [[10252, 18235], [10150, 18252], [10050, 18275], [9900, 18300], [9750, 18330], [9600, 18368], [9450, 18405], [9300, 18445]];
+    makeLine(pts, DRAIN, 2.8, { dashed: true, dash: 90, gap: 70, lift: 7, order: 4 }); NEISAN_MID = pts[4]; }
   // 路線上的流動虛線（水往下游流）：灌溉段藍白、排水段橘白
   const cut = ROUTE.pts.findIndex((_, i) => ROUTE.cum[i] >= ROUTE.drainKm);
   const a = makeLine(ROUTE.pts.slice(0, cut + 1), 0xffffff, 3.2, { dashed: true, dash: 70, gap: 160, lift: 9, order: 5 });
@@ -386,7 +391,7 @@ function addLabel(html, cls, lx, lz, lift, maxDist = 1e9, onClick, color, minDis
   L.update(); labels.push(L);
 }
 function buildLabels() {
-  for (const s of STOPS) addLabel(`<b>${STOPS.indexOf(s) + 1}</b>${s.short}`, 'pin', s.p[0], s.p[1], 40, 60000, () => openPanel(s.key, false), s.color);
+  for (const s of STOPS) addLabel(`<b>${STOPS.indexOf(s) + 1}</b>${s.short}`, 'pin', s.p[0], s.p[1], s.lift ?? 40, 60000, () => openPanel(s.key, false), s.color);
   const P = (n, lat, lon, cls, lift, md, mn) => { const p = LL(lat, lon); addLabel(n, cls, p[0], p[1], lift, md, null, null, mn); };
   // 不在路線上的地點
   const yx = LL(23.924493, 120.5624108); addLabel('<b>宮</b>永興宮', 'pin', yx[0], yx[1], 25, 9000, () => openPanel('temple', false), '#be123c');
@@ -394,7 +399,6 @@ function buildLabels() {
   if (NEISAN_MID) addLabel('八堡二圳內三排水（位置示意）', 'geo drain', NEISAN_MID[0], NEISAN_MID[1], 20, 9000);
   for (const [k, la, lo, ch, nm] of [['siteA', 23.896848, 120.565649, '門', '東溝水門'], ['siteB', 23.901925, 120.564743, '閘', '東溝小閘門'], ['siteC', 23.904579, 120.564305, '橋', '浮圳二號橋'], ['siteD', 23.920175, 120.5598416, '閘', '東溝小閘門']]) {
     const p = LL(la, lo); addLabel(`<b>${ch}</b>${nm}`, 'pin', p[0], p[1], 22, 7000, () => openPanel(k, false), '#2563eb'); }
-  { const p = LL(23.8007016, 120.6593767); addLabel('<b>新</b>新式分水門', 'pin', p[0], p[1], 30, 9000, () => openPanel('newgate', false), '#0369a1'); }
   const wn = LL(23.9463, 120.5815); addLabel('<b>沙</b>萬年沉砂池', 'pin', wn[0], wn[1], 40, 60000, () => openPanel('wannian', false), '#0f766e');
   // 地名、地形（OSM 村鎮、車站）
   for (const p of OSM.places) {
@@ -456,14 +460,14 @@ const elev = key => { const s = STOPS.find(t => t.key === key); return Math.roun
 const kmFromLin = key => ((STOPS.find(t => t.key === key).s - ROUTE.lin) / 1000).toFixed(1);
 function INFO(key) {
   switch (key) {
-    case 'intake': return { t: '八堡圳取入口', s: `二水鄉｜高度約 ${elev('intake')} 公尺`,
-      b: `<p>水從上游的集集攔河堰，經北岸聯絡渠道送到這裡，進入八堡圳。</p>
-          <p>旁邊是 1932 年建的「取入口制排水門」，現在是歷史建築。它原本的 8 道水閘已經封閉；現在水在上游約 200 公尺的新式分水門就分流，一股往源泉的八堡圳，一股流過 5 道藍色水門往溪州、竹塘方向。</p>
+    case 'intake': return { t: '取入口制排水門（舊水門）', s: `二水鄉｜1932 年建・歷史建築｜高度約 ${elev('intake')} 公尺`,
+      b: `<p>八堡圳的水從上游約 200 公尺的<strong>新式分水門</strong>分出來後，往西流過這座舊水門旁邊，繼續往源泉的林先生廟。</p>
+          <p>這座 1932 年建的「取入口制排水門」以前是八堡圳的進水口，現在是歷史建築。它原本的 8 道水閘已經封閉；另外 5 道藍色水門，現在讓分給莿仔埤圳的那股水流過去，往溪州、竹塘方向。</p>
           ${phset('gate')}
           <p>取水的地方以前搬過好幾次：最早在鼻仔頭，清代往上游搬到名間濁水村，1907、1932 年回到二水倡和村，2002 年起改從集集攔河堰送水。</p>
           <p><a href="era.html?era=now&view=intake" style="color:#0369a1;font-weight:900">看圳頭的古今變化 →</a>　<a href="era.html?era=qing&card=move" style="color:#0f766e;font-weight:900">看圳頭搬家 →</a>　<a href="jiji.html" style="color:#0369a1;font-weight:900">到上游看集集攔河堰 →</a></p>${PHCREDIT}${src('moc', 'chc', 'field', 'dem')}` };
     case 'newgate': return { t: '新式分水門', s: '取入口制排水門上游約 200 公尺・八堡圳公園斜對面',
-      b: `<p>集集攔河堰的水經北岸聯絡渠道送到這裡。現場看到水在這裡就<strong>分成兩股</strong>，中間隔著圳堤：一股往西，是流到源泉的八堡圳；一股往西南，流過舊水門的 5 道藍色水門，往溪州、竹塘方向（莿仔埤圳）。</p>
+      b: `<p><strong>跟著水走就從這裡出發。</strong>集集攔河堰的水經北岸聯絡渠道送到這裡。現場看到水在這裡就<strong>分成兩股</strong>，中間隔著圳堤：一股往西，是流到源泉的八堡圳；一股往西南，流過舊水門的 5 道藍色水門，往溪州、竹塘方向（莿仔埤圳）。</p>
           <p>《MIT台灣誌》訪問的水利會人員說，以前八堡圳和莿仔埤圳是在舊水門那裡「分左右水」；集集攔河堰完成後，改由北岸聯絡渠道在這裡就分給八堡圳和莿仔埤圳。</p>
           ${phset('newgate')}
           <p>水利法規列出北岸聯絡渠道沿線的設施，裡面有「八堡圳分水工」和「莿仔埤圳分水工」。這座水門現場沒有拍到名牌，正式名稱還沒確認。</p>
@@ -517,7 +521,7 @@ function INFO(key) {
       b: `<p>我們的學校在東溝的<strong>東邊約 1 公里</strong>。鄉土教材說東寧村「有八堡二圳東溝與浮圳為鄰」。</p>
           <div class="keys"><span style="color:var(--irr)">東溝</span><span>灌溉圳：把水送到田裡（農田水利署彰化管理處管理）</span>
           <span style="color:var(--drain)">陳厝厝排水</span><span>排水路：在學校西南邊斜斜經過，大致由東南往西北流，把田裡多的水、雨水排進員林大排水系（彰化縣管理）</span></div>
-          <p>從圳頭流到這裡大約 ${((STOPS.find(t => t.key === 'school').s) / 1000).toFixed(0)} 公里，高度從約 ${elev('intake')} 公尺降到約 ${elev('school')} 公尺。</p>
+          <p>從新式分水門流到這裡大約 ${((STOPS.find(t => t.key === 'school').s) / 1000).toFixed(0)} 公里，高度從約 ${elev('newgate')} 公尺降到約 ${elev('school')} 公尺。</p>
           <p><a href="school.html" style="display:inline-block;padding:8px 14px;border-radius:12px;background:#16a34a;color:#fff;font-weight:900;text-decoration:none">走進校園周邊 →</a></p>${src('a6', 'osm', 'dem')}` };
     case 'rename': return { t: '灌溉圳變成排水路', s: `永靖鄉公所旁｜高度約 ${elev('rename')} 公尺`,
       b: `<p>這是同一條連續的溝。地圖上，上游叫<strong>八堡二圳東溝</strong>（灌溉圳），到了永靖鄉公所旁，下游改叫<strong>東溝排水</strong>（排水路）。名字很像，但工作不同：</p>
@@ -526,7 +530,7 @@ function INFO(key) {
           <p class="note">※ 改名的位置依 Google 地圖名稱，和「永興周邊水渠系統」那一頁相同。</p>${src('gm', 'osm')}` };
     case 'end': return { t: '流進員林大排', s: `埔鹽系統交流道下｜高度約 ${elev('end')} 公尺`,
       b: `<p>東溝排水支線在這裡接進<strong>員林大排</strong>，水繼續往西流出畫面。</p>
-          <p>這滴水從二水圳頭出發，一共走了約 <strong>${(ROUTE.len / 1000).toFixed(0)} 公里</strong>，高度下降約 <strong>${elev('intake') - elev('end')} 公尺</strong>。一路上都是往低處流，<strong>不用抽水機</strong>。</p>
+          <p>這滴水從二水的新式分水門出發，一共走了約 <strong>${(ROUTE.len / 1000).toFixed(0)} 公里</strong>，高度下降約 <strong>${elev('newgate') - elev('end')} 公尺</strong>。一路上都是往低處流，<strong>不用抽水機</strong>。</p>
           <p class="note">※ 畫面加快播放，真實的水流得比較慢。</p>${src('osm', 'dem')}` };
     case 'temple': return { t: '永興宮', s: '永靖鄉東寧村永興路二段 162 號',
       b: `<p>在永興國小西邊、永興路二段上，主祀三山國王。陳厝厝排水在它的南側流過。</p>
@@ -611,9 +615,10 @@ function drawProfile() {
   g += `<text x="2" y="${T + 9}" style="font-size:10.5px">公尺</text>`;
   for (let k = 0; k <= ROUTE.len / 1000; k += 5) g += `<text x="${X(k * 1000)}" y="${Ht - 3}" text-anchor="middle">${k} km</text>`;
   g += `<path d="${path(0, ROUTE.drainKm)}" fill="none" stroke="var(--irr)" stroke-width="3.5"/><path d="${path(ROUTE.drainKm, ROUTE.len)}" fill="none" stroke="var(--drain)" stroke-width="3.5"/>`;
+  let lastX = -99;
   STOPS.forEach((st, i) => {
-    const hh = hAt(st.p[0], st.p[1]);
-    g += `<g style="cursor:pointer" data-k="${st.key}"><circle cx="${X(st.s)}" cy="${Y(hh)}" r="8" fill="${st.color}" stroke="#fff" stroke-width="1.5"/><text x="${X(st.s)}" y="${Y(hh) + 4}" text-anchor="middle" style="fill:#fff;font-size:10px">${i + 1}</text></g>`;
+    const hh = hAt(st.p[0], st.p[1]), cx = Math.max(X(st.s), lastX + 17), cy = Y(hh) + (cx > X(st.s) + 1 ? 14 : 0); lastX = cx;   // 太近的點往右下錯開，不要疊在一起
+    g += `<g style="cursor:pointer" data-k="${st.key}"><circle cx="${cx}" cy="${cy}" r="8" fill="${st.color}" stroke="#fff" stroke-width="1.5"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" style="fill:#fff;font-size:10px">${i + 1}</text></g>`;
   });
   g += `<g id="profDrop"><line y1="${T}" y2="${Ht - B}" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="3 3"/><circle r="6" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/></g>`;
   svg.innerHTML = g;
