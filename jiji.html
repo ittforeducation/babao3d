@@ -177,6 +177,7 @@ a{color:var(--accent)}
   <button class="vw" data-v="weir" style="--c:#0369a1"><b>2</b>攔河堰</button>
   <button class="vw" data-v="gate" style="--c:#2563eb"><b>3</b>弧形閘門</button>
   <button class="vw" data-v="stilling" style="--c:#64748b"><b>消</b>消能池</button>
+  <button class="vw" data-v="lookout" style="--c:#0f766e"><b>觀</b>觀景台</button>
   <button class="vw" data-v="intake" style="--c:#b45309"><b>4</b>北岸取水口</button>
   <button class="vw" data-v="sluice" style="--c:#a16207"><b>5</b>排砂道</button>
   <button class="vw" data-v="nbasin" style="--c:#92400e"><b>6</b>北岸沉砂池</button>
@@ -210,7 +211,7 @@ a{color:var(--accent)}
     <button class="opt" id="btnFlush">打開排砂閘門</button>
     <span class="note" id="basinTxt" style="margin:0"></span>
   </div>
-  <div class="note">北岸沉砂池：分水閘門 2 座、排砂閘門 12 座、退水閘門 2 座（〈水門操作規定〉第三點（五））。排砂閘門平時關閉，看沉砂溝淤砂的情形打開排砂，清完就關；打開前要響放水警報（第八點（二）、第十點（三））。沉砂池在取水口下游，3D 畫面裡沒有畫出來（正射影像找不到能確定的位置）。</div>
+  <div class="note">北岸沉砂池：分水閘門 2 座、排砂閘門 12 座、退水閘門 2 座（〈水門操作規定〉第三點（五））。排砂閘門平時關閉，看沉砂溝淤砂的情形打開排砂，清完就關；打開前要響放水警報（第八點（二）、第十點（三））。3D 畫面裡的北岸沉砂池，位置和外框依正射影像畫出。</div>
 </div></div>
 
 <div id="credit">地形：內政部20公尺網格DEM｜影像：國土測繪中心正射影像｜圖資：© OpenStreetMap 貢獻者｜材質與天空：Poly Haven (CC0)｜閘門數量、尺寸依〈集集攔河堰水庫水門操作規定〉；外型、水流為教學示意</div>
@@ -265,6 +266,49 @@ for (const it of Object.values(INTAKES)) {
   it.local = (x, z) => [(x - it.m[0]) * it.dx + (z - it.m[1]) * it.dz, (x - it.m[0]) * it.zx + (z - it.m[1]) * it.zz];
 }
 
+/* ---------- 河道、水路、道路（2023 正射影像＋OSM＋2026-11-23 現場照片） ---------- */
+// 河道範圍：水面、淤積泥灘只畫在這裡面，外面是堤防、道路、房子。以 OSM「集集攔河堰水庫」水域線為底，東邊延到地形邊界；靠堰那邊沿堰軸，兩端沿取水口前緣
+const RIVER = [wp(-4, -1.2), wp(-4, -34), [1845, 1376], [1881, 1349], [1900, 1336], [2038, 1257], [2134, 1116], [2196, 1157], [2246, 1191], [2517, 1248], [2712, 1265], [3015, 1270], [3322, 1244], [3449, 1262], [3700, 1262],
+  [3700, 2050], [3370, 2091], [3295, 2108], [3255, 2109], [3169, 2101], [3130, 2098], [3041, 2112], [2938, 2138], [2870, 2044], [2683, 1978], [2308, 2079], [2256, 2093], [2094, 1994], [2024, 1943], [1979, 1910], [1918, 1842], [1867, 1768], [1810, 1732], wp(356.5, -34), wp(356.5, -1.2)];
+// 北岸堤防（正射影像：管理中心前的混凝土護岸、北岸圍堤；北清水溝溪匯入口不築堤）
+const LEVEE = [[[1845, 1376], [1881, 1349], [1900, 1336], [2038, 1257], [2134, 1116]], [[2196, 1157], [2246, 1191], [2517, 1248], [2712, 1265], [3015, 1270], [3322, 1244], [3449, 1262], [3700, 1262]]];
+// 平時的水路：現場看到大部分是淤積的泥灘，主流分到南、北兩側流向兩岸取水口，中間只有幾條細流（2026-11-23 象鼻山觀景台照片）；水路位置是示意
+const CHAN = {
+  main: [
+    [[3700, 1335], [3400, 1330], [3050, 1315], [2700, 1305], [2400, 1300], [2150, 1305], [2000, 1325], [1920, 1352], wp(30, -60), wp(12, -42), wp(-2, -42)],   // 北側主流 → 北岸取水口、1–2 號排砂道
+    [[2285, 2085], [2180, 2010], [2060, 1935], [1960, 1860], [1905, 1785], wp(330, -62), wp(320, -42), wp(285, -42)],                                        // 南側主流（南清水溝溪匯入）→ 南岸取水口、3–4 號排砂道
+    [[3360, 2060], [3000, 2050], [2700, 1960], [2450, 1990], [2285, 2085]],
+    [wp(285, -42), wp(354, -42)],                                                                                                                              // 17、18 號閘門前
+  ],
+  thin: [
+    [[3500, 1600], [3150, 1640], [2850, 1600], [2550, 1540], [2300, 1480], [2120, 1420], [2000, 1360]],
+    [[3300, 1850], [2950, 1820], [2650, 1760], [2400, 1720], [2200, 1760], [2050, 1800], [1960, 1840]],
+    [[2900, 1450], [2650, 1420], [2400, 1395], [2200, 1360]],
+    [[2600, 1650], [2350, 1610], [2150, 1600], [1980, 1560]],
+  ],
+  grass: [[2250, 1600, 60, 25, 0.2], [2450, 1500, 80, 20, -0.1], [2700, 1700, 70, 30, 0.1], [2550, 1850, 60, 25, 0], [3000, 1550, 90, 30, 0.15], [3200, 1750, 70, 25, -0.2], [2100, 1700, 50, 20, 0.3]],
+};
+for (const k of ['main', 'thin']) CHAN[k] = CHAN[k].map(L => chaikin(L, 3));
+const siltAt = (x, z) => 213.35 + 1.7 * smooth(1900, 3600, x);      // 淤積泥灘面（示意）：靠堰比常水位高一點點，往上游慢慢變高
+// 道路延伸段（正射影像）：攔河路北邊沿管理中心旁、南端往西南彎約 200 m；台3丙（原集集大橋）兩端接回地面
+const ROADS = [
+  { w: 16, el: TEACH.deck + 0.1, pts: [wp(-8, -18), wp(-15, -18), [1824, 1352], [1830, 1330], [1842, 1306], [1858, 1285], [1880, 1264], [1908, 1246], [1940, 1232], [1975, 1221], [2010, 1212]] },
+  { w: 16, el: TEACH.deck + 0.1, pts: [wp(361.5, -18), wp(368.5, -18), [1791, 1750], [1786, 1763], [1778, 1776], [1766, 1790], [1750, 1803], [1732, 1815], [1712, 1826], [1690, 1837], [1666, 1848], [1645, 1857], [1625, 1866]] },
+  { w: 9.2, el: 206.7, pts: [wp(361.5, 19), wp(368.5, 19), [1756, 1750], [1754, 1762], [1746, 1774], [1732, 1783], [1712, 1790], [1690, 1795]] },
+  { w: 9.2, el: 206.7, pts: [wp(-8, 19), wp(-15, 19), [1783, 1345], [1782, 1325], [1788, 1305], [1800, 1288], [1815, 1272], [1835, 1252]] },
+];
+const LOOKOUT = [1803, 1808];   // 象鼻山觀景台：2023 正射影像上的涼亭屋頂
+function inPoly(P, x, z) { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, zi] = P[i], [xj, zj] = P[j]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) c = !c; } return c; }
+function segDist(x, z, a, b) { const dx = b[0] - a[0], dz = b[1] - a[1], L2 = dx * dx + dz * dz || 1, t = clamp(((x - a[0]) * dx + (z - a[1]) * dz) / L2, 0, 1); return [Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t), t]; }
+function lineDist(pts, x, z) { let best = 1e9, at = 0, acc = 0; for (let i = 0; i < pts.length - 1; i++) { const L = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]), [d, t] = segDist(x, z, pts[i], pts[i + 1]); if (d < best) { best = d; at = acc + t * L; } acc += L; } return [best, at, acc]; }
+function bedAt(x, z) {            // 河道內的地面：淤積泥灘，挖出主流、細流
+  const S = siltAt(x, z); let y = S + 0.22 * Math.sin(x * 0.013 + z * 0.021) * Math.cos(z * 0.017 - x * 0.009);
+  const near = smooth(-200, -70, toUV(x, z)[1]);
+  for (const L of CHAN.main) { const d = lineDist(L, x, z)[0], hw = 22; if (d < hw) { const b = lerp(S - 0.35, 201.5, near); y = Math.min(y, b + (y - b) * (d / hw) ** 2); } }
+  return y;
+}
+let RIVER_MASK;
+
 async function loadGrid(name) {
   const meta = await (await fetch(DATA + `meta_${name}.json`)).json();
   const buf = await (await fetch(DATA + `dem_${name}.f32`)).arrayBuffer();
@@ -313,7 +357,7 @@ const ST = {
   key: 'normal', Q: 150, level: TEACH.normal,
   gate: new Array(18).fill(0), gateT: new Array(18).fill(0),
   sl: [0, 0, 0, 0], slT: [0, 0, 0, 0],
-  up: 0.6, warn: false, flushing: false, mound: 3.2, basin: 0.35, basinFlush: false,
+  up: 0.6, hQ: 0, warn: false, flushing: false, mound: 3.2, basin: 0.35, basinFlush: false,
 };
 const U = { time: { value: 0 }, mud: { value: 0 }, mudSl: { value: 0.3 } };
 let renderer, scene, camera, controls, sun, clock = new THREE.Clock();
@@ -335,12 +379,14 @@ async function init() {
   await Promise.all([envP, buildTerrainMesh(t)]);
   await buildOuter(gO, gJ);
   waterN = await loadTex(TEX + 'waternormals.jpg');
-  buildWeir(); buildIntakes(); buildMounds(); buildPool(); buildBasinWater(); buildRiverDown(); buildSplash(); buildCenter(); buildRoutes(); buildBasins();
+  buildWeir(); buildRoads(); buildLookout(); buildIntakes(); buildMounds(); buildPool(); buildBasinWater(); buildRiverDown(); buildSplash(); buildCenter(); buildRoutes(); buildBasins();
   buildLabels(); setupUI(); drawRoute();
   const q = new URLSearchParams(location.search);
   setTimeout(() => { if (q.get('card')) openPanel(q.get('card')); }, 0);   // 直接打開某張說明卡（連結、截圖用）
   setInflow(q.get('q') || 'normal', true);
   flyTo(q.get('view') || 'overview', 0);
+  if (q.get('noui')) document.head.insertAdjacentHTML('beforeend', '<style>#cfg,#res,#rule,#views,.glass,#labels{display:none!important}</style>');   // 除錯：截圖不要面板
+  if (q.get('cam')) { const c = q.get('cam').split(',').map(Number); camera.position.set(c[0] - CX, c[1], c[2] - CZ); controls.target.set(c[3] - CX, c[4], c[5] - CZ); controls.update(); }   // 除錯：?cam=相機x,y,z,目標x,y,z（場景座標）
   const ld = document.getElementById('loading'); ld.classList.add('done'); setTimeout(() => ld.remove(), 700);
   renderer.setAnimationLoop(frame);
   window.__jj = { scene, camera, controls, ST, U, OBJ, flyTo, setInflow, solveLevel, outflow, CX, CZ, groundY, top: (lx, lz, h = 500) => { gsap.killTweensOf(camera.position); gsap.killTweensOf(controls.target); const y = groundY(lx, lz); controls.target.set(lx - CX, y, lz - CZ); camera.position.set(lx - CX, y + h, lz - CZ + 0.01); controls.update(); } };   // 除錯用
@@ -385,20 +431,40 @@ function buildTerrain(g) {
   for (const def of Object.values(BASINS)) { const ux = Math.cos(def.ang), uz = Math.sin(def.ang);
     for (const b of def.list) { let sum = 0, n = 0;
       for (let a = 0; a <= 1.001; a += 0.1) for (let c = -0.5; c <= 0.501; c += 0.1) { const s = a * (b.L + b.fL), t = c * b.w; sum += samp(b.o[0] + ux * s - uz * t, b.o[1] + uz * s + ux * t); n++; }
-      b.g = sum / n; b.inside = (x, z) => { const dx = x - b.o[0], dz = z - b.o[1], s = dx * ux + dz * uz, t = -dx * uz + dz * ux; return s > -10 && s < b.L + b.fL + 3 && Math.abs(t) < b.w / 2 + 4; }; } }
+      b.g = sum / n; b.inside = (x, z) => { const dx = x - b.o[0], dz = z - b.o[1], s = dx * ux + dz * uz, t = -dx * uz + dz * ux; return s > (def.fine ? -24 : -10) && s < b.L + b.fL + 3 && Math.abs(t) < b.w / 2 + 4; }; } }
+  const hLook = samp(...LOOKOUT);
+  for (const r of ROADS) { const e = r.pts[r.pts.length - 1]; let g = 0, n = 0; for (let a = -20; a <= 20; a += 10) for (let b = -20; b <= 20; b += 10) { g += samp(e[0] + a, e[1] + b); n++; }
+    r.tot = lineDist(r.pts, ...r.pts[0])[2]; r.end = clamp(g / n, r.el - 12, r.el + 2); r.at = d => lerp(r.el, r.end, smooth(0, r.tot, d)); }
   for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
     const lx = i * STEP, lz = j * STEP; let y = samp(lx, lz);
-    const [u, v] = toUV(lx, lz);
-    if (u > -12 && u < 366 && v > -34 && v < 96) y = Math.min(y, v < -3 ? 199.5 : 189.5);
-    else if (u > -70 && u < 425 && v > -100 && v <= -34) y = Math.min(y, lerp(199.5, y, smooth(-80, -100, v)));   // 堰前水庫底（水面下，示意）
-    for (const it of Object.values(INTAKES)) { const [s, t] = it.local(lx, lz); if (Math.abs(s) < it.L / 2 + 8 && t > -4 && t < 34) y = Math.min(y, 201.5); }
+    const [u, v] = toUV(lx, lz), inDam = u > -7 && u < 360.5 && v > -34 && v < 150;
+    if (inDam && v < 96) y = Math.min(y, v < -3 ? 199.5 : 189.5);                          // 堰體、消能池（只挖兩道邊牆之間，不吃到兩岸道路）
+    else if (inDam) y = Math.min(y, lerp(190.2, y, smooth(115, 160, v)));                 // 消能塊下游接回河床
+    else if (inPoly(RIVER, lx, lz)) { let b = bedAt(lx, lz); if (u > -40 && u < 400 && v > -46) b = lerp(199.5, b, smooth(-34, -46, v)); y = lerp(b, y, smooth(3550, 3700, lx)); }
+    else if (!(u > -30 && u < 390 && v > -40 && v < 200) && (() => { let m = 1e9; for (let k = 0; k < RIVER.length; k++) m = Math.min(m, segDist(lx, lz, RIVER[k], RIVER[(k + 1) % RIVER.length])[0]); return m < 16; })()) y = Math.max(y, siltAt(lx, lz) + 0.5);
+    if (!inDam && !inPoly(RIVER, lx, lz) && !(u > -30 && u < 390 && v > -40 && v < 200)) { let d = 1e9; for (const L of LEVEE) d = Math.min(d, lineDist(L, lx, lz)[0]); if (d < 20) y = Math.max(y, lerp(217.6, y, smooth(9, 20, d))); }   // 北岸堤防
+    for (const it of Object.values(INTAKES)) { const [s, t] = it.local(lx, lz);
+      if (Math.abs(s) < it.L / 2 + 8 && t > -4 && t < 34) y = Math.min(y, 201.5);
+      else if (Math.abs(s) < it.L / 2 + 14 && t > -60 && t <= -4) y = Math.max(y, lerp(TEACH.deck - 0.8, y, smooth(-45, -60, t) + smooth(it.L / 2 + 8, it.L / 2 + 14, Math.abs(s)) - smooth(-45, -60, t) * smooth(it.L / 2 + 8, it.L / 2 + 14, Math.abs(s)))); }   // 取水口後方的機房平台（20 m 地形太粗，會低於常水位）
     for (const def of Object.values(BASINS)) for (const b of def.list) if (b.inside(lx, lz)) y = b.g - 0.4;
+    if (!inDam) for (const r of ROADS) { const [d, at] = lineDist(r.pts, lx, lz), hw = r.w / 2; if (d < hw + 16) y = lerp(r.at(at) - 0.8, y, smooth(hw + 5, hw + 16, d)); }   // 路基（路面兩側各留 5 m 平的，山那一側再往上接回地形）
+    { const dL = Math.hypot(lx - LOOKOUT[0], lz - LOOKOUT[1]); if (dL < 22) y = lerp(hLook, y, smooth(9, 22, dL)); }
     Y[j * NX + i] = y;
   }
   heightAt = (wx, wz) => {
     const fx = clamp((wx + CX) / STEP, 0, NX - 1.001), fz = clamp((wz + CZ) / STEP, 0, NZ - 1.001), i = Math.floor(fx), j = Math.floor(fz), tx = fx - i, tz = fz - j;
     return lerp(lerp(Y[j * NX + i], Y[j * NX + i + 1], tx), lerp(Y[(j + 1) * NX + i], Y[(j + 1) * NX + i + 1], tx), tz) - BASE_H;
   };
+  { const SC = 0.4, cv = document.createElement('canvas'); cv.width = Math.round(W * SC); cv.height = Math.round(D * SC); const g = cv.getContext('2d');   // 河道遮罩：R＝河道、G＝水路（河道內）／堤防（河道外）、B＝草
+    g.fillStyle = '#000'; g.fillRect(0, 0, cv.width, cv.height); g.scale(SC, SC); g.lineJoin = g.lineCap = 'round';
+    const path = pts => { g.beginPath(); pts.forEach((q, k) => k ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); };
+    g.strokeStyle = '#0f0'; g.lineWidth = 24; for (const L of LEVEE) { path(L); g.stroke(); }
+    g.fillStyle = '#f00'; path(RIVER); g.closePath(); g.fill();
+    g.globalCompositeOperation = 'lighter';
+    g.strokeStyle = '#0f0'; g.lineWidth = 30; for (const L of CHAN.main) { path(L); g.stroke(); }
+    g.strokeStyle = 'rgb(0,190,0)'; g.lineWidth = 8; for (const L of CHAN.thin) { path(L); g.stroke(); }
+    g.fillStyle = '#00f'; for (const [x, z, a, b, r] of CHAN.grass) { g.beginPath(); g.ellipse(x, z, a, b, r, 0, Math.PI * 2); g.fill(); }
+    RIVER_MASK = new THREE.CanvasTexture(cv); }
   return { NX, NZ, STEP, W, D, Y };
 }
 function gridGeometry(pos, uv, NX, NZ) {
@@ -416,12 +482,31 @@ async function buildTerrainMesh(t) {
   ortho.anisotropy = 16;
   const mat = new THREE.MeshStandardMaterial({ map: ortho, roughness: 0.95, metalness: 0 });
   mat.onBeforeCompile = sh => {
-    Object.assign(sh.uniforms, { tPeb: { value: pebD }, tPebN: { value: pebN }, tRock: { value: rockD }, tMud: { value: mudD } });
+    Object.assign(sh.uniforms, { tPeb: { value: pebD }, tPebN: { value: pebN }, tRock: { value: rockD }, tMud: { value: mudD }, tMask: { value: RIVER_MASK } });
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vW;')
       .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvW = (modelMatrix * vec4(transformed,1.0)).xyz;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
-      varying vec3 vW; uniform sampler2D tPeb, tPebN, tRock, tMud;`)
+      varying vec3 vW; uniform sampler2D tPeb, tPebN, tRock, tMud, tMask; ${NOISE}
+      float fbm(vec2 p){ return vn(p) * 0.5 + vn(p * 2.03 + 7.1) * 0.27 + vn(p * 4.1 + 3.3) * 0.15 + vn(p * 8.3 + 1.7) * 0.08; }`)
       .replace('#include <map_fragment>', `#include <map_fragment>
+      vec4 mk = texture2D(tMask, vec2((vW.x + ${CX.toFixed(2)}) / ${t.W.toFixed(1)}, 1.0 - (vW.z + ${CZ.toFixed(2)}) / ${t.D.toFixed(1)}));
+      float bedM = mk.r * (1.0 - smoothstep(3550.0, 3700.0, vW.x + ${CX.toFixed(2)}));
+      {
+        vec2 pw = vW.xz + vec2(fbm(vW.xz * 0.004), fbm(vW.xz * 0.004 + 5.2)) * 160.0;
+        float ml = dot(texture2D(tMud, vW.xz / 9.0).rgb, vec3(.299,.587,.114)), n1 = fbm(pw * 0.012), n2 = fbm(pw * 0.0035 + 2.0);
+        vec3 mud = vec3(0.21, 0.205, 0.195) * (0.8 + 0.4 * ml) * (0.7 + 0.6 * n2);                      // 灰色淤泥（現場照片），深淺不一
+        float wetP = smoothstep(0.5, 0.68, n1 * 0.55 + n2 * 0.45);                                       // 一片片濕的泥
+        mud = mix(mud, vec3(0.09, 0.10, 0.10), wetP * 0.75);
+        float rl = 1.0 - smoothstep(0.0, 0.018, abs(fbm(pw * 0.006 + 9.0) - 0.5));                       // 泥灘上細細分叉的水痕
+        mud = mix(mud, vec3(0.11, 0.15, 0.16), rl * 0.75);
+        float chan = smoothstep(0.88, 1.0, mk.g), rill = smoothstep(0.45, 0.72, mk.g) * (1.0 - chan);
+        mud = mix(mud, vec3(0.12, 0.13, 0.13), smoothstep(0.2, 0.6, mk.g) * 0.8);                      // 水路旁濕的泥
+        mud = mix(mud, vec3(0.16, 0.22, 0.23), rill * 0.85);                                            // 細流
+        mud = mix(mud, vec3(0.19, 0.27, 0.28), chan * 0.9);                                             // 主流（平時看到的水）
+        mud = mix(mud, vec3(0.26, 0.25, 0.10) * (0.7 + 0.6 * ml), mk.b * smoothstep(0.42, 0.55, fbm(pw * 0.02)) * 0.95);   // 一片片的草
+        diffuseColor.rgb = mix(diffuseColor.rgb, mud, bedM);
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.66, 0.64, 0.60), (1.0 - step(0.5, mk.r)) * mk.g * 0.85);   // 堤防
+      }
       float camD = distance(cameraPosition, vW);
       float near = 1.0 - smoothstep(60.0, 700.0, camD);
       vec3 base = diffuseColor.rgb;
@@ -432,8 +517,10 @@ async function buildTerrainMesh(t) {
       vec3 peb = texture2D(tPeb, vW.xz / 1.6).rgb, rock = texture2D(tRock, vW.xz / 7.0).rgb, mud = texture2D(tMud, vW.xz / 4.0).rgb;
       vec3 det = mix(mud, mix(rock, peb, 0.55), gravel);
       vec3 detTone = det / (dot(det, vec3(.299,.587,.114)) + 1e-3) * lum;
-      float k = near * mix(0.55, 0.85, gravel) * (1.0 - green * 0.55);
+      float k = near * mix(0.55, 0.85, gravel) * (1.0 - green * 0.55) * (1.0 - bedM * 0.85);
       diffuseColor.rgb = mix(base, mix(detTone, det * vec3(0.92,0.95,1.0), gravel * 0.7), k);`)
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+      roughnessFactor = mix(roughnessFactor, 0.18, step(0.5, mk.r) * smoothstep(0.45, 0.9, mk.g));`)
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
       {
         vec3 nm = texture2D(tPebN, vW.xz / 1.6).xyz * 2.0 - 1.0;
@@ -484,6 +571,8 @@ const MAT = {
   yel: new THREE.MeshStandardMaterial({ color: 0xf2c230, roughness: 0.7 }),
   pole: new THREE.MeshStandardMaterial({ color: 0xd8dde2, roughness: 0.5, metalness: 0.4 }),
   water: new THREE.MeshStandardMaterial({ color: 0x3f7f86, roughness: 0.2, transparent: true, opacity: 0.85 }),
+  silt: new THREE.MeshStandardMaterial({ map: gravelTex, color: 0x7a776f, roughness: 0.8 }),      // 消能池底淤滿的灰色泥沙
+  mudD: new THREE.MeshStandardMaterial({ color: 0x2f2e2b, roughness: 0.95 }),                     // 黑灰色淤砂堆
 };
 /* 靜態幾何先收集，最後依材質合併（減少 draw call） */
 function collector() {
@@ -556,7 +645,7 @@ function sheetMat(mudU) {
     fragmentShader: `uniform float uTime, uFlow, uMud; varying vec2 vUv; ${NOISE}
       void main(){
         float n = vn(vec2(vUv.x * 16.0, vUv.y * 22.0 - uTime * 3.2)), n2 = vn(vec2(vUv.x * 45.0, vUv.y * 60.0 - uTime * 7.0));
-        vec3 base = mix(vec3(0.10,0.30,0.28), vec3(0.22,0.16,0.09), uMud);
+        vec3 base = mix(vec3(0.24,0.25,0.23), vec3(0.22,0.16,0.09), uMud);   // 混濁的灰色水（照片 131018）
         float foam = clamp(smoothstep(0.45, 0.95, n * 0.6 + n2 * 0.4) * (0.35 + 0.8 * vUv.y) + smoothstep(0.45, 0.75, vUv.y) * 0.55, 0.0, 1.0);
         vec3 col = mix(base, vec3(0.82,0.84,0.82), foam);
         float a = uFlow * (0.72 + 0.28 * foam) * (1.0 - smoothstep(0.82, 1.0, vUv.y));
@@ -581,7 +670,8 @@ function buildWeir() {
   // 閘墩（23 座）
   const piers = [0, ...BAYS.map(b => b.u0 + b.w)];
   for (const pu of piers) {
-    C.box(MAT.con, pu, pu + PIER, 189.5, DECK - 0.8, -27, 16);
+    C.box(MAT.con, pu, pu + PIER, 189.5, DECK - 0.8, -27, 9);
+    C.profile(MAT.con, [[9, 189.5], [9, DECK - 0.8], [13, 201], [13, 189.5]], pu, PIER);   // 閘墩下游端斜斜往下收（照片 506311）；和原集集大橋之間有空隙
     C.cyl(MAT.con, pu + PIER / 2, -27, 189.5, DECK - 0.8, PIER / 2, 10);
     C.box(MAT.white, pu - 0.1, pu + PIER + 0.1, DECK - 0.8, DECK + 2.0, 0.5, 8);          // 啟閉機房（示意）
     C.box(MAT.blue, pu - 0.15, pu + PIER + 0.15, DECK + 2.0, DECK + 2.4, 0.3, 8.2);
@@ -600,43 +690,86 @@ function buildWeir() {
   for (let u = 4; u < END; u += 32) { C.cyl(MAT.pole, u, -9.75, DECK + 1.1, DECK + 10, 0.13, 6); C.box(MAT.pole, u - 0.1, u + 0.1, DECK + 9.8, DECK + 10, -11.8, -9.75); }
   // 門型吊車：排砂道 1–2 號、3–4 號上方（街景照片），外型示意
   for (const [a, b] of [[SL[0], SL[1]], [SL[2], SL[3]]]) { const u0 = a.u0 - 1, u1 = b.u0 + b.w + 1;
-    for (const uu of [u0, u1 - 0.8]) for (const vv of [-9.2, 0.2]) C.box(MAT.blue, uu, uu + 0.8, DECK + 2.4, DECK + 13, vv, vv + 0.8);
+    for (const uu of [u0, u1 - 0.8]) for (const vv of [-9.2, 0.2]) { C.box(MAT.blue, uu, uu + 0.8, DECK - 0.8, DECK + 13, vv, vv + 0.8); C.box(MAT.conD, uu - 0.3, uu + 1.1, DECK - 0.8, DECK - 0.5, vv - 0.3, vv + 1.1); }   // 腳落在閘墩頂（照片 134209）
     C.box(MAT.blue, u0, u1, DECK + 13, DECK + 14.2, -9.2, 1); C.box(MAT.blue, u0 + 2, u0 + 7, DECK + 14.2, DECK + 17, -8, -1); }
   // 水位調節閘門（第 1–4、15–18 號弧形閘門上游側，常時全開＝吊起）
   for (const b of SP) if (b.no <= 4 || b.no >= 15) C.box(MAT.blue, b.u0 + 0.2, b.u0 + b.w - 0.2, DECK - 3.0, DECK - 1.0, -5.2, -4.8);
   // 消能池、拱形消能塊、導流牆、下游側道路（位置依國土測繪中心 2023 空拍與老師提供的街景，外型示意）
-  C.box(MAT.gravel, -8, END + 9, 189.5, TEACH.apron, 11, 94);
-  C.box(MAT.conD, -8, END + 9, TEACH.apron, TEACH.apron + 1.2, 78, 90);                    // 消能塊底座（空拍：閘門下游約 80 m 一整排）
-  { const arch = [];                                                                       // 拱形消能塊：街景裡從側面看是一個個 ∩ 形的拱頂
-    for (let u = 3; u < END - 1; u += 8.0) { const g = new THREE.CylinderGeometry(3.0, 3.0, 9, 20, 1, false, 0, Math.PI); g.rotateZ(Math.PI / 2); g.rotateY(Math.PI / 2); g.translate(u + 3, E(TEACH.apron + 1.2), 84); arch.push(g.toNonIndexed());
-      const b = new THREE.BoxGeometry(6, 1.2, 9); b.translate(u + 3, E(TEACH.apron + 0.6), 84); arch.push(b.toNonIndexed()); }
-    C.push(MAT.conD, mergeGeometries(arch)); }
-  C.box(MAT.con, 245, 248, TEACH.apron, 198, 29, 86);                                      // 消能池中間的導流牆（空拍）
+  // 消能池（2026-11-23 現場照片、2023 空拍）：池底淤滿灰色泥沙，平時也有一層混濁的水；一排拱形消能塊（尾檻）；兩道細長的導流牆；消能塊下游堆著黑灰色淤砂
+  C.box(MAT.silt, -8, END + 9, 189.5, TEACH.apron, 11, 94);
+  // 拱形消能塊（尾檻）：依 2026-11-23 現場照片（老師 506309 等）——每塊是「帽蓋＋窄墩」：
+  //   帽蓋頂面彎彎的，朝上游那頭低、貼著水面，往下游翹高，下游面是直的；下面墊著比較窄的墩子；
+  //   塊和塊之間是比較低的檻，水從空隙流過、在下游那邊跌下去（導覽員說的「尾檻有高有低」）。現場數到約 44 個；尺寸是示意
+  const S0 = TEACH.apron + 0.6;
+  C.box(MAT.conD, -8, END + 9, TEACH.apron, S0, 80, 87);                                   // 低的檻（塊和塊之間）
+  { const cap = [[81.5, S0 + 0.8]];                                                        // 帽蓋側面：圓弧從上游的水面彎上去，到下游端最高（照片：頂面整面是弧形）
+    for (let a = 1; a <= 9; a++) { const th = a * Math.PI / 18; cap.push([86.5 - 5 * Math.cos(th), S0 + 0.8 + 2.2 * Math.sin(th)]); }
+    cap.push([86.5, S0 + 0.8]);
+    for (let k = 0; k < 44; k++) { const uc = 4 + k * 8;
+      C.box(MAT.conD, uc - 1.2, uc + 1.2, S0, S0 + 0.85, 82, 86.2);                        // 窄墩
+      C.profile(MAT.con, cap, uc - 2.6, 5.2); } }                                           // 帽蓋
+
+  for (const gu of [104, 244]) C.box(MAT.conD, gu - 0.6, gu + 0.6, TEACH.apron, TEACH.apron + 3.5, 29, 79);   // 導流牆：2023 空拍上兩道細長的牆
+  { const heap = (u0, u1, v0, v1, base, fn) => {                                            // 淤砂堆（高度用雜訊做，示意）
+      const nu = Math.round(u1 - u0), nv = Math.round(v1 - v0), g = new THREE.PlaneGeometry(u1 - u0, v1 - v0, nu, nv); g.rotateX(-Math.PI / 2); g.translate((u0 + u1) / 2, 0, (v0 + v1) / 2);
+      const P = g.attributes.position;
+      for (let i = 0; i < P.count; i++) { const u = P.getX(i), v = P.getZ(i), n = 0.5 + 0.3 * Math.sin(u * 0.11 + Math.sin(v * 0.13) * 2) + 0.2 * Math.sin(u * 0.37 - v * 0.29) * Math.cos(v * 0.21 + u * 0.05) + 0.06 * Math.sin(u * 1.7 + v * 1.1) * Math.sin(v * 2.3 - u * 0.9); P.setY(i, E(base) + fn(u, v, n)); }
+      g.computeVertexNormals(); const m = new THREE.Mesh(g, MAT.mudD); m.receiveShadow = m.castShadow = true; WG.add(m); };
+    heap(-6, END + 7, 87, 140, 190.6, (u, v, n) => Math.max(0, n - 0.3) * 6 * smooth(88, 93, v) * (1 - smooth(125, 140, v)));                 // 消能塊後面一大片
+    heap(-6, END + 7, 50, 79, TEACH.apron, (u, v, n) => Math.max(0, n - 0.6) * 6 * smooth(50, 60, v) - 0.3);                                // 池裡露出水面的泥灘
+    const rock = new THREE.MeshStandardMaterial({ color: 0x3a3936, roughness: 0.9, flatShading: true });
+    for (const [u, v, r] of [[62, 55, 1.4], [150, 44, 1.1], [205, 63, 1.5], [298, 52, 1.2], [333, 70, 1.0]]) { const m = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 0), rock); m.position.set(u, E(TEACH.apron + r * 0.55), v); m.rotation.set(u, v, 0); m.scale.y = 0.75; m.castShadow = true; WG.add(m); } }   // 池裡的大石頭（照片）
   // 下游側道路＝原集集大橋（斷面圖標「原集集大橋」，橋面約 EL 206.5）；寬約 9 m，堰墩和大橋橋墩結合在一起（影片）
   const RD = 206.6;
-  for (const pu of [0, ...BAYS.map(b => b.u0 + b.w)]) C.box(MAT.con, pu, pu + PIER, TEACH.apron, RD - 0.9, 13, 24.5);
+  for (const pu of piers) { C.box(MAT.con, pu, pu + PIER, TEACH.apron, 194, 13, 29);                 // 閘墩往下游延伸（陡槽側牆）
+    C.cyl(MAT.con, pu + PIER / 2, 19, 194, RD - 1.7, 0.85, 16);                                          // 原集集大橋的圓柱橋墩（照片 506311、506313）
+    C.box(MAT.con, pu - 0.3, pu + PIER + 0.3, RD - 1.7, RD - 0.9, 14.5, 23.5); }                         // 柱頂帽梁
   C.box(MAT.con, -8, END + 9, RD - 0.9, RD, 14, 24); C.box(MAT.asph, -8, END + 9, RD, RD + 0.1, 14.4, 23.6);
   C.box(MAT.yel, -8, END + 9, RD + 0.1, RD + 0.13, 18.85, 19.0); C.box(MAT.yel, -8, END + 9, RD + 0.1, RD + 0.13, 19.1, 19.25);
   C.box(MAT.con, -8, END + 9, RD, RD + 0.9, 14, 14.4); C.box(MAT.con, -8, END + 9, RD, RD + 0.9, 23.6, 24);   // 混凝土護欄
   C.box(MAT.pole, -8, END + 9, RD + 1.15, RD + 1.25, 14.1, 14.3); C.box(MAT.pole, -8, END + 9, RD + 1.15, RD + 1.25, 23.7, 23.9);   // 欄杆扶手
   for (let u = 6; u < END; u += 24) { C.cyl(MAT.pole, u, 24.2, RD, RD + 10, 0.13, 6); C.box(MAT.pole, u - 0.1, u + 0.1, RD + 9.8, RD + 10, 21.8, 24.2); }   // 路燈
-  for (const pu of [0, ...BAYS.map(b => b.u0 + b.w)]) C.box(MAT.con, pu, pu + PIER, TEACH.apron, 193, 24.5, 29);   // 閘墩往下游延伸
   for (const b of SP) for (const d of [-3.8, 3.8]) C.box(MAT.conD, b.uc + d - 1.5, b.uc + d + 1.5, TEACH.apron, TEACH.apron + 1.3, 25, 28);   // 陡槽末端消能塊
   C.box(MAT.con, -8, -4, 189.5, 201, 16, 94); C.box(MAT.con, END + 5, END + 9, 189.5, 201, 16, 165);   // 南側導牆往下游延伸到約 160 m（空拍）
   for (const pu of [SL[1].u0 + SL[1].w, SL[2].u0 - PIER]) C.box(MAT.con, pu, pu + PIER, TEACH.apron, 199, 16, 84);
 
   // 兩岸翼牆
-  C.box(MAT.con, -8, 0, 189.5, DECK, -34, 16); C.box(MAT.con, END + 5, END + 9, 189.5, DECK, -34, 16);
-  // 魚道（法規：第四號排砂道左側＝面向下游的左手邊，位置推定）：15 個魚槽階梯
-  const fishW = [];
-  for (let k = 0; k < 16; k++) {
-    const v0 = -6 + k * 6.1, y = 207.4 - k * 1.06;
-    C.box(MAT.conD, END + 0.5, END + 4.5, 189.5, y, v0, v0 + 6.1);
-    C.box(MAT.con, END, END + 0.5, 189.5, y + 2.2, v0, v0 + 6.1); C.box(MAT.con, END + 4.5, END + 5, 189.5, y + 2.2, v0, v0 + 6.1);
-    if (k < 15) C.box(MAT.con, END + 0.5, END + 3.6, y, y + 1.3, v0 + 5.8, v0 + 6.1);
-    const g = new THREE.BoxGeometry(4, 0.1, 5.8); g.translate(END + 2.5, E(y + 0.95), v0 + 3); fishW.push(g);
+  for (const [a, b] of [[-8, 0], [END + 5, END + 9]]) { C.box(MAT.con, a, b, 189.5, DECK - 0.8, -34, 9); C.profile(MAT.con, [[9, 189.5], [9, DECK - 0.8], [13, 201], [13, 189.5]], a, b - a); C.box(MAT.con, a, b, 189.5, 201, 13, 16); }   // 兩端：上游側撐公路橋，下游側放低，台3丙從上面過
+  // 魚道（堰體南端、4 號排砂道旁）：
+  //  下游入口：南岸、拱形消能塊那一排靠岸處，水邊平台立兩面「魚道」牌（〈集集共同引水工程設計〉4:57–5:02）
+  //  魚道本體：沿南岸導牆、兩側直立混凝土牆、上方有格柵頂蓋的階梯式水池，中間有休息池（5:07、短片 1:10、1:43）
+  //  爬升段：導覽員說是隧道式、像螺旋梯往上，每階約 20–30 cm（口述）；位置在南端堰墩裡，螺旋圈數、半徑是示意
+  //  上游出口：4 號排砂門門號牌左下方的牆上，上下一列方形孔洞（老師照片），依水位開不同高度的閘門
+  const fishW = [], FU0 = END + 0.5, FU1 = END + 4.5, FCU = (FU0 + FU1) / 2;
+  { const v0 = 13, v1 = 88, f0 = 196, f1 = 191.5, N = 16, REST = 8;     // 下游段：v1 入口（低）→ v0 接堰墩（高）
+    const lens = Array.from({ length: N }, (_, k) => k === REST ? 2 : 1), tot = lens.reduce((a, b) => a + b, 0);
+    let v = v1;
+    for (let k = 0; k < N; k++) {
+      const L = (v1 - v0) * lens[k] / tot, fl = f1 + (f0 - f1) * (k / (N - 1)), va = v - L;
+      C.box(MAT.conD, FU0, FU1, 189.5, fl, va, v);                                         // 池底
+      if (k < N - 1) { C.box(MAT.con, FU0, FU1, fl, fl + 0.9, va - 0.3, va);                   // 隔板（頂部圓弧）
+        const g = new THREE.CylinderGeometry(0.15, 0.15, FU1 - FU0, 8); g.rotateZ(Math.PI / 2); g.translate(FCU, E(fl + 0.9), va - 0.15); C.push(MAT.con, g); }
+      const w = new THREE.BoxGeometry(FU1 - FU0, 0.08, L - 0.3); w.translate(FCU, E(fl + 0.85), v - L / 2); fishW.push(w);
+      v = va;
+    }
+    C.box(MAT.con, FU0 - 0.5, FU0, 189.5, f0 + 3.2, v0, v1);                                // 兩側直立牆
+    C.box(MAT.con, FU1, FU1 + 0.5, 189.5, f0 + 3.2, v0, v1);
+    const grate = new THREE.MeshStandardMaterial({ color: 0x3a4045, roughness: 0.6, metalness: 0.5 });
+    for (let vv = v0; vv < v1; vv += 1.1) C.box(grate, FU0 - 0.5, FU1 + 0.5, f0 + 3.2, f0 + 3.32, vv, vv + 0.22);   // 格柵頂蓋（一條條，看得到下面）
+    for (const uu of [FU0 - 0.5, FCU - 0.1, FU1 + 0.3]) C.box(grate, uu, uu + 0.2, f0 + 3.1, f0 + 3.2, v0, v1);
+    C.box(MAT.con, END + 5, END + 9, 189.5, 201.2, v1 - 2, v1 + 6);                          // 入口旁的水邊平台
   }
+  // 上游出口：在南岸取水口的端牆上（和取水口同一面），見 buildIntakes()
+  C.box(MAT.con, END + 0.5, END + 5, 189.5, DECK - 0.8, -28.3, 13);                            // 南端堰墩（魚道藏在裡面）
   OBJ.fishWater = new THREE.Mesh(mergeGeometries(fishW), MAT.water); WG.add(OBJ.fishWater);
+  { const g = new THREE.PlaneGeometry(END + 13, 70); g.rotateX(-Math.PI / 2); g.translate((END + 1) / 2, 0, 122);    // 消能塊下游的水（比池裡低）
+    OBJ.downW = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x4e5552, roughness: 0.3, transparent: true, opacity: 0.88, depthWrite: false })); OBJ.downW.position.y = E(191); OBJ.downW.renderOrder = 3; WG.add(OBJ.downW); }
+  { const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d');   // 入口旁兩面「魚道」牌（白底紅字，影片 5:02）
+    g.fillStyle = '#fff'; g.fillRect(0, 0, 256, 128); g.strokeStyle = '#dc2626'; g.lineWidth = 8; g.strokeRect(6, 6, 244, 116);
+    g.fillStyle = '#dc2626'; g.font = '900 80px "Noto Sans TC", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('魚道', 128, 68);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sm = new THREE.MeshBasicMaterial({ map: t, side: THREE.DoubleSide });
+    for (const vv of [86.5, 90.5]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.2), sm); m.position.set(END + 6.8, E(203.4), vv); m.rotation.y = -Math.PI / 2; WG.add(m);
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.6, 6), MAT.pole); post.position.set(END + 6.85, E(202.0), vv); WG.add(post); } }
   C.flush(WG);
   // 弧形閘門（會動）
   for (const b of SP) { const p = radialGate(b.w - 0.1, SPEC.spCrest, SPEC.spH, 10, 6); p.position.x = b.uc; WG.add(p); OBJ.spPiv.push(p); }
@@ -646,6 +779,7 @@ function buildWeir() {
   for (const b of BAYS) {
     const m = new THREE.Mesh(plate, new THREE.MeshBasicMaterial({ map: plateTex(String(b.no), b.type === 'sp' ? '#b91c1c' : '#1d4ed8') }));
     m.position.set(b.uc, E(DECK + 2.3), -9.4); WG.add(m);
+    const m2 = new THREE.Mesh(plate, m.material); m2.scale.setScalar(0.85); m2.position.set(b.uc, E(DECK + 0.25), -26.62); m2.rotation.y = Math.PI; WG.add(m2);   // 上游側也有門號牌：掛在攔河路公路橋的上游面（老師照片 141444「4 3 18」）
   }
   // 水流：溢洪道、排砂道
   const spPath = [[-2, SPEC.spCrest], [0, SPEC.spCrest], ...ogeePath(46)];
@@ -659,29 +793,83 @@ function buildWeir() {
    ===================================================================== */
 function buildIntakes() {
   OBJ.inGates = [];
+  // 攔污柵：深色鋼柵（直條＋橫梁），照片裡每一格閘口前面一整片黑黑的就是它
+  const rack = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const g = c.getContext('2d');
+    g.fillStyle = '#1b1f22'; g.fillRect(0, 0, 64, 128); g.fillStyle = '#3a4045'; for (let x = 2; x < 64; x += 8) g.fillRect(x, 0, 3, 128); g.fillStyle = '#4a5055'; for (let y = 0; y < 128; y += 42) g.fillRect(0, y, 64, 5);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4, 6);
+    return new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, metalness: 0.4 }); })();
+  const silver = new THREE.MeshStandardMaterial({ color: 0xc9cdd1, roughness: 0.35, metalness: 0.55 });
+  const grey = new THREE.MeshStandardMaterial({ color: 0xb4b8bb, roughness: 0.6 });
+  const steel = new THREE.MeshStandardMaterial({ color: 0x2b2f33, roughness: 0.5, metalness: 0.6 });
   for (const [key, it] of Object.entries(INTAKES)) {
     const G = new THREE.Group(); G.position.set(it.m[0] - CX, 0, it.m[1] - CZ); G.rotation.y = Math.atan2(-it.dz, it.dx); scene.add(G);
-    const C = collector(), n = it.bays, W = n * SPEC.inGW + (n + 1) * 1.2, x0 = -W / 2, TOP = 214;
-    C.box(MAT.conD, x0 - 2, -x0 + 2, 199, SPEC.inLow, 0, 10);                       // 閘前底版
-    for (let i = 0; i <= n; i++) { const x = x0 + i * (SPEC.inGW + 1.2); C.box(MAT.con, x, x + 1.2, 199, TOP, -14, 3); }
-    C.box(MAT.con, x0 - 3, -x0 + 3, TOP - 0.8, TOP, -14, 3);                          // 操作平台
-    C.box(MAT.con, x0, -x0, SPEC.inLow + SPEC.inGH, SPEC.inUp, 0.6, 1.8);             // 上下層之間的橫梁
-    C.box(MAT.con, x0, -x0, SPEC.inUp + SPEC.inGH, TOP - 0.8, 0.6, 1.8);              // 胸牆
-    C.box(MAT.con, x0 - 3, -x0 + 3, 199, TOP, -40, -14);                              // 後方進水室（示意）
-    C.box(MAT.con, x0 - 4, x0, 199, TOP, -40, 8); C.box(MAT.con, -x0, -x0 + 4, 199, TOP, -40, 8);   // 翼牆
-    for (let i = 0; i < n; i += 2) { const x = x0 + 1.2 + i * (SPEC.inGW + 1.2); C.box(MAT.blue, x, x + SPEC.inGW * 2 + 1.2, TOP, TOP + 1.6, -2, 2); }
+    const C = collector(), n = it.bays, PW = 1.4, W = n * SPEC.inGW + (n + 1) * PW, x0 = -W / 2, TOP = TEACH.deck, END = it.L / 2 + 5, FR = 1.8;   // FR：閘墩正面
+    const px = i => x0 + i * (SPEC.inGW + PW);                                                  // 第 i 根閘墩的左緣
+    C.box(MAT.conD, -END, END, 199, SPEC.inLow, 0, 10);                                        // 閘前底版
+    C.box(MAT.con, x0, -x0, 199, TOP - 0.8, -20, 0);                                           // 進水室本體（閘口後面）
+    for (let i = 0; i < n; i++) C.box(rack, px(i) + PW, px(i + 1), 199, TOP - 1.7, 1.15, 1.3);   // 攔污柵
+    for (let i = 0; i <= n; i++) {                                                             // 閘墩：北岸圓頭、南岸方頭（照片）
+      C.box(MAT.con, px(i), px(i) + PW, 199, TOP - 0.8, 0, FR);
+      if (key === 'N') C.cyl(MAT.con, px(i) + PW / 2, FR, 199, TOP - 0.8, PW / 2, 14);
+    }
+    C.box(MAT.con, x0, -x0, SPEC.inLow + SPEC.inGH, SPEC.inUp, 0.1, 0.9);                      // 上下層閘門之間的橫梁（水面下）
+    C.box(MAT.con, x0, -x0, TOP - 1.7, TOP - 0.8, 0.1, FR);                                    // 閘口上緣的梁
+    for (const sg of [-1, 1]) {                                                                // 兩端實心擋牆（照片：比閘口那段寬，頂上有混凝土欄杆）
+      const a = sg < 0 ? -END : -x0, b = sg < 0 ? x0 : END;
+      C.box(MAT.con, a, b, 199, TOP, -20, FR);
+      for (let x = a + 1; x < b; x += 2.6) C.box(MAT.con, x - 0.2, x + 0.2, TOP, TOP + 1.0, FR - 0.5, FR - 0.1);
+      C.box(MAT.con, a, b, TOP + 1.0, TOP + 1.15, FR - 0.55, FR - 0.05);
+    }
+    C.box(MAT.con, x0, -x0, TOP - 0.8, TOP, -14, FR + 0.6);                                     // 操作平台（往前伸出一點）
+    for (let x = x0; x <= -x0 + 0.01; x += 1.5) C.box(MAT.blue, x - 0.05, x + 0.05, TOP, TOP + 1.3, FR + 0.4, FR + 0.5);   // 藍色欄杆
+    for (const h of [0.45, 0.9, 1.3]) C.box(MAT.blue, x0, -x0, TOP + h - 0.04, TOP + h + 0.04, FR + 0.38, FR + 0.52);
+    for (let i = 0; i < n; i++) { const xc = px(i) + PW + SPEC.inGW / 2;                        // 每一格的啟閉機：灰色機箱＋藍色馬達
+      for (const dx of [-1.1, 1.1]) { C.box(grey, xc + dx - 0.3, xc + dx + 0.3, TOP, TOP + 1.5, -3.2, -2.6); C.box(MAT.blue, xc + dx - 0.4, xc + dx + 0.4, TOP, TOP + 0.7, -1.4, -0.5); } }
+    if (key === 'N') {                                                                         // 北岸：靠攔河路那一端，藍色鋼架上的銀色大機箱，底下有軌道沿著閘口走（照片 140201、133254）
+      const sA = Math.sign((1845 - it.m[0]) * it.dx + (1376 - it.m[1]) * it.dz) || -1, xc = sA * (W / 2 - 5.2);
+      for (const z of [-3.4, 1.6]) C.box(steel, x0, -x0, TOP, TOP + 0.25, z - 0.25, z + 0.25);   // 軌道
+      for (const dx of [-2.6, 2.6]) for (const z of [-3.4, 1.6]) C.box(MAT.blue, xc + dx - 0.2, xc + dx + 0.2, TOP + 0.25, TOP + 3.4, z - 0.2, z + 0.2);
+      for (const z of [-3.4, 1.6]) C.box(MAT.blue, xc - 2.8, xc + 2.8, TOP + 3.0, TOP + 3.4, z - 0.25, z + 0.25);
+      C.box(MAT.blue, xc - 2.8, xc + 2.8, TOP + 1.2, TOP + 1.5, -3.6, 1.8);
+      C.box(silver, xc - 3.0, xc + 3.0, TOP + 3.4, TOP + 7.8, -4.0, 0.6);
+      C.box(MAT.white, -END + 6, -END + 11, TOP, TOP + 2.6, -12, -6);                         // 平台上的小機房
+    } else {                                                                                   // 南岸：中間一根水泥柱撐起藍框小機房（照片 135106）
+      const xc = px(4) + PW / 2;
+      C.box(MAT.con, xc - 1.6, xc + 1.6, TOP, TOP + 3.0, -1.5, 1.8);
+      C.box(MAT.white, xc - 2.2, xc + 2.2, TOP + 3.0, TOP + 5.4, -2.5, 1.9); C.box(MAT.blue, xc - 2.3, xc + 2.3, TOP + 5.4, TOP + 5.7, -2.6, 2.0);
+      for (const dx of [-2.25, 2.25]) for (const z of [-2.55, 1.95]) C.box(MAT.blue, xc + dx - 0.1, xc + dx + 0.1, TOP + 3.0, TOP + 5.5, z - 0.1, z + 0.1);
+      C.box(MAT.white, -END + 3, -END + 12, TOP, TOP + 2.4, -10, -6); C.box(MAT.white, END - 16, END - 7, TOP, TOP + 2.4, -10, -6);   // 兩端的小房子
+      // 魚道上游出口：取水口靠堰那一端的實心端牆上，和取水口閘門同一面朝水庫（老師照片 141444、141452 與同視角比對）：
+      //   上下一列 4 個方形孔洞（露出水面）＋一道直的閘門槽，上方平台立藍色鋼架（推測是魚道閘門吊架）。尺寸依照片比例示意
+      const sgn = Math.sign(((WB[0] - it.m[0]) * it.dx + (WB[1] - it.m[1]) * it.dz)) || 1, FX = sgn * (END - 4.5), dark = new THREE.MeshBasicMaterial({ color: 0x0b1215 }), grate = new THREE.MeshStandardMaterial({ color: 0x3b4146, roughness: 0.5, metalness: 0.6 });
+      C.box(MAT.conD, FX - 0.75, FX + 0.75, 205, TOP - 0.8, FR, FR + 0.25);                     // 閘門槽
+      for (const y of [212.85, 213.6, 214.35, 215.1]) { C.box(dark, FX - 0.4, FX + 0.4, y, y + 0.55, FR + 0.2, FR + 0.32);
+        for (let b = 0; b < 4; b++) C.box(grate, FX - 0.33 + b * 0.22, FX - 0.27 + b * 0.22, y, y + 0.55, FR + 0.3, FR + 0.36); }
+      for (const dx of [-1.3, 1.3]) for (const z of [FR - 0.3, FR - 2.9]) C.box(MAT.blue, FX + dx - 0.12, FX + dx + 0.12, TOP, TOP + 4.6, z - 0.12, z + 0.12);
+      for (const z of [FR - 0.3, FR - 2.9]) { C.box(MAT.blue, FX - 1.45, FX + 1.45, TOP + 4.4, TOP + 4.7, z - 0.15, z + 0.15); const g = new THREE.BoxGeometry(0.12, 4.9, 0.12); g.rotateZ(0.55); g.translate(FX, E(TOP + 2.3), z); C.push(MAT.blue, g); }
+      C.box(MAT.blue, FX - 1.45, FX + 1.45, TOP + 4.7, TOP + 4.85, FR - 3.2, FR);
+      OBJ.fishExit = [it.m[0] + it.dx * FX + it.zx * 3, it.m[1] + it.dz * FX + it.zz * 3];
+    }
     C.flush(G);
     const gates = { low: [], up: [] };
     for (let i = 0; i < n; i++) {
-      const x = x0 + 1.2 + i * (SPEC.inGW + 1.2) + SPEC.inGW / 2;
+      const x = px(i) + PW + SPEC.inGW / 2;
       for (const layer of ['low', 'up']) {
         const m = new THREE.Mesh(new THREE.BoxGeometry(SPEC.inGW - 0.1, SPEC.inGH, 0.3), MAT.blue);
         m.userData.y0 = E((layer === 'low' ? SPEC.inLow : SPEC.inUp) + SPEC.inGH / 2);
-        m.position.set(x, m.userData.y0, 0.25); m.castShadow = true; G.add(m); gates[layer].push(m);
+        m.position.set(x, m.userData.y0, 0.6); m.castShadow = true; G.add(m); gates[layer].push(m);
       }
     }
     OBJ.inGates.push(gates); it.group = G;
   }
+  // 北岸取水口往東到管理中心前的混凝土護岸（照片 133238：一整道直立的牆，頂上有欄杆）
+  { const C = collector(), pts = [[1881, 1349], [1900, 1336], [2038, 1257]];
+    for (let i = 0; i < pts.length - 1; i++) { const [ax, az] = pts[i], [bx, bz] = pts[i + 1], L = Math.hypot(bx - ax, bz - az), ang = Math.atan2(-(bz - az), bx - ax);
+      const add = (len, y0, y1, th, off, along = 0) => { const g = new THREE.BoxGeometry(len, y1 - y0, th); g.translate(along, E((y0 + y1) / 2), off); g.rotateY(ang); g.translate((ax + bx) / 2 - CX, 0, (az + bz) / 2 - CZ); C.push(MAT.con, g); };
+      add(L + 1, 205, 218.2, 1.2, 0);
+      for (let d = -L / 2 + 1; d < L / 2; d += 2.6) add(0.4, 218.2, 219.1, 0.4, 0, d);
+      add(L, 219.1, 219.25, 0.5, 0); }
+    C.flush(scene); }
 }
 
 /* 取水口、排砂道前的淤砂（高度隨時間增加，排砂時被沖走；示意） */
@@ -697,20 +885,29 @@ function buildMounds() {
   }
 }
 
-/* 水庫水面：只畫在堰的上游側 */
+/* 水庫水面：只畫在河道範圍內（外面是堤防、房子）。靠堰的地方水面＝水位；往上游水面跟著淤高的河床變高（河水往下流），
+   平時只有水路裡看得到水；來水越多水面越高，淹過泥灘（示意） */
 function buildPool() {
-  const mat = new THREE.MeshPhysicalMaterial({ color: 0x4f8f88, roughness: 0.12, normalMap: waterN, normalScale: new THREE.Vector2(0.5, 0.5), transparent: true, opacity: 0.74, envMapIntensity: 0.5, specularIntensity: 0.6 });
+  const x0 = 1780, x1 = 3700, z0 = 1100, z1 = 2150, SS = 15, NX = Math.round((x1 - x0) / SS) + 1, NZ = Math.round((z1 - z0) / SS) + 1;
+  const pos = new Float32Array(NX * NZ * 3), uv = new Float32Array(NX * NZ * 2), aS = new Float32Array(NX * NZ), aW = new Float32Array(NX * NZ);
+  for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) { const k = j * NX + i, x = x0 + i * SS, z = z0 + j * SS;
+    pos[k * 3] = x - CX; pos[k * 3 + 2] = z - CZ; uv[k * 2] = x / 60; uv[k * 2 + 1] = z / 60;
+    aS[k] = siltAt(x, z) - BASE_H; aW[k] = smooth(-120, -520, toUV(x, z)[1]); }
+  const g = gridGeometry(pos, uv, NX, NZ); g.setAttribute('aS', new THREE.BufferAttribute(aS, 1)); g.setAttribute('aW', new THREE.BufferAttribute(aW, 1));
+  const mat = new THREE.MeshPhysicalMaterial({ color: 0x5f716c, roughness: 0.12, normalMap: waterN, normalScale: new THREE.Vector2(0.5, 0.5), transparent: true, opacity: 0.85, envMapIntensity: 0.5, specularIntensity: 0.6 });
+  OBJ.poolU = { uL: { value: E(TEACH.normal) }, uH: { value: 0 }, tMask: { value: RIVER_MASK } };
   mat.onBeforeCompile = sh => {
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vW;')
+    Object.assign(sh.uniforms, OBJ.poolU);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vW; uniform float uL, uH; attribute float aS, aW;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed.y = max(max(uL, mix(uL, aS - 0.45 + uH, aW)), aS - 0.45 + uH * 0.8);')
       .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvW = (modelMatrix * vec4(transformed,1.0)).xyz;');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vW;')
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vW; uniform sampler2D tMask;')
       .replace('void main() {', `void main() {
         { float lx = vW.x + ${CX.toFixed(2)} - ${WA[0].toFixed(2)}, lz = vW.z + ${CZ.toFixed(2)} - ${WA[1].toFixed(2)};
-          float v = lx * ${VX.toFixed(5)} + lz * ${VZ.toFixed(5)};
-          if (v > -1.2) discard; }`);
+          if (lx * ${VX.toFixed(5)} + lz * ${VZ.toFixed(5)} > -1.2) discard;
+          if (texture2D(tMask, vec2((vW.x + ${CX.toFixed(2)}) / 3700.0, 1.0 - (vW.z + ${CZ.toFixed(2)}) / 2920.0)).r < 0.5) discard; }`);
   };
-  const g = new THREE.PlaneGeometry(4200, 3400, 1, 1); g.rotateX(-Math.PI / 2);
-  const m = new THREE.Mesh(g, mat); m.position.set(2700 - CX, 0, 1460 - CZ); m.renderOrder = 2; scene.add(m);
+  const m = new THREE.Mesh(g, mat); m.renderOrder = 2; m.frustumCulled = false; scene.add(m);
   OBJ.pool = m; OBJ.poolMat = mat;
 }
 
@@ -722,22 +919,22 @@ function buildBasinWater() {
     vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: `uniform float uTime, uMud, uDepth; uniform float uI[${n}], uUc[${n}], uW[${n}]; varying vec2 vUv; ${NOISE}
       void main(){
-        float u = -8.0 + vUv.x * 369.0, v = 12.0 + (1.0 - vUv.y) * 82.0;
+        float u = -8.0 + vUv.x * 369.0, v = 12.0 + (1.0 - vUv.y) * 69.0;
         float f = 0.0;
         for (int i = 0; i < ${n}; i++) { float d = (u - uUc[i]) / (uW[i] * 0.7); f += uI[i] * exp(-d * d) * exp(-(v - 12.0) / 30.0); }
         float nz = vn(vec2(u * 0.25, v * 0.25 - uTime * 2.5)) * 0.6 + vn(vec2(u * 0.9, v * 0.9 - uTime * 4.0)) * 0.4;
         float foam = clamp(f * (0.6 + 0.8 * nz), 0.0, 1.0);
-        vec3 base = mix(vec3(0.05,0.15,0.15), vec3(0.17,0.12,0.07), uMud);
+        vec3 base = mix(vec3(0.37,0.365,0.34), vec3(0.30,0.24,0.16), uMud) * (0.75 + 0.5 * vn(vec2(u * 1.3 + uTime * 0.6, v * 2.2 - uTime * 1.5)));   // 混濁的灰色水（現場照片）
         vec3 col = mix(base, vec3(0.85), foam);
-        float pud = smoothstep(0.5, 0.62, vn(vec2(u * 0.035, v * 0.05)) * 0.7 + vn(vec2(u * 0.13, v * 0.13)) * 0.3);   // 水少時只剩水窪
-        float cover = max(mix(pud, 1.0, smoothstep(0.6, 1.6, uDepth)), clamp(f * 2.0, 0.0, 1.0));
-        gl_FragColor = vec4(col, clamp(0.6 + foam * 0.4, 0.0, 0.95) * cover);
+        float pud = smoothstep(0.58, 0.7, vn(vec2(u * 0.035, v * 0.05)) * 0.7 + vn(vec2(u * 0.13, v * 0.13)) * 0.3);   // 水少時露出一些泥
+        float cover = max(1.0 - pud * (1.0 - smoothstep(0.8, 1.6, uDepth)), clamp(f * 2.0, 0.0, 1.0));
+        gl_FragColor = vec4(col, clamp(0.74 + foam * 0.24, 0.0, 0.96) * cover);
         #include <colorspace_fragment>
       }`,
     transparent: true, depthWrite: false,
   });
-  const g = new THREE.PlaneGeometry(369, 82); g.rotateX(-Math.PI / 2);
-  const m = new THREE.Mesh(g, mat); m.position.set(-8 + 184.5, E(TEACH.apron + 0.3), 53); m.renderOrder = 3; OBJ.WG.add(m);
+  const g = new THREE.PlaneGeometry(369, 69); g.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(g, mat); m.position.set(-8 + 184.5, E(TEACH.apron + 0.3), 46.5); m.renderOrder = 3; OBJ.WG.add(m);
   OBJ.basin = m;
 }
 
@@ -762,7 +959,7 @@ function buildRiverDown() {
   }
   for (let i = 0; i < n - 1; i++) for (let a = 0; a < A - 1; a++) { const p = i * A + a; idx.push(p, p + 1, p + A, p + 1, p + A + 1, p + A); }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
-  const mat = new THREE.MeshPhysicalMaterial({ color: 0x4f8f88, roughness: 0.15, normalMap: waterN, normalScale: new THREE.Vector2(0.6, 0.6), transparent: true, opacity: 0.85, envMapIntensity: 0.45, side: THREE.DoubleSide });
+  const mat = new THREE.MeshPhysicalMaterial({ color: 0x5f716c, roughness: 0.15, normalMap: waterN, normalScale: new THREE.Vector2(0.6, 0.6), transparent: true, opacity: 0.85, envMapIntensity: 0.45, side: THREE.DoubleSide });
   const m = new THREE.Mesh(g, mat); m.renderOrder = 2; scene.add(m);
   OBJ.river = m; OBJ.riverMat = mat; OBJ.riverBase = new Float32Array(base);
 }
@@ -784,6 +981,45 @@ function buildSplash() {
     transparent: true, depthWrite: false,
   });
   const pts = new THREE.Points(g, mat); pts.frustumCulled = false; pts.renderOrder = 4; OBJ.WG.add(pts);
+}
+
+/* 道路延伸段：攔河路、台3丙接回兩岸地面（路線依正射影像，坡度示意） */
+function buildRoads() {
+  const T = { asph: [], yel: [], wht: [], con: [] };
+  const conDS = MAT.con.clone(); conDS.side = THREE.DoubleSide;
+  for (const r of ROADS) {
+    const pts = resample(r.pts, 3), n = pts.length, hw = r.w / 2, sec = []; let d = 0;
+    for (let i = 0; i < n; i++) { if (i) d += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+      sec.push({ x: pts[i][0] - CX, z: pts[i][1] - CZ, nx: -(b[1] - a[1]) / L, nz: (b[0] - a[0]) / L, y: E(r.at(d)) }); }
+    const pt = (q, o, h) => [q.x + q.nx * o, q.y + h, q.z + q.nz * o];
+    const strip = (arr, o0, h0, o1, h1) => { for (let i = 0; i < n - 1; i++) { const A = pt(sec[i], o0, h0), B = pt(sec[i], o1, h1), C2 = pt(sec[i + 1], o1, h1), D = pt(sec[i + 1], o0, h0); arr.push(...A, ...B, ...C2, ...A, ...C2, ...D); } };
+    strip(T.asph, -hw, 0, hw, 0);
+    strip(T.yel, -0.35, 0.03, -0.2, 0.03); strip(T.yel, 0.2, 0.03, 0.35, 0.03);
+    strip(T.wht, -hw + 0.5, 0.03, -hw + 0.65, 0.03); strip(T.wht, hw - 0.65, 0.03, hw - 0.5, 0.03);
+    for (const sg of [-1, 1]) { const o = sg * hw, o2 = sg * (hw + 0.4);
+      strip(T.con, o, 0, o, 0.9); strip(T.con, o, 0.9, o2, 0.9); strip(T.con, o2, 0.9, o2, -3.5); strip(T.con, o, -0.05, o2, -0.05); }   // 護欄、路基側牆
+  }
+  for (const [k, mat] of [['asph', MAT.asph], ['yel', MAT.yel], ['wht', MAT.white], ['con', conDS]]) {
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(T[k], 3)); g.computeVertexNormals();
+    const m = new THREE.Mesh(g, k === 'asph' || k === 'con' ? mat : mat); m.receiveShadow = true; m.castShadow = k === 'con'; scene.add(m);
+  }
+}
+
+/* 象鼻山觀景台：涼亭（位置依 2023 正射影像上的屋頂；外型依現場照片示意） */
+function buildLookout() {
+  const [lx, lz] = LOOKOUT, x = lx - CX, z = lz - CZ, y = heightAt(x, z);
+  const G = new THREE.Group(); G.position.set(x, y, z); G.rotation.y = -0.15; scene.add(G);
+  const wood = new THREE.MeshStandardMaterial({ color: 0x4a3426, roughness: 0.8 }), roof = new THREE.MeshStandardMaterial({ color: 0x35302d, roughness: 0.7, flatShading: true }), stone = new THREE.MeshStandardMaterial({ color: 0x9c978d, roughness: 0.95 });
+  const add = (geo, mat, px, py, pz, ry = 0) => { const o = new THREE.Mesh(geo, mat); o.position.set(px, py, pz); o.rotation.y = ry; o.castShadow = o.receiveShadow = true; G.add(o); return o; };
+  add(new THREE.BoxGeometry(16, 8, 14), stone, 0, -3.8, 0);                                    // 平台（往下埋進山坡，才不會懸空）
+  for (const sx of [-3.4, 3.4]) for (const sz of [-3.4, 3.4]) add(new THREE.BoxGeometry(0.35, 3.3, 0.35), wood, sx, 1.85, sz);
+  for (const sg of [-1, 1]) { add(new THREE.BoxGeometry(7.4, 0.35, 0.3), wood, 0, 3.4, sg * 3.4); add(new THREE.BoxGeometry(0.3, 0.35, 7.4), wood, sg * 3.4, 3.4, 0); }
+  add(new THREE.ConeGeometry(6.4, 1.9, 4, 1), roof, 0, 4.5, 0, Math.PI / 4);                  // 兩層四坡屋頂
+  add(new THREE.ConeGeometry(2.6, 1.3, 4, 1), roof, 0, 5.9, 0, Math.PI / 4);
+  add(new THREE.BoxGeometry(4.2, 0.7, 4.2), stone, 0, 0.55, 0);                                // 中間的花台
+  for (let a = -7.5; a <= 7.5; a += 1.5) add(new THREE.BoxGeometry(0.12, 1.0, 0.12), MAT.pole, a, 0.7, -6.8);   // 北邊欄杆
+  add(new THREE.BoxGeometry(15.2, 0.1, 0.1), MAT.pole, 0, 1.2, -6.8);
 }
 
 /* 管理中心（台灣水資源館）：外型示意；警報燈 */
@@ -852,7 +1088,9 @@ function buildRoutes() {
 
 /* 沉砂池：位置、方向依正射影像判讀，外型示意（沉砂溝每兩道一座排砂閘門，水利署〈最大規模沉砂池〉） */
 const BASINS = {   // o＝出水端（側槽）中心；L＝沉砂溝段長；fL＝入口漸變段長；tip＝入口寬；tipOff＝入口偏離中線（正＝往南）
-  N: { ang: 12 * Math.PI / 180, flush: [0, 1], list: [{ o: [896, 235], w: 54, L: 70, fL: 61, tip: 8, tipOff: 8.5 }, { o: [885, 288], w: 54, L: 70, fL: 67, tip: 8, tipOff: 5.4 }] },
+  // 北岸依 2023 正射影像（z19）與 2026-11-23 現場照片：沉砂溝西段（約 0–49 m）上方架太陽能板、東段露天；溝頭排成弧形，上有弧形走道橋；溝往入口收窄（扇形）；排砂閘門房在西端
+  N: { ang: 12 * Math.PI / 180, flush: [0, 1], fine: { cross: 49.5, tN: -15, tS: 20.5, hMid: 77, hEnd: 80.5, panels: [[-27, -21.5], [-17.5, 0.5], [3, 23.5]] },
+       list: [{ o: [896, 235], w: 54, L: 80.5, fL: 50.5, tip: 8, tipOff: 8.5 }, { o: [885, 288], w: 54, L: 80.5, fL: 56.5, tip: 8, tipOff: 5.4 }] },
   S: { ang: 12 * Math.PI / 180, flush: [0, -1], list: [{ o: [749, 1587], w: 51, L: 58, fL: 34, tip: 18, tipOff: 0 }, { o: [738, 1638], w: 51, L: 58, fL: 34, tip: 18, tipOff: 0 }, { o: [856, 1633], w: 58, L: 52, fL: 15, tip: 30, tipOff: 0 }] },
 };
 const BASIN_TIPS = Object.fromEntries(Object.entries(BASINS).map(([k, d]) => { const ux = Math.cos(d.ang), uz = Math.sin(d.ang); return [k, d.list.map(b => [b.o[0] + ux * (b.L + b.fL) - uz * b.tipOff, b.o[1] + uz * (b.L + b.fL) + ux * b.tipOff])]; }));
@@ -860,7 +1098,7 @@ function buildBasins() {
   const Y = v => v + BASE_H;                                       // collector 收高程，這裡換成相對高度
   OBJ.sed = []; OBJ.flushPlumes = [];
   const panel = new THREE.MeshStandardMaterial({ color: 0x1f2d4a, roughness: 0.35, metalness: 0.5 });
-  const wMat = new THREE.MeshStandardMaterial({ color: 0x3f7f86, roughness: 0.2, transparent: true, opacity: 0.72, side: THREE.DoubleSide });
+  const wMat = new THREE.MeshStandardMaterial({ color: 0x3f7f86, roughness: 0.2, transparent: true, opacity: 0.45, side: THREE.DoubleSide, depthWrite: false });
   const sMat = new THREE.MeshStandardMaterial({ color: 0x7a6548, roughness: 0.95 });
   OBJ.basinWater = wMat;
   for (const def of Object.values(BASINS)) {
@@ -868,6 +1106,7 @@ function buildBasins() {
     for (const b of def.list) {
       const g = b.g - BASE_H;
       const G = new THREE.Group(); G.position.set(b.o[0] - CX, g, b.o[1] - CZ); G.rotation.y = Math.atan2(-uz, ux); scene.add(G); (OBJ.basinGroups ||= []).push(G);
+      if (def.fine) { buildBasinFine(def, b, G, { panel, wMat, sMat, ux, uz }); continue; }
       const C = collector(), w = b.w, L = b.L, tw = w / nTr;
       C.box(MAT.conD, -6, L, Y(-4), Y(0.1), -w / 2 - 0.5, w / 2 + 0.5);
       for (let i = 0; i <= nTr; i++) { const z = -w / 2 + i * tw; C.box(MAT.con, 0, L, Y(-4), Y(3), z - 0.25, z + 0.25); }
@@ -903,6 +1142,94 @@ function buildBasins() {
   }
 }
 
+/* 北岸沉砂池（細部）：G 的局部座標 x＝沿池軸（0＝出水端，往東到入口），z＝橫向（負＝北），y＝相對整平地面
+   沉砂溝 12 道：漏斗形斷面（上段直牆、下段斜坡收到溝底窄槽）；溝頭是三角形斜鼻，排成弧形 —— 依現場照片 */
+function buildBasinFine(def, b, G, M) {
+  const F = def.fine, w = b.w, nTr = 12, C = collector(), Y = v => v + BASE_H;
+  const TOP = 3, BOT = -4, APR = -1.5, WL = 2.3;
+  const tile = new THREE.MeshStandardMaterial({ color: 0xf0efe9, roughness: 0.7 });
+  const steel = new THREE.MeshStandardMaterial({ color: 0x8a9099, roughness: 0.5, metalness: 0.5 });
+  const geo = tris => { const pos = []; for (const [a, c, d] of tris) { pos.push(...a, ...c, ...d, ...a, ...d, ...c); }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals();
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(pos.length / 3 * 2), 2)); return g; };
+  // 兩個斷面之間接成實體（斷面點：[x, y, z]，凸多邊形）
+  const loft = (mat, A, B) => { const t = [], n = A.length;
+    for (let i = 0; i < n; i++) { const j = (i + 1) % n; t.push([A[i], A[j], B[j]], [A[i], B[j], B[i]]); }
+    for (let i = 1; i < n - 1; i++) { t.push([A[0], A[i], A[i + 1]], [B[0], B[i + 1], B[i]]); }
+    C.push(mat, geo(t)); };
+  // 斜放的長條（牆、走道、欄杆）
+  const bar = (mat, x0, z0, x1, z1, y0, y1, th) => { const len = Math.hypot(x1 - x0, z1 - z0); const bg = new THREE.BoxGeometry(len, y1 - y0, th);
+    bg.rotateY(-Math.atan2(z1 - z0, x1 - x0)); bg.translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); C.push(mat, bg); };
+  const rail = (x0, z0, x1, z1, yb) => { bar(MAT.pole, x0, z0, x1, z1, yb + 1.05, yb + 1.12, 0.08); bar(MAT.pole, x0, z0, x1, z1, yb + 0.55, yb + 0.6, 0.06);
+    const n = Math.max(1, Math.round(Math.hypot(x1 - x0, z1 - z0) / 1.6)); for (let k = 0; k <= n; k++) { const f = k / n; C.cyl(MAT.pole, x0 + (x1 - x0) * f, z0 + (z1 - z0) * f, Y(yb), Y(yb + 1.1), 0.04, 5); } };
+  // 各道隔牆的走向：西段平行（0 → cross），東段往入口收窄，溝頭落在弧線上
+  const X1 = F.cross, hd = c => F.hMid + (F.hEnd - F.hMid) * (2 * c - 1) ** 2;
+  const L = Array.from({ length: nTr + 1 }, (_, i) => { const c = i / nTr; return { c, zP: -w / 2 + w * c, xH: hd(c), zH: F.tN + (F.tS - F.tN) * c }; });
+  const twP = w / nTr, twH = (F.tS - F.tN) / nTr;
+  // 池底
+  const floor = (pts, y, mat = MAT.conD) => { const t = []; for (let i = 1; i < pts.length - 1; i++) t.push([[pts[0][0], y, pts[0][1]], [pts[i][0], y, pts[i][1]], [pts[i + 1][0], y, pts[i + 1][1]]]); C.push(mat, geo(t)); };
+  floor([[-6.5, -w / 2 - 0.6], [X1, -w / 2 - 0.6], [L[0].xH, L[0].zH - 0.6], [L[nTr].xH, L[nTr].zH + 0.6], [X1, w / 2 + 0.6], [-6.5, w / 2 + 0.6]], BOT);
+  // 隔牆（漏斗斷面）＋溝頭斜鼻
+  const sec = (x, z, hw, side) => {   // side：0＝中間隔牆（兩邊斜）、-1＝北外牆（只往南斜）、1＝南外牆（只往北斜）
+    const a = side === 1 ? 0 : hw, c = side === -1 ? 0 : hw;
+    return [[x, TOP, z - 0.25], [x, TOP, z + 0.25], [x, 0.5, z + 0.25], [x, BOT, z + 0.25 + c], [x, BOT, z - 0.25 - a], [x, 0.5, z - 0.25]]; };
+  for (let i = 0; i <= nTr; i++) {
+    const d = L[i], side = i === 0 ? -1 : i === nTr ? 1 : 0;
+    loft(MAT.con, sec(0, d.zP, twP / 2 - 0.55, side), sec(X1, d.zP, twP / 2 - 0.55, side));
+    loft(MAT.con, sec(X1, d.zP, twP / 2 - 0.55, side), sec(d.xH, d.zH, twH / 2 - 0.45, side));
+    if (side === 0) {   // 斜鼻：從牆頂斜下到入口池底
+      const S = sec(d.xH, d.zH, twH / 2 - 0.45, 0), E2 = S.map(([x, y, z]) => [d.xH + 4.5, APR + 0.05, d.zH + (z - d.zH) * 0.25]);
+      loft(MAT.con, S, E2);
+    }
+  }
+  // 每道溝的溝頭：溝底斜坡爬上入口池底
+  for (let i = 0; i < nTr; i++) { const a = L[i], c = L[i + 1];
+    C.push(MAT.conD, geo([[[a.xH - 6, BOT + 0.02, a.zH], [c.xH - 6, BOT + 0.02, c.zH], [c.xH + 1, APR, c.zH]], [[a.xH - 6, BOT + 0.02, a.zH], [c.xH + 1, APR, c.zH], [a.xH + 1, APR, a.zH]]])); }
+  // 入口池（逆坡、扇形散開）池底
+  const tipX = b.L + b.fL, to = b.tipOff, tp = b.tip;
+  const apr = [[tipX, to - tp / 2], [tipX, to + tp / 2]]; for (let i = nTr; i >= 0; i--) apr.push([L[i].xH + 1, L[i].zH]);
+  floor(apr, APR, MAT.con);
+  // 外牆：西段直、東段收窄、入口池兩側斜牆
+  for (const sg of [-1, 1]) { const zw = sg * (w / 2 + 0.5), e = sg < 0 ? L[0] : L[nTr], ze = e.zH + sg * 0.5;
+    bar(MAT.con, -6.5, zw, X1, zw, BOT - 0.6, TOP + 0.2, 0.6);
+    bar(MAT.con, X1, zw, e.xH + 1, ze, BOT - 0.6, TOP + 0.2, 0.6);
+    bar(MAT.con, e.xH + 1, ze, tipX, to + sg * tp / 2, APR - 0.6, TOP + 0.2, 0.6); }
+  C.box(MAT.con, -6.5, -6, Y(BOT - 0.6), Y(TOP + 0.2), -w / 2 - 0.5, w / 2 + 0.5);          // 側槽外牆
+  C.box(MAT.con, -0.6, 0, Y(BOT), Y(WL - 0.3), -w / 2, w / 2);                              // 溝尾擋水：上層清水溢流進側槽
+  C.box(MAT.blue, tipX - 0.8, tipX, Y(APR), Y(4.2), to - tp / 2, to + tp / 2);              // 北岸分水閘門（入口）
+  // 走道橋：太陽能板東緣一座直的、溝頭一座弧形的
+  C.box(MAT.con, X1 - 0.9, X1 + 0.9, Y(TOP), Y(TOP + 0.35), -w / 2 - 0.5, w / 2 + 0.5);
+  rail(X1 - 0.85, -w / 2, X1 - 0.85, w / 2, TOP + 0.35); rail(X1 + 0.85, -w / 2, X1 + 0.85, w / 2, TOP + 0.35);
+  for (let i = 0; i < nTr; i++) { const a = L[i], c = L[i + 1];
+    bar(MAT.con, a.xH + 0.6, a.zH, c.xH + 0.6, c.zH, TOP, TOP + 0.35, 2.4);
+    for (const off of [-0.6, 1.8]) rail(a.xH + off, a.zH, c.xH + off, c.zH, TOP + 0.35); }
+  // 太陽能板（西段，鋼架撐在牆頂上方）
+  for (const [z0, z1] of F.panels) {
+    C.box(M.panel, 8, X1 - 1.5, Y(7.0), Y(7.15), z0, z1);
+    for (let x = 9; x <= X1 - 2; x += 7.5) { C.box(steel, x - 0.15, x + 0.15, Y(6.7), Y(7.0), z0, z1); for (const z of [z0 + 0.3, z1 - 0.3]) C.box(steel, x - 0.12, x + 0.12, Y(TOP), Y(6.7), z - 0.12, z + 0.12); }
+    for (const z of [z0 + 0.3, z1 - 0.3]) C.box(steel, 8, X1 - 1.5, Y(6.5), Y(6.8), z - 0.15, z + 0.15);
+  }
+  // 排砂閘門房：西端一排 6 間（每兩道溝一座排砂閘門），白色磁磚外牆
+  for (let k = 0; k < nTr / 2; k++) { const zc = -w / 2 + (2 * k + 1) * twP;
+    C.box(tile, -20, -13, Y(-0.4), Y(3.8), zc - 3.2, zc + 3.2); C.box(MAT.white, -20.3, -12.7, Y(3.8), Y(4.1), zc - 3.5, zc + 3.5); }
+  C.flush(G);
+  // 水面（運轉中）
+  const ws = new THREE.Shape([[-6, -w / 2], [X1, -w / 2], [L[0].xH + 1, L[0].zH], [tipX, to - tp / 2], [tipX, to + tp / 2], [L[nTr].xH + 1, L[nTr].zH], [X1, w / 2], [-6, w / 2]].map(([x, z]) => new THREE.Vector2(x, -z)));
+  const wg = new THREE.ShapeGeometry(ws); wg.rotateX(-Math.PI / 2); wg.translate(0, WL, 0);
+  const wm = new THREE.Mesh(wg, M.wMat); wm.renderOrder = 2; G.add(wm);
+  // 溝裡的砂（漏斗底往上堆，高度隨 ST.basin）
+  const sg = [];
+  for (let i = 0; i < nTr; i++) { const a = L[i], c = L[i + 1], zP = (a.zP + c.zP) / 2, zH = (a.zH + c.zH) / 2, hx = (a.xH + c.xH) / 2;
+    const S = (x, z, hw) => [[x, 0, z - 0.45], [x, 0, z + 0.45], [x, 1.35, z + hw], [x, 1.35, z - hw]];
+    const t = [], A = S(0.5, zP, twP / 2 - 0.3), B = S(X1, zP, twP / 2 - 0.3), D = S(hx - 6, zH, twH / 2 - 0.3);
+    for (const [P, Q] of [[A, B], [B, D]]) for (let k = 0; k < 4; k++) { const j = (k + 1) % 4; t.push([P[k], P[j], Q[j]], [P[k], Q[j], Q[k]]); }
+    t.push([A[0], A[1], A[2]], [A[0], A[2], A[3]]); sg.push(geo(t)); }
+  const sm = new THREE.Mesh(mergeGeometries(sg), M.sMat); sm.position.y = BOT; G.add(sm); OBJ.sed.push(sm);
+  // 排砂時的水流：從西端閘門房往濁水溪（路線示意）
+  const px = b.o[0] - M.ux * 16, pz = b.o[1] - M.uz * 16;
+  OBJ.flushPlumes.push(makeRibbon([[px, pz], [px + def.flush[0] * 30, pz + def.flush[1] * 30], [px + def.flush[0] * 70, pz + def.flush[1] * 70]], { w: 3, c1: 0x5b4127, c2: 0xb08a5a, speed: 1.6, dash: 8, a0: 0.75, a1: 0.2, on: 0, smooth: 1 }).mat);
+}
+
 /* =====================================================================
    水量與水位（簡化計算，示意）
    ===================================================================== */
@@ -917,9 +1244,10 @@ function qSl(o, L) {
   const a = lipSl(o), free = 2.1 * SPEC.slW * H ** 1.5;
   return a >= H ? free : Math.min(free, 0.62 * SPEC.slW * a * Math.sqrt(2 * G9 * Math.max(H - a / 2, 0.01)));
 }
-const qFish = L => L > 207.4 ? 1 : 0;
+const qFish = L => L > 205.5 ? 1 : 0;   // 最低的魚道出口約 EL 205（照片判讀，示意）
 const outflow = (L, gs = ST.gate, sls = ST.sl) => gs.reduce((s, o) => s + qSp(o, L), 0) + sls.reduce((s, o) => s + qSl(o, L), 0) + qFish(L);
-const intakeQ = () => { const k = ST.level > SPEC.inUp + 0.3 ? 1 : 0.5; const t = Math.min(ST.Q, 160) * k; return [t * 70 / 160, t * 90 / 160]; };
+const hQof = Q => clamp(0.6 * Math.log2(Math.max(Q, 150) / 150), 0, 2);   // 來水越多，上游水面比平時高多少（示意）
+const intakeQ = () => { const k = ST.level > SPEC.inUp + 0.3 ? 1 : 0.5, rel = ST.key === 'normal' && !ST.flushing ? outflow(TEACH.normal) : 0; const t = Math.max(0, Math.min(ST.Q - rel, 160)) * k; return [t * 70 / 160, t * 90 / 160]; };   // 平時：來水扣掉往下游放的，其餘取走
 function solveLevel(need, gs, sls) {
   if (outflow(216, gs, sls) < need) return 216;
   let a = SPEC.slCrest, b = 216; for (let k = 0; k < 40; k++) { const m = (a + b) / 2; if (outflow(m, gs, sls) < need) a = m; else b = m; }
@@ -929,13 +1257,13 @@ function openingFor(q, L, f = qSp) { let a = 0, b = 1; if (f(1, L) <= q) return 
 
 /* 依法規的操作方式（閘門編號 1–18 由北往南） */
 const PLANS = {
-  normal: { Q: 150, label: '平時', open: [] },
+  normal: { Q: 150, label: '平時', open: [17, 18], o: 0.022 },   // 2026-11-23 現場：平時 17、18 號開一點點在放水（開度、放水量示意）
   400: { Q: 400, label: '400', open: [9, 10, 11] },
   650: { Q: 650, label: '650 以上', open: [7, 8, 9, 10, 11, 12] },
   1300: { Q: 3000, label: '1300 以上（例：3000）', open: Array.from({ length: 18 }, (_, i) => i + 1) },
 };
 const RULE = {
-  normal: ['常時操作：水位調節閘門全開、弧形閘門全關，把水位撐高，讓取水口取水。取水口上層閘門依下游需要的水量打開，下層平時關閉。', '第四點（一）、第七點（一）'],
+  normal: ['常時操作：水位調節閘門全開，弧形閘門關著把水位撐高，讓取水口取水；取水口上層閘門依下游需要的水量打開，下層平時關閉。不過平時也會放一點水到下游：2026 年 11 月 23 日現場看到第 17、18 號閘門開一點點在放水，消能池裡有水（開度、放水量是示意）。', '第四點（一）、第七點（一）；現場觀察'],
   warn: ['警告性放水：正式放水前 1 小時，先開 1 座閘門慢慢放水（不超過 50 m³/s），並每 10～20 分鐘響一次放水警報，提醒下游的人離開河床。※ 畫面把 1 小時縮短成 8 秒', '第四點（二）、第十點（一）'],
   400: ['調節性放水：水比取水口能取的多，打開幾座閘門（畫面開第 9～11 號，示意）放掉多的水，讓水位維持。', '第四點（三）'],
   650: ['入流量超過 650 m³/s：把洪水集中在幾座閘門放（畫面開第 7～12 號，示意），順便沖走堰前的淤積、維持主河道。', '第四點（四）1'],
@@ -952,7 +1280,7 @@ function showRule(k, warn = false) {
 }
 function startWarning(next) {
   const my = seq; ST.warn = true; showRule('warn', true);
-  ST.gateT.fill(0); ST.gateT[8] = openingFor(45, Math.max(ST.level, TEACH.normal));
+  ST.gateT.fill(0); for (const no of PLANS.normal.open) ST.gateT[no - 1] = PLANS.normal.o; ST.gateT[8] = openingFor(45, Math.max(ST.level, TEACH.normal));
   clearTimeout(warnTimer);
   warnTimer = setTimeout(() => { if (my !== seq) return; ST.warn = false; next(); }, 8000);
 }
@@ -963,7 +1291,8 @@ function setInflow(key, instant = false) {
   const apply = () => {
     if (my !== seq) return;
     ST.gateT.fill(0);
-    if (plan.open.length) {
+    if (ST.key === 'normal') for (const no of plan.open) ST.gateT[no - 1] = plan.o;
+    else if (plan.open.length) {
       const L = ST.key === '1300' ? 216 : TEACH.normal, need = plan.Q - Math.min(plan.Q, 160);
       const o = ST.key === '1300' ? 1 : openingFor(need / plan.open.length, L);
       for (const no of plan.open) ST.gateT[no - 1] = o;
@@ -971,10 +1300,11 @@ function setInflow(key, instant = false) {
     if (ST.key === 'normal') { if (!ST.flushing) ST.slT.fill(0); showRule(prev !== 'normal' && !instant ? 'resume' : 'normal'); }
     else showRule(ST.key);
     if (ST.key === '1300' || ST.key === '650') ST.slT.fill(ST.flushing ? 0.35 : 0);
-    if (instant) { ST.gate = [...ST.gateT]; ST.sl = [...ST.slT]; ST.level = ST.key === 'normal' ? TEACH.normal : solveLevel(plan.Q - Math.min(plan.Q, 160), ST.gate, ST.sl); }
+    if (instant) { ST.hQ = hQof(ST.Q); ST.gate = [...ST.gateT]; ST.sl = [...ST.slT]; ST.level = ST.key === 'normal' ? TEACH.normal : solveLevel(plan.Q - Math.min(plan.Q, 160), ST.gate, ST.sl); }
   };
-  const anyOpen = ST.gateT.some(o => o > 0.01) || ST.gate.some(o => o > 0.01);
-  if (plan.open.length && !anyOpen && !instant) startWarning(apply); else apply();
+  const extra = a => a.some((o, i) => o > 0.01 && !(PLANS.normal.open.includes(i + 1) && o < 0.05));   // 平時就開著的 17、18 號不算
+  const anyOpen = extra(ST.gateT) || extra(ST.gate);
+  if (ST.key !== 'normal' && plan.open.length && !anyOpen && !instant) startWarning(apply); else apply();
   gsap.to(U.mud, { value: { normal: 0, 400: 0.55, 650: 0.9, 1300: 1 }[ST.key], duration: instant ? 0 : 6 });
 }
 function startSluice() {
@@ -1003,13 +1333,14 @@ function step(dt) {
   const closed = outflow(216) - qFish(216) < 1;
   let target = closed ? (need > 1 ? 216 : ST.level) : solveLevel(need, ST.gate, ST.sl);
   if (ST.key === 'normal' && !closed) target = Math.max(target, 207.0);       // 排砂時水位最多降到約 207（示意）
+  if (ST.key === 'normal' && !ST.flushing && !ST.warn) target = TEACH.normal;   // 平時：取水口依來水調整取水量，水位維持常水位
   const sp = closed ? 0.06 : 0.35;
   ST.level += clamp(target - ST.level, -sp * dt, sp * dt);
   // 淤砂：閘門都關時慢慢堆積；排砂道打開或全面洩洪時被沖走（示意，時間加速）
   const slOpen = ST.sl.reduce((a, b) => a + b, 0) / 4, allOpen = ST.gate.reduce((a, b) => a + b, 0) / 18;
   if (slOpen > 0.15) ST.mound -= 0.75 * dt * slOpen / 0.35;
   else if (allOpen > 0.8) ST.mound -= 0.12 * dt;
-  else if (closed) ST.mound += 0.05 * dt;
+  else if (allOpen < 0.15) ST.mound += 0.05 * dt;
   ST.mound = clamp(ST.mound, 0, 6.8);
   if (ST.flushing && ST.mound < 0.3 && slOpen > 0.3) endSluice();
   // 沉砂池：有取水就慢慢淤積
@@ -1021,7 +1352,8 @@ function frame() {
   U.time.value += dt;
   step(dt);
   const L = ST.level, Ly = E(L);
-  OBJ.pool.position.y = Ly;
+  OBJ.poolU.uL.value = Ly;
+  ST.hQ += (hQof(ST.Q) - ST.hQ) * Math.min(1, dt * 0.5); OBJ.poolU.uH.value = ST.hQ;   // 來水越多，上游水面越高（示意）
   for (let i = 0; i < 18; i++) {
     OBJ.spPiv[i].rotation.x = ST.gate[i] * DEG62;
     const q = qSp(ST.gate[i], L), m = OBJ.spSheet[i].material.uniforms;
@@ -1037,12 +1369,13 @@ function frame() {
   U.mudSl.value = ST.sl.some(o => o > 0.05) ? 1 : U.mud.value;
   const Qd = outflow(L);
   const dB = 0.3 + 0.45 * Math.sqrt(Qd / 50);
-  OBJ.basin.position.y = E(TEACH.apron + Math.min(dB, 5)); OBJ.basin.material.uniforms.uDepth.value = dB;
+  OBJ.basin.position.y = E(TEACH.apron + Math.max(1.75, Math.min(dB + 1.0, 5.5))); OBJ.basin.material.uniforms.uDepth.value = dB;   // 平時水面在消能塊帽蓋下緣附近（照片）
+  OBJ.downW.position.y = E(191 + Math.min(dB, 4.5) * 0.8);
   const dR = Math.min(0.04 + 0.22 * Math.sqrt(Qd / 50), 3.2), rp = OBJ.river.geometry.attributes.position;
   for (let i = 0; i < rp.count; i++) rp.setY(i, OBJ.riverBase[i] + dR); rp.needsUpdate = true;
-  const col = new THREE.Color(0x4f8f88).lerp(new THREE.Color(0x7d6b52), U.mud.value);
-  OBJ.poolMat.color.copy(col); OBJ.riverMat.color.copy(new THREE.Color(0x4f8f88).lerp(new THREE.Color(0x7d6b52), Math.max(U.mud.value, U.mudSl.value * 0.8)));
-  OBJ.fishWater.visible = L > 207.4;
+  const col = new THREE.Color(0x5f716c).lerp(new THREE.Color(0x7d6b52), U.mud.value);
+  OBJ.poolMat.color.copy(col); OBJ.riverMat.color.copy(new THREE.Color(0x5f716c).lerp(new THREE.Color(0x7d6b52), Math.max(U.mud.value, U.mudSl.value * 0.8)));
+  OBJ.fishWater.visible = L > 205.5;
   for (const m of OBJ.mounds) m.scale.y = 3.4 + ST.mound;
   // 取水口閘門：上層依需水量開（示意），下層關
   const [qN, qS] = intakeQ();
@@ -1103,7 +1436,8 @@ function buildLabels() {
   addLabel('<b>堰</b>溢洪道・18 座弧形閘門', 'pin', ...P(176, -4), 228, 3000, () => openPanel('spill'), '#0369a1');
   addLabel('<b>砂</b>排砂道 1・2 號', 'pin', ...P(8, -2), 222, 1600, () => openPanel('sluice'), '#a16207');
   addLabel('<b>砂</b>排砂道 3・4 號', 'pin', ...P(344, -2), 222, 1600, () => openPanel('sluice'), '#a16207');
-  addLabel('<b>魚</b>魚道（位置推定）', 'pin', ...P(355, 40), 206, 900, () => openPanel('fish'), '#059669');
+  addLabel('<b>魚</b>魚道', 'pin', ...P(355, 40), 206, 900, () => openPanel('fish'), '#059669');
+  addLabel('魚道出口（上游）', 'geo', ...OBJ.fishExit, 216.8, 700);
   addLabel('<b>取</b>北岸取水口', 'pin', ...INTAKES.N.m, 220, 2500, () => openPanel('intakeN'), '#b45309');
   addLabel('<b>取</b>南岸取水口', 'pin', ...INTAKES.S.m, 220, 2500, () => openPanel('intakeS'), '#b45309');
   addLabel('<b>管</b>管理中心・台灣水資源館', 'pin', 1963, 1270, null, 3000, () => openPanel('center'), '#475569');
@@ -1111,10 +1445,13 @@ function buildLabels() {
   addLabel('<b>消</b>消能池・拱形消能塊', 'pin', ...P(176, 70), 196, 1800, () => openPanel('stilling'), '#64748b');
   addLabel('攔河路・公路橋（上游側）', 'geo', ...P(120, -18), 220, 1500);
   addLabel('原集集大橋（台3丙，下游側）', 'geo', ...P(120, 19), 208, 1500);
-  addLabel('水庫（攔河堰上游）', 'geo water', ...P(176, -380), 211, 6000);
+  addLabel('水庫（攔河堰上游）', 'geo water', ...P(176, -380), 214, 6000);
+  addLabel('平時大多是淤積的泥灘', 'geo', 2520, 1660, null, 5000);
+  addLabel('主流（北側）→ 北岸取水口', 'geo water', 2350, 1300, null, 5000);
+  addLabel('主流（南側，南清水溝溪匯入）→ 南岸取水口', 'geo water', 2080, 1945, null, 5000);
+  addLabel('<b>觀</b>象鼻山觀景台', 'pin', ...LOOKOUT, null, 3000, () => openPanel('lookout'), '#0f766e');
   addLabel('濁水溪 ↓ 往下游（二水）', 'geo water', ...P(240, 700), 196, 6000);
-  const qs = OSM.lines.find(l => l.kind === 'river' && l.name === '清水溪');
-  if (qs) { const p = qs.pts.filter(q => q[0] < 3600 && q[1] > 0)[Math.floor(qs.pts.length * 0.6)] || qs.pts[0]; addLabel('清水溪（在堰前匯入）', 'geo water', p[0], p[1], null, 6000); }
+  addLabel('清水溪（公告寫「北清水溝溪」）→ 流進水庫', 'geo water', 2205, 1130, null, 6000);   // 集集鎮的清水溪：OSM 河道線經林尾大橋下，在管理中心東邊流進水庫
   addLabel('北岸引水隧道（地下）', 'geo canal', ...OBJ.lblTunnel, null, 5000);
   addLabel('北岸引水暗渠', 'geo canal', ...OBJ.lblConduit, null, 5000);
   addLabel('北岸聯絡渠道 → 往名間、二水', 'geo canal', ...OBJ.lblNDown, null, 6000);
@@ -1139,6 +1476,10 @@ function updateLabels() {
 
 /* ---------- 說明卡（內容與出處見 階段3_集集攔河堰史實清單.md） ---------- */
 const SRC = {
+  wdesign: '<a href="https://web.wra.gov.tw/jiji/News_Video_Content.aspx?n=8796&s=50201" target="_blank">中區水資源局影片〈集集共同引水工程設計〉</a>',
+  wbrief: '<a href="https://web.wra.gov.tw/jiji/News_Video_Content.aspx?n=8796&s=50200" target="_blank">中區水資源局影片〈集集共同引水工程概要〉</a>',
+  wdone: '<a href="https://web.wra.gov.tw/jiji/News_Video_Content.aspx?n=8796&s=50199" target="_blank">中區水資源局影片〈集集共同引水計畫工程簡介（完工版）〉</a>',
+  fishshort: '<a href="https://www.youtube.com/shorts/uqq4rLaAzC0" target="_blank">短片〈集集攔河堰魚道〉（旅行黑盒）</a>',
   longen: '<a href="https://nchdb.boch.gov.tw/city/nthcc/assets/overview/monument/20060711000002" target="_blank">國家文化資產網〈竹山隆恩圳隧渠〉（南投縣政府文化局提供）</a>',
   teacher23: '老師現場確認（2026 年 11 月 23 日）',
   plaque: '現場解說牌〈計畫內容〉（經濟部水利署中區水資源局製，2026 年 11 月 23 日拍攝）',
@@ -1162,55 +1503,67 @@ const INFO = {
     b: `<div class="keys"><span>堰長</span><span>352.5 公尺，混凝土重力壩</span>
         <span>弧形閘門</span><span>18 座，每座寬 15 公尺、高 10.33 公尺，由北岸到南岸編號 1～18</span>
         <span>水位調節閘門</span><span>第 1～4、15～18 號前面還有 8 座（高 2 公尺），平時全開</span>
-        <span>平時</span><span>弧形閘門全關，把水位撐高到常水位約 213 公尺，讓兩岸取水口取水（現場解說牌）</span>
+        <span>平時</span><span>弧形閘門關著，把水位撐高到常水位約 213 公尺，讓兩岸取水口取水（現場解說牌）。但不是一滴都不放：2026 年 11 月 23 日現場看到第 17、18 號閘門開一點點在放水（老師現場觀察）</span>
         <span>洪水</span><span>依上游來水量，打開幾座或全部閘門放水</span>
         <span>低堰高閘門</span><span>堰本身做得低、閘門做得高：洪水來時把閘門全部打開，堰前淤積的砂就被水沖到下游（影片）</span>
         <span>一共 22 座</span><span>溢洪道 18 座＋排砂道 4 座，是全台灣閘門最多的攔河堰（影片）</span>
         <span>上面兩座橋</span><span>上游側是給車走的公路橋（攔河路），旁邊還有一座維修、操作閘門用的操作橋；下游側是原集集大橋（橋頭現在還有「集集大橋」橋名柱），蓋堰時把堰墩和大橋橋墩結合在一起</span></div>
         <p style="font-size:13.5px;color:#64748b">※ 公路橋、操作橋、原集集大橋的相對位置與公路橋面高度（EL 218.40）依中區水資源局的溢洪道標準斷面圖（影片畫面）；其他尺寸仍是示意。</p>
-        <p style="font-size:13.5px;color:#64748b">※ 閘門數量、尺寸依法規；閘墩、橋、機房的外型是示意。</p><p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：上游來水超過每秒 1,300 立方公尺，就規定閘門要全部打開。颱風豪雨閘門全開時，站在旁邊<strong>聽得到大石頭在堰面上撞的聲音</strong>。1996 年賀伯颱風來時堰還在蓋，洪水估計每秒約 12,000 立方公尺，整個工地被淹過，很粗的鋼筋都被沖彎、沖斷，停工了三個月。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('guide')" style="color:#0369a1;font-weight:900">看管理中心導覽員說的全部重點 →</a></p>${phset('jjsp')}${phset('jjview', '從南岸鼻頭山觀景台看攔河堰')}${phset('jjbridge', '下游側的原集集大橋')}${PHCREDIT}${src('plaque', 'law', 'v2', 'home', 'hist')}` },
+        <p style="font-size:13.5px;color:#64748b">※ 閘門數量、尺寸依法規；閘墩、橋、機房的外型是示意。</p><p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：上游來水超過每秒 1,300 立方公尺，就規定閘門要全部打開。颱風豪雨閘門全開時，站在旁邊<strong>聽得到大石頭在堰面上撞的聲音</strong>。1996 年賀伯颱風來時堰還在蓋，洪水估計每秒約 12,000 立方公尺，整個工地被淹過，很粗的鋼筋都被沖彎、沖斷，停工了三個月。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('guide')" style="color:#0369a1;font-weight:900">看管理中心導覽員說的全部重點 →</a></p>${phset('jjsp')}${phset('jjview', '從南岸象鼻山觀景台看攔河堰')}${phset('jjbridge', '下游側的原集集大橋')}${PHCREDIT}${src('plaque', 'law', 'v2', 'home', 'hist')}` },
   sluice: { t: '排砂道', s: '北岸 1、2 號・南岸 3、4 號',
     b: `<p>排砂道的堰頂比溢洪道低 6.5 公尺，每座弧形閘門寬 6.25 公尺、高 7.6 公尺。平日關閉；取水口前淤積了砂和雜物時打開，把砂沖走，讓取水口可以順利取水。</p>
         <p>按左邊「排砂道排砂」，看看取水口前的淤砂怎麼被沖走。</p>
         <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：取水口前面就是排砂道。取水口前的砂堆高了，取進來的水就會變濁，這時就把排砂閘門拉開，讓水把砂沖走。檢修的時候也靠排砂道：南岸檢修就把水排到北岸，北岸檢修就引到南岸。</p>
         ${phset('jjsl')}${phset('jjdeck', '攔河路上的門型吊車')}${PHCREDIT}${src('law', 'works', 'field23')}` },
-  fish: { t: '魚道', s: '讓魚可以游過攔河堰',
-    b: `<p>法規寫魚道在「第四號排砂道左側」，有 15 座魚槽閘門。平時依水位只開一座魚槽閘門，讓少量的水流下去，魚可以沿著一階一階的魚槽往上游。</p>
-        <p>影片說它在<strong>堰堤南端</strong>，是濁水溪上的第一座魚道。</p>
-        <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>管理中心的導覽員說：魚道就在第 4 號排砂道旁邊，是一條<strong>隧道式的通道</strong>，像螺旋梯一樣往上爬，每一階大約 20–30 公分，最後從南岸取水口和排砂門中間的方形通道出來；會依水位高低打開不同高度的閘門。</p>
-        <p>從管理中心往南岸看，<strong>4 號排砂門門號牌的左下角有一個方形孔洞，那就是魚道的出口</strong>（老師現場確認）。</p>
+  fish: { t: '魚道', s: '堰體南端・4 號排砂道旁・濁水溪第一座魚道',
+    b: `<p>攔河堰把河擋住，魚要往上游產卵就過不去。魚道是給魚走的「樓梯」：一階一階的水池，每階只高一點點，魚可以一階一階往上跳。</p>
+        <p><button onclick="window.__jjFish()" style="font:inherit;font-weight:900;padding:6px 14px;border-radius:10px;border:0;background:#059669;color:#fff;cursor:pointer">在 3D 裡看魚道的位置</button></p>
+        ${fishSVG()}
+        <div class="keys"><span>① 入口（下游）</span><span>在南岸、拱形消能塊那一排靠岸的地方，水邊平台上立著兩面「魚道」牌子。魚從這裡進去（水利署影片）</span>
+        <span>② 階梯水池</span><span>沿著南岸的牆，兩邊是直立的混凝土牆，上面蓋著格柵。每一階的隔板頂部是圓弧形，水從上面流下來像水簾；中間有一段比較長、水比較平的「休息池」，讓魚喘口氣（影片）</span>
+        <span>③ 往上爬</span><span><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：魚道是<strong>隧道式</strong>的，像<strong>螺旋梯</strong>一樣往上爬，每一階大約 20–30 公分</span>
+        <span>④ 出口（上游）</span><span>從南岸取水口和 4 號排砂門中間的牆出來。牆上有<strong>上下排成一列的方形孔洞</strong>，就在 4 號門號牌左下方（老師照片）。影片說「魚道上游設有多處出口」，配合不同的蓄水位，打開不同高度的閘門</span></div>
+        <p>法規寫魚道在「第四號排砂道左側」，有 15 座魚槽閘門；平時依水位只開一座，讓少量的水流下去。</p>
         ${phset('jjfish')}${PHCREDIT}
-        <p style="font-size:13.5px;color:#64748b">※ 位置在南端已由影片、導覽員和現場照片確認。3D 畫面畫成露天的一階一階魚槽，是示意；實際是隧道式、螺旋往上，從外面只看得到出口。</p>${src('law', 'v2', 'guide23', 'teacher23')}` },
+        <p style="font-size:13.5px;color:#64748b">※ 入口、階梯水池、出口的位置依影片和現場照片。螺旋段藏在堰墩裡面，從外面看不到；剖面圖裡螺旋的圈數、大小，和水面下還有幾個出口，都沒有公開圖面，是示意，比例也不準。</p>${src('law', 'wdesign', 'wbrief', 'fishshort', 'guide23', 'teacher23')}` },
   intakeN: { t: '北岸取水口', s: '送水給彰化（八堡圳等）',
     b: `<div class="keys"><span>閘門</span><span>上、下兩層各 8 座，共 16 座（法規寫每座寬 4.38、高 2.3 公尺；影片說明框寫 4×2 公尺）；另有 1 座緊急閘門（5.6×5.6 公尺，影片）</span>
         <span>平時</span><span>上層閘門依下游需要的水量打開，下層關閉；淤積或漂流物多時才開下層。導覽員說：一般都開上層，水位比較低時才開到下層，因為<strong>上層的水比較乾淨</strong>（口述）</span>
         <span>計畫取水量</span><span>每秒 70 立方公尺</span>
+        <span>水量分配</span><span><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>水權由農田水利會協調；管理中心每個時期依水權，分配南、北岸取水口各取多少水（導覽員說，老師轉述）</span>
         <span>接著</span><span>水進入北岸聯絡渠道（新建段約 23 公里，再接擴建的原有渠道，共約 51 公里），經二水的八堡圳分水工送進八堡圳</span></div>
+        <p><strong>平常看不到取水的閘門：</strong>水庫常水位約 213 公尺，上、下兩層閘門都在水面下好幾公尺，露出水面的只有上面的機房和操作平台。水利署影片說：下層閘門的高度和溢流堰頂差不多，上層高約 2 公尺；平常開上層，淤砂太高、取水不夠時才開下層。閘門前面還有<strong>攔污柵</strong>，擋住樹枝、垃圾。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 閘門高度各資料寫法不同：水利署影片字幕寫下層閘門頂部 203.5 公尺、上層 205.5 公尺；日月光影片說明框寫取水底檻 203.25、205.85 公尺；3D 用法規的數字。</p>
         <p>取水口後面是閘門機房，通往取水口工作區的門是管制區，一般人不能進去（老師現場確認）。</p>
-        ${phset('jjintake')}${PHCREDIT}${src('law', 'home', 'pipe', 'guide23', 'teacher23')}` },
+        ${phset('jjintake')}${PHCREDIT}${src('law', 'home', 'pipe', 'wdesign', 'guide23', 'teacher23')}` },
   intakeS: { t: '南岸取水口', s: '送水給雲林',
-    b: `<div class="keys"><span>閘門</span><span>上、下兩層各 9 座，共 18 座；另有 1 座緊急閘門（6.5×6.5 公尺，影片）</span><span>計畫取水量</span><span>每秒 90 立方公尺</span><span>接著</span><span>南岸聯絡渠道共約 38 公里（新建 15＋擴建 23），接斗六堰、林內分水工等</span></div>
-        <p>南岸取水口緊鄰 4 號排砂道，魚道的出口就在旁邊。</p>
+    b: `<div class="keys"><span>閘門</span><span>上、下兩層各 9 座，共 18 座；另有 1 座緊急閘門（6.5×6.5 公尺，影片）</span><span>計畫取水量</span><span>每秒 90 立方公尺</span>
+        <span>水量分配</span><span><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>水權由農田水利會協調；管理中心每個時期依水權，分配南、北岸取水口各取多少水（導覽員說，老師轉述）</span><span>接著</span><span>南岸聯絡渠道共約 38 公里（新建 15＋擴建 23），接斗六堰、林內分水工等。水利署影片說：渠道最多送每秒 110 立方公尺，先分 20 給斗六大圳，其餘 90 繼續往下送</span></div>
+        <p>南岸取水口緊鄰 4 號排砂道，魚道的出口就在旁邊。和北岸一樣，平常閘門都在水面下，看得到的是上面的機房。</p>
         <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：南岸取水口取進來的水，另外開了一個小閘門分一小股，接給附近原有的老水圳用。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('longen')" style="color:#0369a1;font-weight:900">附近的古蹟：竹山隆恩圳隧渠 →</a></p>
-        ${phset('jjsintake')}${PHCREDIT}${src('law', 'home', 'pipe', 'guide23', 'teacher23')}` },
+        ${phset('jjsintake')}${PHCREDIT}${src('law', 'home', 'pipe', 'wdesign', 'guide23', 'teacher23')}` },
   center: { t: '集集攔河堰管理中心', s: '台灣水資源館',
     b: `<p>管理中心在攔河堰的右岸（北岸），是濁水溪水資源的調度中心，依操作規定把水分給下游彰化、雲林的農業、生活和工業用水。裡面有濁水溪館、集集共同引水館、台灣水資源館、水利暨能源館（影片）。</p><p>攔河堰的閘門都有電動設備，可以在現場操作，也可以在控制室遙控（取水口緊急閘門、沉砂池退水閘門只能在現場操作）。放水前要先響放水警報。</p><p>開放時間 9:00–17:00，館內可以拍照（2026 年 11 月現場詢問）。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('guide')" style="color:#0369a1;font-weight:900">看管理中心導覽員說的全部重點 →</a></p>${phset('jjcenter')}${phset('jjexhibit', '台灣水資源館的展板')}${PHCREDIT}<p style="font-size:13.5px;color:#64748b">※ 建築外型依照片示意。</p>${src('law', 'plaque', 'field23')}` },
   stilling: { t: '消能池', s: '攔河堰下游',
     b: `<p>水從溢洪道、排砂道衝下來時速度很快。消能池讓急流在池裡翻滾，再撞上下游一整排<strong>拱形的消能塊</strong>，把力量消掉，才不會一路把下游的河床沖壞。池子中間還有一道導流牆。</p>
         <p>站在下游側的道路（台3丙）上，就看得到這排一個個拱起來的消能塊。</p>
-        <p>平時閘門關著，消能池裡只剩一些水窪和砂石；開閘放水時，池裡會翻起白色水花。</p>
-        <p>現場數到大約 <strong>44 個</strong>拱形消能塊。</p>
+        <p><strong>平時也不是乾的：</strong>2026 年 11 月 23 日現場看到第 17、18 號閘門開一點點在放水，整個消能池鋪著一層混濁的灰色水，池底淤滿泥沙，還躺著幾顆大石頭；消能塊後面堆著一大片黑灰色的淤砂。開越多閘門放水，池裡翻起的白色水花越多。</p>
+        <p>現場數到大約 <strong>44 個</strong>拱形消能塊。每一塊像一頂「帽子」：上面是一塊頂面彎彎的混凝土，朝上游那頭低、貼著水面，往下游翹高；下面墊著比較窄的墩子。塊和塊之間比較低，水從空隙流過去，在下游那邊跌下去（現場照片）——這就是導覽員說的「尾檻有高有低」。</p>
         <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：水從堰面衝下來，先到<strong>護坦</strong>，最後是一道<strong>尾檻</strong>（也叫尾堰）。尾檻故意做得有高有低：流量小時水從低的地方流過去，流量大時整排一起擋，讓池裡的水穩下來，不要產生太多漩渦。漩渦很厲害，會讓牆面附近變成真空、把混凝土「爆」掉。</p>
         <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>洪水帶著大石頭撞擊堰面，每年都要花好幾千萬元修補；最深曾經被挖掉兩公尺厚的混凝土，露出底下的岩盤。所以每年小修、三年大修。檢修時故意把部分水道堵住，讓水只從其他道流過去，所以有時看到池裡有的道有水、有的道是乾的。</p><p><a href="#" onclick="event.preventDefault();window.__jjCard('guide')" style="color:#0369a1;font-weight:900">看管理中心導覽員說的全部重點 →</a></p>
         ${phset('jjstill')}${PHCREDIT}
-        <p style="font-size:13.5px;color:#64748b">※ 消能塊列、導流牆、下游側道路的位置依國土測繪中心 2023 年空拍；外型依 Google 街景（2026 年 7 月）與現場照片示意，尺寸沒有官方數字。</p>${src('field23')}` },
+        <p style="font-size:13.5px;color:#64748b">※ 消能塊列、兩道導流牆、下游側道路的位置依國土測繪中心 2023 年空拍；消能塊數量（約 44 個）、池裡的水和淤砂依 2026 年 11 月 23 日現場照片；尺寸沒有官方數字，是示意。</p>${src('field23')}` },
   nbasin: { t: '北岸沉砂池', s: '2 座並排・上方架太陽能板',
     b: `<p>北岸取水口的水先經過<strong>北岸引水隧道</strong>穿過山，再由<strong>引水暗渠</strong>送到這裡。濁水溪的水含砂很多，水在沉砂池裡流慢下來，砂就沉到沉砂溝底；上層比較清的水溢流進側槽，再送進北岸聯絡渠道。</p>
         <div class="keys"><span>閘門</span><span>分水閘門 2 座、排砂閘門 12 座、退水閘門 2 座</span>
-        <span>沉砂溝</span><span>每兩道沉砂溝一座排砂閘門，可以分開排砂</span>
+        <span>沉砂溝</span><span>每座 <strong>12 道</strong>（導覽員口述，正射影像也數得到）。溝的斷面像漏斗：上段是直牆，下段是斜坡，收到溝底一條窄槽（現場照片）</span>
+        <span>溝頭</span><span>入口池的水先走一段<strong>逆坡</strong>，坡頂就是分水的「控制斷面」，讓每一道溝分到差不多的水；過了控制斷面水往下跌進溝裡。一道道隔牆的前端是三角形斜鼻，排成弧形，上面有弧形走道橋（水利署、現場照片）</span>
+        <span>溝尾</span><span>隔牆比最高水面還高；溝尾接側渠，只有表層比較清的水溢流進側渠（水利署）</span>
+        <span>排砂閘門</span><span>每兩道溝一座，可以一邊排砂、一邊照常取水（水利署）。池子西端有一排白色小屋，門牌編到 ⑫，和排砂閘門 12 座相符，推測是排砂閘門的機房（現場照片，待確認）</span>
+        <span>太陽能板</span><span>架在沉砂溝西段上方的鋼架上；東段露天，看得到一道道溝（正射影像、現場照片）</span>
         <span>排砂</span><span>砂堆多了就打開排砂閘門，用水把砂沖回濁水溪（打開前要響放水警報）</span>
         <span>興建</span><span>約 1995～1998 年（施工照片日期）</span></div>
-        <p style="font-size:13.5px;color:#64748b">※ 位置、方向依正射影像判讀；沉砂溝、閘門的排列與外型是示意；排砂水流回到濁水溪的路線沒有畫出。</p><p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：每座 12 道沉砂溝（北岸 2 座、南岸 3 座）。水進池子時先走一段<strong>逆坡</strong>，再像扇子一樣散開，流速就慢下來，粗的砂越不過去，掉進 5–6 公尺深的沉砂溝。溝的後面有擋水，只有上層比較乾淨的水越過去，由後面的收集溝送往二水。砂淤到 5–6 公尺高，就把後面的排砂閘門拉開，靠重力把砂沖回濁水溪，不用人工挖。</p>
+        <p style="font-size:13.5px;color:#64748b">※ 位置、外框、溝頭弧線、太陽能板範圍、閘門房位置，依 2023 年正射影像量出來；溝的深度、斜坡角度、閘門房大小是示意；排砂水流回濁水溪的路線是示意。</p><p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：每座 12 道沉砂溝（北岸 2 座、南岸 3 座）。水進池子時先走一段<strong>逆坡</strong>，再像扇子一樣散開，流速就慢下來，粗的砂越不過去，掉進 5–6 公尺深的沉砂溝。溝的後面有擋水，只有上層比較乾淨的水越過去，由後面的收集溝送往二水。砂淤到 5–6 公尺高，就把後面的排砂閘門拉開，靠重力把砂沖回濁水溪，不用人工挖。</p>
         <p>水從沉砂池<strong>東側（上游）的北岸分水閘門</strong>分進兩座沉砂池，這裡就是入口（老師現場確認）。3D 畫面裡，入口喇叭口前那道藍色閘門就是它。</p>${phset('jjnbasin')}${phset('jjnsplit', '北岸分水閘門（沉砂池入口）')}${PHCREDIT}${src('law', 'big', 'nbp', 'works', 'guide23', 'teacher23')}` },
   sbasin: { t: '南岸沉砂池', s: '3 座並聯・竹山鎮富州里',
     b: `<p>在攔河堰下游約一公里、富州堤防邊的河川新生地上（用開挖攔河堰的礫石回填約 3 公尺）。南岸取水口的水經<strong>南岸引水暗渠</strong>送到這裡沉砂，再進南岸聯絡渠道送往雲林。</p>
@@ -1221,17 +1574,22 @@ const INFO = {
         <p style="font-size:13.5px;color:#64748b">※ 位置依正射影像判讀，外型示意。</p>${src('law', 'sb', 'works')}` },
   reservoir: { t: '水庫蓄水範圍', s: '攔河堰上游的調整池',
     b: `<div class="keys"><span>北邊</span><span>台 16 線林尾圍堤（劃到堤頂欄杆），還包括北清水溝溪一段</span>
+        <span>流進來的溪</span><span>東邊是濁水溪主流。北岸有集集鎮的<strong>清水溪</strong>：從林尾大橋（台 16 線）底下流過，在管理中心東邊流進水庫；經濟部公告和中水局的水質採樣點把它寫成「北清水溝溪」。南岸有<strong>南清水溝溪</strong>（鹿谷，清瑞橋那條）</span>
+        <span>不要搞混</span><span>集集這條清水溪，和從竹山流下來的那條大的<strong>清水溪</strong>是不同的溪；大的那條在攔河堰下游、竹山和林內交界一帶才匯入濁水溪（老師說明；OpenStreetMap 河道線也畫在那裡）</span>
         <span>東邊</span><span>集鹿大橋</span><span>南邊</span><span>小嶺產業道路臨水面的路肩，到清瑞橋</span>
         <span>西邊</span><span>攔河堰</span>
         <span>怎麼劃</span><span>設計最高洪水位 EL 215.4 公尺，加上迴水到得了的水域、重要設施的土地和水面</span>
         <span>面積</span><span>蓄水範圍 265 公頃（集集鎮、鹿谷鄉、竹山鎮）；其中調整池約 242 公頃，有效容量約 1,000 萬立方公尺</span>
         <span>限制活動</span><span>重要設施周圍 27.5 公頃</span></div>
         <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：最高蓄水量只有約 1,005 萬噸，現在已經淤了 400–500 萬噸，庫容剩一半，所以他們不叫它水庫。這裡是「川流式」取水：上游來多少水，就把需要的水量取進來。冬天水少時清淤，挖出來的砂石暫時運到上游清水溪、北清水溝溪一帶堆放。冬天來水約每秒 100 立方公尺，一小時就是 36 萬噸，十個小時不取水就又滿了；上游來水每秒 1,000 立方公尺時，兩三個小時就會漫過堰。</p>
-        <p style="font-size:13.5px;color:#64748b">※ 紅線是依公告附圖，沿道路、橋描出的大概位置，不是測量界線。</p>${src('resmap', 'works', 'guide23')}` },
+        <p><strong>平常的樣子：</strong>2026 年 11 月 23 日從象鼻山觀景台看，水庫大部分是灰色的淤積泥灘，主流分到南、北兩側流向兩岸取水口，中間只有幾條細細的水流，還長了一片片的草。3D 畫面平時也照這樣畫；按左邊「400」「650 以上」「1300 以上」，上游的水面會升高、淹過泥灘。</p>
+        ${phset('jjres', '從觀景台看上游的水庫')}${PHCREDIT}
+        <p style="font-size:13.5px;color:#64748b">※ 紅線是依公告附圖，沿道路、橋描出的大概位置，不是測量界線。3D 的河道範圍依 OpenStreetMap 水域線和 2023 年正射影像；淤積泥灘的高度、水路的位置、洪水時水面升高多少都是示意。</p>${src('resmap', 'works', 'guide23', 'field23')}` },
   guide: { t: '管理中心導覽員說的重點', s: '2026 年 11 月 23 日・前中心主任',
     b: `<p style="font-size:13.5px;color:#64748b">※ 以下是現場錄音的重點，由電腦自動轉成文字後整理，數字是導覽員的口頭說法。</p>
         <div class="keys"><span>少一孔</span><span>溢洪道原本要做 19 孔，為了保留「開闢鴻荒」石碣，只做 18 孔</span>
         <span>川流式取水</span><span>取水量全國第一；上游來多少水，就把需要的取進來。最高蓄水約 1,005 萬噸，現在淤了 400–500 萬噸</span>
+        <span>水權</span><span>水權由農田水利會協調；管理中心每個時期依水權分配南、北岸取水口的水量（老師轉述）</span>
         <span>全開</span><span>上游來水超過每秒 1,300 立方公尺，閘門要全部打開；颱風時聽得到石頭撞堰面的聲音</span>
         <span>消能池</span><span>堰面 → 護坦 → 尾檻（尾堰）。尾檻有高有低，配合大小流量，減少漩渦；漩渦會把混凝土「爆」掉</span>
         <span>修不完</span><span>大石頭撞壞堰面，每年要花好幾千萬元，最深挖掉兩公尺混凝土。每年小修、三年大修；檢修時兩岸水利會同時修渠道，水從排砂道放掉</span>
@@ -1251,12 +1609,52 @@ const INFO = {
         <p><span style="background:#fde68a;color:#78350f;font-size:12px;font-weight:900;padding:0 7px;border-radius:7px">口述</span>導覽員說：攔河堰蓋好後，水不能再從隆恩圳的隧道進出，所以進去灌漿，把前段封起來；留下來的部分被竹山列為古蹟，可以從下游那一頭走進去看，裡面又矮又窄。現在原來的渠道沒有斷水，是從南岸進水口另外分一小股水接過去。</p>
         <p>和八堡圳一樣，隆恩圳也是清代先民自己開的水圳；八堡圳現在也改從攔河堰的北岸取水口取水，原來的圳頭當備用。</p>
         <p style="font-size:13.5px;color:#64748b">※ 3D 畫面沒有畫出隧渠，因為還沒有它確切的位置資料。</p>${src('longen', 'guide23')}` },
+  lookout: { t: '象鼻山觀景台', s: '攔河堰南端的山坡上・可以俯看整座攔河堰',
+    b: `<p>攔河堰南端的山坡上有一座涼亭觀景台。往北看，一次看得到：上游側給車走的攔河路、下游側的原集集大橋（台3丙）、18 座弧形閘門、下游的消能池和上游的水庫。</p>
+        <p>往東看上游的水庫：<strong>大部分是灰色的淤積泥灘</strong>，主流分到南、北兩側流向兩岸取水口，中間只有幾條細細的水流，還長了一片片的草（2026 年 11 月 23 日現場）。這就是導覽員說的「淤了 400–500 萬噸，庫容剩一半」。</p>
+        <p><button onclick="window.__jjLook()" style="font:inherit;font-weight:900;padding:6px 14px;border-radius:10px;border:0;background:#0f766e;color:#fff;cursor:pointer">在 3D 裡站上觀景台看</button></p>
+        ${phset('jjview')}${phset('jjres', '從觀景台看上游的水庫')}${PHCREDIT}
+        <p style="font-size:13.5px;color:#64748b">※ 觀景台位置依 2023 年正射影像上的涼亭屋頂判讀；涼亭外型示意。名稱依老師確認（象鼻山觀景台，現場也有「象鼻山步道」路線圖）。</p>${src('field23')}` },
   kaipi: { t: '開闢鴻荒石碣', s: '堰的北端',
     b: `<p>建攔河堰時，為了避開這塊古碑，溢洪道比原本的規劃少了一孔（管理中心導覽員也這樣說）。</p>
         <p>石碣在攔河堰右岸（北端）的山壁上，刻著「開闢鴻荒」四個字。現場的說明牌寫：同治十三年（1874）牡丹社事件後，清廷推動「開山撫番」，吳光亮帶兵開闢中路，從林圮埔（竹山）經集集往東；光緒元年（1875）開路完成，在集集的濁水溪畔巨石上題字紀念。</p>
+        <p><strong>石碣旁的木板〈歷史沿革〉還寫到：</strong></p>
+        <div class="keys"><span>石碣</span><span>砂岩，「開闢鴻荒」四個字是行書，沒有落款；每個字約高 41、寬 35 公分</span>
+        <span>中路</span><span>光緒元年（1875）正月初九正式動工，全路約二百六十五里（〈八通關古道〉木板）</span>
+        <span>重見天日</span><span>後來石碣被藤蔓蓋住，民國 66 年（1977）8 月南投縣政府清理後才又露出來</span>
+        <span>古蹟</span><span>民國 76 年（1987）4 月，內政部把「八通關古道」指定為一級古蹟，沿線的碑碣（包括開闢鴻荒碣）都列在裡面</span>
+        <span>攔河堰讓路</span><span>民國 82 年（1993）行政院核定集集攔河堰工程計畫；政府為了維護古蹟完整，<strong>改變了攔河堰的設計</strong>——和導覽員說的「溢洪道少做一孔」對得上</span></div>
+        <p style="font-size:13.5px;color:#64748b">※ 木板是民國 91 年（2002）立，林文龍撰文。上面的字是從照片判讀的，木板有反光、陰影，個別字可能看錯。</p>
         ${phset('jjstele')}${PHCREDIT}${src('works', 'v2', 'field23')}` },
 };
+/* 魚道剖面示意圖：上游（左）→ 下游（右）；魚由右往左爬 */
+function fishSVG() {
+  const T = (x, y, t, o = '') => `<text x="${x}" y="${y}" ${o}>${t}</text>`;
+  let g = '';
+  g += `<rect x="0" y="0" width="660" height="330" fill="#f8fafc"/>`;
+  g += `<rect x="0" y="92" width="150" height="208" fill="#7dd3fc" opacity=".55"/>` + T(10, 66, '水庫', 'font-size="14" fill="#0369a1" font-weight="700"') + T(10, 84, '常水位約 213 公尺', 'font-size="12" fill="#0369a1"');
+  g += `<line x1="0" y1="92" x2="150" y2="92" stroke="#0284c7" stroke-width="2" stroke-dasharray="6 4"/>`;
+  g += `<rect x="150" y="40" width="130" height="270" fill="#d6d3cc" stroke="#78716c"/>` + T(160, 34, '堰的南端（4 號排砂門旁）', 'font-size="13" fill="#44403c" font-weight="700"');
+  for (const [k, y] of [[0, 112], [1, 160], [2, 208]]) g += `<rect x="146" y="${y}" width="16" height="26" fill="${k === 1 ? '#0f172a' : '#1e293b'}"/>`;
+  g += T(8, 252, '④ 出口：上下一列', 'font-size="13" fill="#0f172a" font-weight="700"') + T(8, 270, '方形孔洞，依水位', 'font-size="12.5" fill="#334155"') + T(8, 287, '開不同高度的閘門', 'font-size="12.5" fill="#334155"');
+  let sp = ''; for (let k = 0; k <= 8; k++) { const y = 268 - k * 20; sp += `<ellipse cx="215" cy="${y}" rx="38" ry="8" fill="none" stroke="#0d9488" stroke-width="3" ${k % 2 ? 'stroke-dasharray="4 4"' : ''}/>`; }
+  g += sp + `<path d="M177 120 L162 120 M177 170 L162 170 M177 220 L162 220" stroke="#0d9488" stroke-width="3"/>`;
+  g += T(196, 300, '③ 螺旋往上', 'font-size="13" fill="#0f766e" font-weight="700" text-anchor="middle"') + T(215, 318, '（藏在堰裡，示意）', 'font-size="11.5" fill="#475569" text-anchor="middle"');
+  const x0 = 280, x1 = 600, y0 = 268, y1 = 300, n = 12; let st = `M${x0} ${y0}`;
+  for (let k = 0; k < n; k++) { const xb = x0 + (x1 - x0) * (k + 1) / n, y = y0 + (y1 - y0) * (k + 1) / n; st += ` H${xb} V${y}`; }
+  g += `<path d="${st}" fill="none" stroke="#57534e" stroke-width="3"/>`;
+  g += `<rect x="${x0}" y="250" width="${x1 - x0}" height="4" fill="#475569" opacity=".6"/>` + T(440, 244, '② 階梯水池（上面蓋格柵，中間有休息池）', 'font-size="13" fill="#1e293b" font-weight="700" text-anchor="middle"');
+  g += `<rect x="600" y="292" width="60" height="38" fill="#7dd3fc" opacity=".55"/>` + T(632, 286, '下游', 'font-size="12.5" fill="#0369a1" text-anchor="middle"');
+  g += `<rect x="604" y="236" width="20" height="14" fill="#fff" stroke="#dc2626"/>` + T(614, 247, '魚道', 'font-size="9" fill="#dc2626" text-anchor="middle" font-weight="900"') + `<line x1="614" y1="250" x2="614" y2="292" stroke="#78716c"/>`;
+  g += T(640, 228, '① 入口', 'font-size="13" fill="#0f172a" font-weight="700" text-anchor="end"');
+  const fish = (x, y) => `<path d="M${x} ${y} q 10 -7 20 0 q -10 7 -20 0 z M${x + 20} ${y} l 7 -5 v 10 z" fill="#f59e0b"/>`;
+  g += fish(560, 288) + fish(420, 278) + fish(300, 270) + fish(222, 196) + fish(118, 122);
+  g += `<path d="M520 316 L340 316" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#fa)"/>` + T(430, 328, '魚往上游游', 'font-size="11.5" fill="#b45309" text-anchor="middle"');
+  return `<svg viewBox="0 0 660 332" style="width:100%;height:auto;border-radius:10px;margin:6px 0 10px"><defs><marker id="fa" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8z" fill="#f59e0b"/></marker></defs>${g}</svg>`;
+}
 window.__jjCard = k => openPanel(k);
+window.__jjFish = () => flyTo('fish');
+window.__jjLook = () => { document.getElementById('panel').classList.remove('open'); flyTo('lookout'); };
 function openPanel(key) {
   const d = INFO[key]; document.getElementById('pTitle').textContent = d.t; document.getElementById('pSub').textContent = d.s;
   document.getElementById('pBody').innerHTML = d.b; document.getElementById('panel').classList.add('open');
@@ -1323,13 +1721,16 @@ function basinBtn() {
 /* ---------- 視角 ---------- */
 function viewDef(v) {
   const P = (u, vv, el) => { const [x, z] = wp(u, vv); return new THREE.Vector3(x - CX, E(el), z - CZ); };
+  if (v === 'fish') return { t: P(354, 25, 198), p: P(290, 135, 232), sh: 150 };
   if (v === 'weir') return { t: P(176, 10, 203), p: P(330, 300, 262), sh: 420 };
-  if (v === 'stilling') return { t: P(150, 50, 192), p: P(262, 150, 210), sh: 160 };
+  if (v === 'stilling') return { t: P(170, 84, 192), p: P(347, 27, 212), sh: 220 };   // 站在原集集大橋（台3丙）南端往北看，對照照片 130243
+  if (v === 'lookout') { const [lx, lz] = LOOKOUT, [tx, tz] = wp(140, -6), dx = tx - lx, dz = tz - lz, L = Math.hypot(dx, dz), y = groundY(lx, lz);
+    return { t: new THREE.Vector3(tx - CX, E(211), tz - CZ), p: new THREE.Vector3(lx + dx / L * 7 - CX, y + 2.2, lz + dz / L * 7 - CZ), sh: 500 }; }
   if (v === 'gate') return { t: P(150, 0, 209), p: P(105, 62, 222), sh: 120 };
   if (v === 'intake') { const it = INTAKES.N, t = new THREE.Vector3(it.m[0] - CX, E(207), it.m[1] - CZ); return { t, p: t.clone().add(new THREE.Vector3(it.zx * 90 + it.dx * 30, 38, it.zz * 90 + it.dz * 30)), sh: 160 }; }
   if (v === 'sluice') return { t: P(10, -30, 204), p: P(95, -130, 238), sh: 200 };
   const G = (lx, lz) => new THREE.Vector3(lx - CX, groundY(lx, lz), lz - CZ);
-  if (v === 'nbasin') { const t = G(950, 262); return { t, p: t.clone().add(new THREE.Vector3(150, 130, 170)), sh: 220 }; }
+  if (v === 'nbasin') { const t = G(950, 262); return { t, p: t.clone().add(new THREE.Vector3(105, 95, 120)), sh: 220 }; }
   if (v === 'sbasin') { const t = G(830, 1612); return { t, p: t.clone().add(new THREE.Vector3(170, 140, 160)), sh: 220 }; }
   if (v === 'reservoir') { const t = G(2500, 1700); return { t, p: t.clone().add(new THREE.Vector3(-1500, 2600, 2600)), sh: 2600 }; }
   return { t: P(176, -150, 205), p: P(900, 1150, 900), sh: 1300 };
@@ -1337,6 +1738,7 @@ function viewDef(v) {
 function flyTo(v, dur = 1.8) {
   document.querySelectorAll('.vw').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   const d = viewDef(v); placeSunShadow(d.t, d.sh);
+  camera.fov = v === 'lookout' ? 68 : 45; camera.updateProjectionMatrix();   // 觀景台：手機照片是廣角
   if (!dur) { camera.position.copy(d.p); controls.target.copy(d.t); controls.update(); return; }
   gsap.to(camera.position, { x: d.p.x, y: d.p.y, z: d.p.z, duration: dur, ease: 'power2.inOut' });
   gsap.to(controls.target, { x: d.t.x, y: d.t.y, z: d.t.z, duration: dur, ease: 'power2.inOut', onUpdate: () => controls.update() });
