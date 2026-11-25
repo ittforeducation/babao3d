@@ -860,14 +860,8 @@ async function buildShigouArc() {
   }
   const nDamCount = list.length;
   // 二、固堤：八尺，垂直堤岸、大口（屁股）朝水道、尖端朝外。
-  //     （a）水池北岸靠圳頭的一段（1913 圖上這一岸也畫了短刻線）
-  const guLen = GOU.L * GOU_SIZE.gu, nb = resample(chaikin(HEAD1913.north, 2), 2.3);
-  for (let i = 1; i < nb.length - 1; i++) {
-    const a = nb[i - 1], b = nb[i + 1]; let ox = -(b[1] - a[1]), oz = b[0] - a[0]; const L = Math.hypot(ox, oz) || 1; ox /= L; oz /= L;
-    if (ox * (pc[0] - nb[i][0]) + oz * (pc[1] - nb[i][1]) > 0) { ox = -ox; oz = -oz; }                      // 朝岸上（離開水池）
-    const mx = nb[i][0] - CX, mz = nb[i][1] - CZ;
-    list.push({ x: mx, y: Math.max(heightAt(mx, mz), heightAt(mx + ox * guLen, mz + oz * guLen)) - 0.08, z: mz, yaw: -Math.atan2(oz, ox) + (rr() - 0.5) * 0.08, k: GOU_SIZE.gu, per: 60, kind: 'n', d: Math.hypot(nb[i][0] - hd[0], nb[i][1] - hd[1]) });
-  }
+  //     依老師〈三種石笱各在哪裡〉圖與導覽員口述：八尺只排在圳道兩岸（2026-11-25 拿掉原本水池北岸那排）
+  const guLen = GOU.L * GOU_SIZE.gu;
   //     （b）圳頭往西南那條土圳的兩岸。十五庄圳不排（清代它的水從哪裡來，文獻說法不一）
   for (const [line, w] of [[HEAD1913.canalSW, 7]]) {
     const cp = resample(line, 2.3);
@@ -971,7 +965,6 @@ function buildLabels() {
   addLabel('<b>笱</b>石笱壩（用到約民國 78 年）', 'pin', 3520, 1375, 9, ['jp'], 3500, () => openPanel('gou'), '#a16207');
   addLabel('十尺・導水', 'geo old', 3545, 1400, 3, ['qing'], 420);
   addLabel('十二尺・引水', 'geo old', 3372, 1385, 3, ['qing'], 420);
-  addLabel('八尺・固堤', 'geo old', 3385, 1265, 3, ['qing'], 420);
   addLabel('八尺・固堤', 'geo old', ...GOU_SITE.bankAt, 3, ['qing'], 420);
   addLabel('水池（水往西流進圳頭）', 'geo water', 3500, 1300, 3, ['qing', 'jp'], 700);
   addLabel('沒被攔下的水 ↙', 'geo water', 3640, 1460, 3, ['qing', 'jp'], 1500);
@@ -1082,12 +1075,12 @@ const INFO = {
         <p>${ORAL}導覽員說，石笱依長度分三種，各有各的工作：</p>
         <div class="keys"><span>十尺<br>約 3 公尺</span><span><strong>導水</strong>：排在河床上，先把水攔緩、帶往圳口。<strong>最先放</strong></span>
         <span>十二尺<br>約 3.6 公尺</span><span><strong>引水</strong>：放在挖深的圳口，那裡水比較深。水勢緩下來以後才放</span>
-        <span>八尺<br>約 2.4 公尺</span><span><strong>固堤</strong>：護住壩對面的堤岸和土圳的圳岸。擺法<strong>反過來</strong>，垂直堤岸、大口朝水道、尖端朝外</span></div>
+        <span>八尺<br>約 2.4 公尺</span><span><strong>固堤</strong>：排在土圳的<strong>圳道兩岸</strong>，保護圳岸。擺法<strong>反過來</strong>：垂直圳岸、大口朝水道、尖端朝外</span></div>
         ${gouDiagram()}
         <p><strong>從側面看：</strong>1913 年的實測圖上，堤裡面（水池）標的高程大約 384，堤外面大約 381.5。這些數字的單位應該是臺尺（換成公尺約 116 公尺，和現在量到的地面高度相符），也就是堤把裡面的水<strong>墊高了大約 2–3 尺（約 0.6–0.9 公尺）</strong>。</p>
         <div class="mvstep"><button id="secOn" class="on" onclick="__secT(1)">有石笱堤</button><button id="secOff" onclick="__secT(0)">沒有石笱堤</button></div>
         <div id="secBox">${secSVG(1)}</div>
-        <p style="font-size:13px;color:#64748b;margin-top:0">俯視示意圖：每個三角形是一座石笱，寬的一頭是大口。</p>
+        <p style="font-size:13px;color:#64748b;margin-top:0">俯視原理圖（依老師整理的〈三種石笱各在哪裡〉圖）：每個三角形是一座石笱，寬的一頭是大口。壩上十尺、十二尺的分段是依導覽員「導水在未開挖處、引水在開挖的水道裡」推定；3D 畫面的壩依 1913 年實測圖的地形擺。點圖可以放大。</p>
         <p><strong>小提醒：</strong>石笱在河裡是<strong>躺著</strong>的。林先生廟旁展示的是還沒裝石頭的空籠，立著放，不要記錯了。</p>
         ${phset('gou')}
         <div class="keys"><span>頂端</span><span>竹條交叉卡在一起，像兩隻手扣住，水越沖越不會散。如果只在外面綁一圈，沖久了會爆開</span>
@@ -1224,7 +1217,7 @@ INFO.craft = { t: '做石笱的人', s: '源泉社區導覽員的家族記憶',
       <span>交貨</span><span>做好交給水利會，一個一個點數，再派人到溪裡去放</span>
       <span>下水很危險</span><span>濁水溪的水又急又混濁，看不到水底。衣服如果被竹籠勾住，人會被困在水裡，旁邊的人很難救。所以以前下水放石笱的工人，會把容易被勾住的衣物先脫掉再下水</span></div>
       ${src('guide', 'zhifu', 'mit856')}` };
-/* 排法俯視圖（示意）：畫法同 3D 畫面——壩沿弧線斜疊、八尺在對岸和圳岸 */
+/* 排法俯視圖（原理）：依老師提供的〈三種石笱各在哪裡〉圖 */
 /* 石笱堤的側面（示意）：左邊山腳和圳頭，右邊溪床；有堤時堤內水位比堤外高約 0.75 m（依 1913 年圖上的高程數字） */
 function secSVG(on) {
   const wIn = on ? 46 : 64, wOut = 64;                                  // 水面的 y（越小越高）
@@ -1243,32 +1236,39 @@ function secSVG(on) {
 }
 window.__secT = on => { const b = document.getElementById('secBox'); if (b) b.innerHTML = secSVG(on); document.getElementById('secOn')?.classList.toggle('on', !!on); document.getElementById('secOff')?.classList.toggle('on', !on); };
 function gouDiagram() {
-  const cone = (x, y, ang, len, wd, col) => { const c = Math.cos(ang), s2 = Math.sin(ang), px = -s2 * wd / 2, py = c * wd / 2;
-    return `<polygon points="${(x + px).toFixed(1)},${(y + py).toFixed(1)} ${(x - px).toFixed(1)},${(y - py).toFixed(1)} ${(x + c * len).toFixed(1)},${(y + s2 * len).toFixed(1)}" fill="${col}" fill-opacity=".85" stroke="${col}" stroke-width="1"/>`; };
-  // 版面：上＝北（山腳），水從右邊（東）流進水池，往左（西）進圳頭；堤在水池下緣（南側）
-  const D = [[330, 92], [300, 112], [270, 132], [240, 138], [200, 132], [150, 118], [96, 104]];           // 堤：上游端 → 圳頭
-  const at = t => { const f = t * (D.length - 1), i = Math.min(D.length - 2, Math.floor(f)), u = f - i; return [D[i][0] + (D[i + 1][0] - D[i][0]) * u, D[i][1] + (D[i + 1][1] - D[i][1]) * u]; };
+  // 依老師提供的〈三種石笱各在哪裡〉圖（暫訂版，導覽錄音/圖2）：水由左往右流；壩的石笱錐身順著水流、大口朝上游，
+  // 一個挨一個斜疊到圳口下游側（外側十尺導水、靠圳口十二尺引水）；八尺固堤排在圳道兩岸，大口朝水道、尖端朝外
+  const tri = (bx, by, ux, uy, len, wd, col) => { const px = -uy * wd / 2, py = ux * wd / 2;   // (bx,by)＝大口中心，(ux,uy)＝往尖端的方向
+    return `<polygon points="${(bx + px).toFixed(1)},${(by + py).toFixed(1)} ${(bx - px).toFixed(1)},${(by - py).toFixed(1)} ${(bx + ux * len).toFixed(1)},${(by + uy * len).toFixed(1)}" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/>`; };
+  const BANK = 150, ux = 0.781, uy = -0.625;                       // 圳道方向（往右上）
+  const L0 = [285, BANK], R0 = [385, BANK], lenC = 170;            // 圳口左、右岸
   let g = '';
-  for (let i = 0; i < 15; i++) { const t = i / 14, a = at(Math.max(0, t - .03)), b = at(Math.min(1, t + .03)), [x, y] = at(t), big = i >= 11;
-    g += cone(x, y, Math.atan2(b[1] - a[1], b[0] - a[0]) + 0.44, big ? 30 : 25, big ? 12 : 10, big ? '#2563eb' : '#ea580c'); }
-  for (let i = 0; i < 8; i++) g += cone(112 + i * 22, 62 - i * 3.2, -1.72, 18, 9, '#16a34a');                    // 水池北岸
-  for (let i = 0; i < 3; i++) { const x = 62 - i * 11, y = 128 + i * 13; g += cone(x - 8, y - 7, -2.44, 17, 8, '#16a34a') + cone(x + 8, y + 7, 0.7, 17, 8, '#16a34a'); }
-  return `<svg class="gdia" viewBox="0 0 360 236" role="img" aria-label="石笱排法俯視圖">
-    <rect x="0" y="0" width="360" height="34" fill="#b7c9a4"/><text x="10" y="22" font-size="12" font-weight="700" fill="#3f5a2c">北邊：八卦山腳</text>
-    <polygon points="92,98 110,64 280,38 360,40 360,84 330,92 300,112 270,132 240,138 200,132 150,118" fill="#9cc3d8"/>
-    <polygon points="92,98 78,112 30,172 44,184 96,118" fill="#9cc3d8"/>
-    <path d="M352 62 L 120 86" fill="none" stroke="#fff" stroke-width="3.5" stroke-dasharray="8 6"/><polygon points="106,88 121,80 122,93" fill="#fff"/>
-    <path d="M356 118 C 300 150 240 176 150 226" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 6"/><polygon points="138,232 150,218 157,230" fill="#94a3b8"/>
+  // 八尺・固堤：圳道兩岸，大口貼著圳岸、尖端往外
+  for (let i = 0; i < 8; i++) g += tri(L0[0] + ux * (22 + i * 19), L0[1] + uy * (22 + i * 19), uy, -ux, 40, 15, '#059669');   // 左岸：尖端往左上
+  for (let i = 0; i < 6; i++) g += tri(R0[0] + ux * (60 + i * 19), R0[1] + uy * (60 + i * 19), -uy, ux, 40, 15, '#059669');   // 右岸：尖端往右下（從河岸線以上開始，不伸進溪裡）
+  // 壩：大口朝上游（左），尖端朝下游（右），從河床外側斜疊到圳口下游側
+  const D0 = [262, 272], D1 = [392, 163], N = 9;
+  for (let i = 0; i < N; i++) { const t = i / (N - 1), x = D0[0] + (D1[0] - D0[0]) * t, y = D0[1] + (D1[1] - D0[1]) * t, big = i >= N - 3;
+    g += tri(x, y, 1, 0, big ? 62 : 52, big ? 21 : 17, big ? '#2563eb' : '#ea580c'); }
+  // 水流：沿著壩的上游面轉進圳道
+  const flow = [[183, 330], [213, 300], [243, 270]].map(([y, bx]) => { const ex = bx + ux * 190, ey = y + uy * 190;
+    return `<path d="M40 ${y} L${bx} ${y} L${ex.toFixed(0)} ${ey.toFixed(0)}" fill="none" stroke="#475569" stroke-width="2"/><polygon points="${(ex + ux * 10).toFixed(0)},${(ey + uy * 10).toFixed(0)} ${(ex - uy * 5).toFixed(0)},${(ey + ux * 5).toFixed(0)} ${(ex + uy * 5).toFixed(0)},${(ey - ux * 5).toFixed(0)}" fill="#475569"/>`; }).join('');
+  return `<svg class="gdia" viewBox="0 0 660 340" role="img" aria-label="三種石笱的位置俯視圖">
+    <rect x="0" y="${BANK}" width="660" height="160" fill="#dfe9ef"/>
+    <polygon points="${L0} ${L0[0] + ux * lenC},${L0[1] + uy * lenC} ${R0[0] + ux * lenC},${R0[1] + uy * lenC} ${R0}" fill="#dfe9ef"/>
+    <path d="M0 ${BANK} L${L0} L${L0[0] + ux * lenC} ${L0[1] + uy * lenC}" fill="none" stroke="#a8a29e" stroke-width="2"/>
+    <path d="M660 ${BANK} L${R0} L${R0[0] + ux * lenC} ${R0[1] + uy * lenC}" fill="none" stroke="#a8a29e" stroke-width="2"/>
+    ${flow}
+    <path d="M40 296 L620 296" stroke="#475569" stroke-width="2"/><polygon points="632,296 618,290 618,302" fill="#475569"/>
     ${g}
-    <g font-size="12.5" font-weight="900" font-family="inherit">
-      <text x="296" y="58" fill="#0d2238">← 溪水</text>
-      <text x="170" y="96" font-size="11.5" font-weight="700" fill="#0d4f6e">水池：水往西流</text>
-      <text x="262" y="160" fill="#c2410c">十尺・導水</text>
-      <text x="118" y="152" fill="#1d4ed8">十二尺・引水</text><text x="118" y="166" font-size="11" font-weight="500" fill="#3a536d">靠圳頭，水較深</text>
-      <text x="206" y="22" fill="#15803d">八尺・固堤（大口朝水）</text>
-      <text x="4" y="206" fill="#0d2238">土圳</text>
-      <text x="196" y="214" font-size="11" font-weight="700" fill="#64748b">沒被攔下的水往西南流</text>
-      <text x="4" y="120" font-size="11.5" fill="#0d2238">圳頭</text>
+    <g font-family="inherit" font-weight="900" font-size="15">
+      <text x="14" y="${BANK - 8}" font-size="12.5" font-weight="700" fill="#78716c">河岸</text><text x="612" y="${BANK - 8}" font-size="12.5" font-weight="700" fill="#78716c">河岸</text>
+      <text x="14" y="236" fill="#0d2238">濁水溪</text><text x="44" y="176" font-size="12" font-weight="700" fill="#475569">水流方向 →</text>
+      <text x="470" y="44" fill="#0d2238">八堡圳</text>
+      <text x="112" y="58" fill="#047857">八尺・固堤</text><text x="112" y="76" font-size="12.5" font-weight="700" fill="#334155">圳道兩岸，大口朝水道</text>
+      <text x="474" y="184" fill="#1d4ed8">十二尺・引水</text><text x="474" y="202" font-size="12.5" font-weight="700" fill="#334155">圳口挖深處，水較深</text>
+      <text x="420" y="250" fill="#c2410c">十尺・導水</text><text x="420" y="268" font-size="12.5" font-weight="700" fill="#334155">河床上，先把水攔緩</text>
+      <text x="380" y="322" font-size="12.5" font-weight="700" fill="#64748b">沒被攔下的水繼續往下游</text>
     </g></svg>`;
 }
 const TL = [
